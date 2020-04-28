@@ -23,11 +23,27 @@
 #include <Wire.h>
 #include <extEEPROM.h>
 
-// User configuration options, edit these as needed
 
-#define EEPROM_ENABLED  // comment out if you don't have EEPROM (custom PCB?)
-#define EEPROM_SIZE kbits_256  // size of EEPROM
-#define EEPROM_COUNT 1  // how many EEPROM chips in I2C lane
+// Configuration options, change if you need to reduce the program's size or fix things
+// (all of this functionality can be configured and saved in real-time so don't remove unless you need to!)
+
+#define TREAT_AS_FIRST_BOOT  // Reload defaults if something isn't working for some reason
+
+#define ANALOG  // Support for load-cells, velostat, FSRs, etc.
+#define ANALOG_AUTO_CALIBRATION
+
+#define DEBOUNCING  // Prevents double-stepping and odd sensor behavior (not used in analog mode)
+#define HARDWARE_DEBOUNCING  // Debounces directly through hardware for faster performance
+// Below settings are for software debouncing ONLY (using Bounce2 library)
+#define SW_DEBOUNCING_INTERVAL  // Interval in milliseconds to wait for stable signal
+#define BOUNCE_LOCK_OUT // More responsive but does not wait for noise (ignores debouncing interval)
+
+#define DMA_INPUT  // Direct memory access for faster performance
+
+
+// Advanced configuration options
+
+#define EEPROM_ENABLED  // Comment out if you aren't using EEPROM (custom PCB maybe)
 
 
 // Don't edit anything below unless you know what you're doing!
@@ -133,6 +149,8 @@ enum LIGHTOUT {
 
 // EEPROM
 
+#define EEPROM_SIZE kbits_256  // size of EEPROM
+#define EEPROM_COUNT 1  // how many EEPROM chips in I2C lane
 #define EEPROM_ADDRESS 0x50
 #define EEPROM_SPEED extEEPROM::twiClock100kHz  // more electrically stable which works considering we don't need fast speeds to read bytes of EEPROM
 
@@ -158,7 +176,8 @@ enum LIGHTOUT {
 
 // SERIAL COMMANDS
 
-#define SERIAL_
+#define SERIAL_CONFIG_HEADER 0xA1
+#define SERIAL_CONFIG_CHANGE_MODE 0x03
 
 
 #endif

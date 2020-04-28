@@ -16,56 +16,14 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-/*
-notes:
+#ifndef _ERRORCODES_H
+#define _ERRORCODES_H
 
-how will we structure this code?
-- any classes should have their own cpp
-    - especially modular HID things
-- provide serial interface with handlers and stuff in another cpp
-- EEPROM config can be in another cpp
-
-*/
-
-#include "Config.h"
-
-int status;
-uint8_t usbdata[3];
-uint8_t config[255];
-
-void setup() {
-
-#ifdef EEPROM_ENABLED
-
-    version = EEPROM_VersionCheck();
-    if (EEPROM_FIRST_TIME || version == 0xFF) {
-        EEPROM_WriteDefaults();
-    }
-    status = EEPROM_ReadConfig(*config);
-    if (status < 0) {
-        if (-readValue == EEPROM_ADDR_ERR) {
-            // Address was out of range
-        }
-        // put WireErrors here
-    }
-
-    status = EEPROM_GetUSBInfo(*usbdata);
-    if (status < 0) {
-        
-    }
-
-#else
-    
+enum WireError {  // I2C errors, EEPROM
+    DATA_TOO_LONG = 1,
+    NACK_ON_ADDR,
+    NACK_ON_DATA,
+    OTHER_ERROR
+}
 
 #endif
-
-    out = Output(*usbdata);
-}
-
-void loop() {
-    
-    SetupEndpoints();
-    UpdateInput();
-    SendOutput();
-
-}
