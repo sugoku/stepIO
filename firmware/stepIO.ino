@@ -33,6 +33,23 @@ int status;
 uint8_t usbdata[3];
 uint8_t config[255];
 
+int GetHostInput(Output out, uint8_t *lightbuf) {
+    out.update();
+    out.getLights(lightbuf);
+}
+
+int UpdateInput(Input in, uint8_t *buf) {
+    in.read(buf);
+}
+
+int UpdateLights(Input in, uint8_t *buf) {
+    in.read(buf);
+}
+
+int SendOutput(Output out, uint8_t *buf) {
+    out.send(buf);
+}
+
 void setup() {
 
 #ifdef EEPROM_ENABLED
@@ -60,12 +77,20 @@ void setup() {
 #endif
 
     out = Output(*usbdata);
+
+    watchdogEnable(WATCHDOG_TIMEOUT);
+
+    EnableUSB();  // SetupEndpoints();
+
 }
 
 void loop() {
-    
-    SetupEndpoints();
+
+    watchdogReset();
+
+    GetHostInput();
     UpdateInput();
+    UpdateLights();
     SendOutput();
 
 }

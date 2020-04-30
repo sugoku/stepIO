@@ -16,27 +16,36 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _OUTPUT_H
-#define _OUTPUT_H
+#ifndef _SERIALC_HANDLER_H
+#define _SERIALC_HANDLER_H
 
-class Output
-{
-    public:
-        virtual void setup() = 0;
-        virtual void send() = 0;
-        virtual void update() = 0;
-        virtual void getLights() = 0;
+#include "../Config.h"
 
-};
+void SerialC::sendConfig(uint8_t *config) {
+    // check if config exists here
+    
+    for (int i = 0; i < EEPROM_MAX_ADDR; i++) {
+        this->sendByte((uint8_t)(config[i]));
+    }
+    
+}
 
-enum OutputMode {
-    Serial,
-    Joystick,
-    Keyboard,
-    PIUIO,
-    LXIO,
-    Switch,
-    MIDI  // not implemented
-};
+int SerialC::sendEEPROM(EEPROM_IO *e) {  // Same as sendConfig for most purposes but reads EEPROM directly
+    int tmp;
+
+    for (uint16_t i = 0; i < EEPROM_MAX_ADDR; i++) {
+
+        tmp = e.readInt(i);
+
+        if (tmp < 0) {
+            return tmp;
+        }
+
+        this->sendByte((uint8_t)tmp);
+
+    }
+    
+    return 0;
+}
 
 #endif

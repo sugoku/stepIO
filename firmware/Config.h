@@ -150,10 +150,35 @@ enum LIGHTOUT {
 // EEPROM
 
 #define EEPROM_SIZE kbits_256  // size of EEPROM
+#define EEPROM_MAX_ADDR 0x7D00
 #define EEPROM_COUNT 1  // how many EEPROM chips in I2C lane
 #define EEPROM_ADDRESS 0x50
 #define EEPROM_SPEED extEEPROM::twiClock100kHz  // more electrically stable which works considering we don't need fast speeds to read bytes of EEPROM
 
+// CONFIG ENUM
+
+enum ConfigOptions {
+    VERSION_MAJOR, // 0x0000
+    VERSION_MINOR,
+    VERSION_REVISION,
+    VERSION_GEN,
+    
+    UPDATE_STATUS, // 0x0004
+    LAST_ERROR,
+
+    OUTPUT_MODE,  // 0x0006
+    LIGHTS_MODE,  // for example, getting lights from whatever's hooked to USB? or internally through what's being pressed? or SPI?
+    LIGHT_LATCH_MODE,  // either outputs cabinet lights,
+    RGB_LIGHTS,  // RGB lighting mode
+
+    PLAYER,  // 0x000A, which player is the main PCB hooked up to?
+    PANEL_COUNT,  // number of panels per player (anything from 1-5)
+    P1BUTTON_COUNT,  // number of buttons for player 1
+    P2BUTTON_COUNT,  // number of buttons for player 2
+    BUTTON_COUNT,  // number of non-player-specific buttons
+}
+
+/* probably going to use enum as default mapping
 // EEPROM MAPPING
 
 // 256Kb = 0x7D00 bytes
@@ -173,11 +198,16 @@ enum LIGHTOUT {
 #define EADDR_PANEL_COUNT 0x001B  // number of panels per player (anything from 1-5)
 #define EADDR_PBUTTON_COUNT 0x001C  // number of buttons per player
 #define EADDR_BUTTON_COUNT 0x001D  // number of non-player-specific buttons
+*/
 
 // SERIAL COMMANDS
 
 #define SERIAL_CONFIG_HEADER 0xA1
 #define SERIAL_CONFIG_CHANGE_MODE 0x03
+
+// RUNTIME
+
+#define WATCHDOG_TIMEOUT 1000  // in milliseconds
 
 
 #endif
