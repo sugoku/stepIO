@@ -14,3 +14,6 @@ Originally based off racerxdl's PIUIO Clone, it is intended to be a foot PCB and
 As of the latest iteration, you now only need one stepIO board to control two pads, and the second pad is connected to an extension board through two CAT-5 (Ethernet) cables. The master board uses 5V converted 3.3V from the USB cable and 12V from either a 12V DC supply or a Pump pad power cable.
 
 More info is available on the repository wiki.
+
+LICENSE NOTES:
+The firmware and schematics of stepIO are licensed under GPLv3, but to be consistent with the original code the Arduino core is licensed under LGPLv2.1. The licenses are included in the respective folders.

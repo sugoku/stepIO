@@ -1,0 +1,3 @@
+CREDITS:
+
+- Thank you to Lucas Teske (@racerxdl) for making the PIUIO Clone, which provided the reverse engineering necessary to replicate the PIUIO and inspire me to work on this project.
