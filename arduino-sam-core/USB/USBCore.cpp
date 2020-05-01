@@ -66,13 +66,13 @@ const uint16_t STRING_LANGUAGE[2] = {
 };
 
 #ifndef USB_PRODUCT
-#define USB_PRODUCT "Arduino Due"
+#define USB_PRODUCT "stepIO"
 #endif
 
 const uint8_t STRING_PRODUCT[] = USB_PRODUCT;
 
 #ifndef USB_MANUFACTURER
-#define USB_MANUFACTURER "Arduino LLC"
+#define USB_MANUFACTURER "sugoku"
 #endif
 
 const uint8_t STRING_MANUFACTURER[] = USB_MANUFACTURER;

@@ -16,6 +16,7 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
+#include "EEPROM_IO.h"
 
 uint8_t EEPROM_IO::initialize() {
     extEEPROM ee(EEPROM_SIZE, EEPROM_COUNT, EEPROM_ADDRESS);

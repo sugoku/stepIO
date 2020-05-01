@@ -27,7 +27,7 @@
 // Configuration options, change if you need to reduce the program's size or fix things
 // (all of this functionality can be configured and saved in real-time so don't remove unless you need to!)
 
-#define TREAT_AS_FIRST_BOOT  // Reload defaults if something isn't working for some reason
+// #define TREAT_AS_FIRST_BOOT  // Reload defaults if something isn't working for some reason
 
 #define ANALOG  // Support for load-cells, velostat, FSRs, etc.
 #define ANALOG_AUTO_CALIBRATION
@@ -39,6 +39,11 @@
 #define BOUNCE_LOCK_OUT // More responsive but does not wait for noise (ignores debouncing interval)
 
 #define DMA_INPUT  // Direct memory access for faster performance
+
+#define LIGHT_OUTPUT  // Enables light support
+#define LIGHT_PAD_OUTPUT  // Enables pad lighting support
+#define LIGHT_LATCH_OUTPUT  // Enables support for cabinet light outputs using the 74HC595
+#define LIGHT_RGB_OUTPUT  // Enables support for RGB lighting via FastLED
 
 
 // Advanced configuration options

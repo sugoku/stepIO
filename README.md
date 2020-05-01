@@ -16,4 +16,4 @@ As of the latest iteration, you now only need one stepIO board to control two pa
 More info is available on the repository wiki.
 
 LICENSE NOTES:
-The firmware and schematics of stepIO are licensed under GPLv3, but to be consistent with the original code the Arduino core is licensed under LGPLv2.1. The licenses are included in the respective folders.
+The firmware of stepIO is licensed under GPLv3, but the Arduino core is licensed under LGPLv2.1 and the schematics are licensed under CC BY-SA 3.0. The licenses are included in their respective folders.

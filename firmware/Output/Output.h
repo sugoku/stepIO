@@ -21,11 +21,16 @@
 
 class Output
 {
+    protected:
+        uint8_t* lights;
+        uint8_t* usbvid, usbpid;
+
     public:
-        virtual void setup() = 0;
-        virtual void send() = 0;
-        virtual void update() = 0;
-        virtual void getLights() = 0;
+        virtual int setup() = 0;
+        virtual int updateIn() = 0;
+        virtual int updateHost() = 0;
+        virtual uint8_t* getLights() const = 0;
+        virtual uint8_t* getUSBData() const = 0;
 
 };
 

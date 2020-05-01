@@ -16,12 +16,22 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#include "Output_Joystick.h"
+#ifndef _OUTPUT_JOYSTICK_H
+#define _OUTPUT_JOYSTICK_H
 
-int Output_Joystick::setup() {
-    Gamepad.begin();
-}
+#include "Output.h"
+#include "HID-Project.h"
 
+class Output_Joystick : public Output
+{
 
-// for reference
-// https://github.com/NicoHood/HID/blob/master/src/HID-APIs/GamepadAPI.h
+    public:
+        int setup();
+        int updateIn();
+        int updateInAnalog();  // allow the user to use analog input for X-Y axis joystick
+        int updateHost();
+        uint8_t* getLights() const;
+        uint8_t* getUSBData() const;
+};
+
+#endif

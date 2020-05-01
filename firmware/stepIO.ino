@@ -28,26 +28,36 @@ how will we structure this code?
 */
 
 #include "Config.h"
+#include "Output/Output.h"
 
 int status;
-uint8_t usbdata[3];
+int* outmode;
 uint8_t config[255];
 
 int GetHostInput(Output out, uint8_t *lightbuf) {
-    out.update();
+    out.updateHost();
     out.getLights(lightbuf);
 }
 
 int UpdateInput(Input in, uint8_t *buf) {
-    in.read(buf);
+    in.updateIn(buf);
 }
 
-int UpdateLights(Input in, uint8_t *buf) {
-    in.read(buf);
+int UpdateLights(Lights lt, uint8_t *buf) {
+    lt.read(buf);
 }
 
 int SendOutput(Output out, uint8_t *buf) {
     out.send(buf);
+}
+
+int EnableUSB(uint8_t *usbdata) {
+    // check *usbdata is valid
+
+    USBDevice_ USBDevice(usbdata);  // comment this out in core and modify constructor so i can change VID and PID
+    USBDevice.attach();  // connects device, needs to be commented out from main.cpp
+
+    // alternatively, could detach, change constructor, then reattach (though pluggableusb might make that annoying?)
 }
 
 void setup() {
@@ -66,21 +76,41 @@ void setup() {
         // put WireErrors here
     }
 
-    status = EEPROM_GetUSBInfo(*usbdata);
-    if (status < 0) {
-        
-    }
+    outmode = &config[ConfigOptions::OUTPUT_MODE];  // not sure if i need parentheses here
 
 #else
     
 
 #endif
 
-    out = Output(*usbdata);
-
     watchdogEnable(WATCHDOG_TIMEOUT);
 
-    EnableUSB();  // SetupEndpoints();
+    switch (*outmode) {
+        case OutputMode::Serial:
+            Output out = Output_Serial();
+        break;
+        case OutputMode::Joystick:
+            Output out = Output_Joystick();
+        break;
+        case OutputMode::Keyboard:
+            Output out = Output_Keyboard();
+        break;
+        case OutputMode::PIUIO:
+            Output out = Output_PIUIO();
+        break;
+        case OutputMode::LXIO:
+            Output out = Output_LXIO();
+        break;
+        case OutputMode::Switch:
+            Output out = Output_Switch();
+        break;
+        case OutputMode::MIDI:
+            Output out = Output_MIDI();
+        break;
+    }
+    out.attach();
+
+    EnableUSB(out.getUSBData());  // SetupEndpoints();
 
 }
 
@@ -89,8 +119,8 @@ void loop() {
     watchdogReset();
 
     GetHostInput();
-    UpdateInput();
-    UpdateLights();
+    UpdateInput();  // if DMA this isn't needed
+    UpdateLights();  // this might need to be redone or split
     SendOutput();
 
 }
