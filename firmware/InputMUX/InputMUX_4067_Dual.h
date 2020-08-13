@@ -16,24 +16,26 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _INPUTMUX_H
-#define _INPUTMUX_H
+#ifndef _INPUTMUX_4067_H
+#define _INPUTMUX_4067_H
 
-#include "Config.h"
+#include "InputMUX.h"
 
-class InputMUX
+class InputMUX_4067_Dual : public InputMUX
 {
+    protected:
+        uint32_t vals[4] = {0, 0, 0, 0};  // 1 for each MUX state, we are caching them so we can poll faster even when the PC isn't asking
 
     public:
-        virtual void setup() = 0;  // setup any pins and any values, also any objects that are needed
-        virtual uint8_t update() = 0;  // return the amount of pins checked
+        void setup();
+        uint8_t update(uint8_t mux=0);  // read from multiplexers and take in a value `mux` which determines which sensor we are reading from
+        void enable();  // enable the multiplexer
+        void disable();  // disable the multiplexer
+        void reset();  // set all read inputs to an off state, reset all selector pins, disable the multiplexer
+        static uint32_t mergeValues(uint32_t* vals);
+        const uint32_t* getMergedValues();
+        const uint32_t* getValues();
 
-};
-
-enum InputMUXMode {
-    MUX4067_Dual,
-    MUX4067,
-    MUX4051
 };
 
 #endif

@@ -21,6 +21,7 @@
 
 #include "../Config.h"
 
+// for external EEPROM only
 class EEPROM_IO 
 { 
     private:

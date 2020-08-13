@@ -16,24 +16,23 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _INPUTMUX_H
-#define _INPUTMUX_H
+#ifndef _OUTPUT_PIUIO_H
+#define _OUTPUT_PIUIO_H
 
-#include "Config.h"
+#include "Output.h"
 
-class InputMUX
+class Output_PIUIO : public Output
 {
+    protected:
+        uint8_t* mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
+        uint16_t* lights = 0;
 
     public:
-        virtual void setup() = 0;  // setup any pins and any values, also any objects that are needed
-        virtual uint8_t update() = 0;  // return the amount of pins checked
-
-};
-
-enum InputMUXMode {
-    MUX4067_Dual,
-    MUX4067,
-    MUX4051
+        int setup();
+        int updateIn();
+        int updateHost();
+        const uint16_t* getLights();
+        const uint8_t* getUSBData();
 };
 
 #endif

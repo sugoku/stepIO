@@ -19,11 +19,12 @@
 #ifndef _OUTPUT_H
 #define _OUTPUT_H
 
+#include "Config.h"
+
 class Output
 {
     protected:
-        uint8_t* lights;
-        uint8_t* usbvid, usbpid;
+        uint16_t* lights;  // a LightsPacket (enum in Config.h)
 
     public:
         virtual int setup() = 0;
@@ -39,7 +40,7 @@ enum OutputMode {
     Joystick,
     Keyboard,
     PIUIO,
-    LXIO,
+    LXIO, // not implemented
     Switch,
     MIDI  // not implemented
 };

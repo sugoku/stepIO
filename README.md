@@ -1,5 +1,5 @@
 # stepIO
-This is a **st**age controller with **e**mulation of **P**IU**IO**, or in short, **stepIO**.
+This is the firmware for the **st**age controller with **e**mulation of **P**IU**IO**, or in short, **stepIO**.
 Originally based off racerxdl's PIUIO Clone, it is intended to be a foot PCB and IO replacement for dance pads. It focuses on customization and convenience, with several extra features, such as:
 
 - Support for Pump It Up and Dance Dance Revolution connectors, as well as header pins for everything else
@@ -12,6 +12,9 @@ Originally based off racerxdl's PIUIO Clone, it is intended to be a foot PCB and
 - RGB LED support (4 pin but 3 pin possible)
 
 As of the latest iteration, you now only need one stepIO board to control two pads, and the second pad is connected to an extension board through two CAT-5 (Ethernet) cables. The master board uses 5V converted 3.3V from the USB cable and 12V from either a 12V DC supply or a Pump pad power cable.
+
+In addition, this is also the firmware for the **brokeIO**, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e** **IO** (in reference to the PIUIO and JAMMA).
+The brokeIO is intended to be a cheap drop-in replacement for the PIUIO and can replace the JAMMA as well. The JAMMA edge pinout is broken out onto 2.54mm headers and can be connected to a external converter board. The 7-pin and 10-pin connectors for the pad and cabinet lights normally included on the JAMMA are also included on the brokeIO. There are also several extra pins which can be used to control additional multiplexers and RGB LEDs.
 
 More info is available on the repository wiki.
 

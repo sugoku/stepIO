@@ -29,29 +29,41 @@ how will we structure this code?
 
 #include "Config.h"
 #include "Output/Output.h"
+#include "InputMUX/InputMUX_4067_Dual.h"
 
-int status;
-int* outmode;
+uint8_t status;
+uint8_t* outmode;
+uint32_t* inVals[4];
+uint32_t* inMuxes[2];
 uint8_t config[255];
 
-int GetHostInput(Output out, uint8_t *lightbuf) {
-    out.updateHost();
-    out.getLights(lightbuf);
+// InputSensor in;
+InputMUX in;
+Output out;
+Lights lt;
+LightsCustom lightc;
+
+uint8_t UpdateHost(Output* out) {
+    if (out == NULL) return -1;
+    out->updateHost();
 }
 
-int UpdateInput(Input in, uint8_t *buf) {
-    in.updateIn(buf);
+uint8_t UpdateInput(Input* in) {
+    if (in == NULL) return -1;
+    return in->update();
 }
 
-int UpdateLights(Lights lt, uint8_t *buf) {
-    lt.read(buf);
+uint8_t UpdateLights(Lights* lt, uint8_t* buf) {
+    if (lt == NULL) return -1;
+    return lt->send(buf);
 }
 
-int SendOutput(Output out, uint8_t *buf) {
-    out.send(buf);
+uint8_t SendOutput(Output* out, uint8_t* buf) {
+    if (out == NULL) return -1;
+    return out->send(buf);
 }
 
-int EnableUSB(uint8_t *usbdata) {
+int EnableUSB(uint8_t* usbdata) {
     // check *usbdata is valid
 
     USBDevice_ USBDevice(usbdata);  // comment this out in core and modify constructor so i can change VID and PID
@@ -62,65 +74,161 @@ int EnableUSB(uint8_t *usbdata) {
 
 void setup() {
 
-#ifdef EEPROM_ENABLED
-
-    version = EEPROM_VersionCheck();
-    if (EEPROM_FIRST_TIME || version == 0xFF) {
-        EEPROM_WriteDefaults();
-    }
-    status = EEPROM_ReadConfig(*config);
-    if (status < 0) {
-        if (-readValue == EEPROM_ADDR_ERR) {
-            // Address was out of range
+    #ifdef EEPROM_ENABLED
+        version = EEPROM_VersionCheck();
+        if (EEPROM_FIRST_TIME || version == 0xFF) {
+            EEPROM_WriteDefaults();
         }
-        // put WireErrors here
+        status = EEPROM_ReadConfig(*config);
+        #ifndef BROKEIO
+            if (status < 0) {
+                if (-readValue == EEPROM_ADDR_ERR) {
+                    // Address was out of range
+                }
+                // put WireErrors here
+            }
+        #endif
+
+        intype = &config[ConfigOptions::INPUT_TYPE];
+        inmode = &config[ConfigOptions::INPUT_MODE];
+        outmode = &config[ConfigOptions::OUTPUT_MODE];  // not sure if i need parentheses here
+    #else
+        config = defaults;
+    #endif
+
+
+    #if defined(__SAM3X8E__)
+        watchdogEnable(WATCHDOG_TIMEOUT);
+    #elif defined(__AVR__)
+        wdt_enable(WATCHDOG_TIMEOUT);
+    #endif
+
+    // please merge InputMUX and InputSensor people can have multiple if they want
+    switch (*intype) {
+        /*
+        case InputType::InputSensor:
+            switch (*inmode) {
+                case InputSensorMode::Analog:
+                    in = Input_Analog();
+                    break;
+                case InputSensorMode::DMA:
+                    in = Input_DMA();
+                    break;
+                case InputSensorMode::Software:
+                    in = Input_Software();
+                    break;
+            }
+            break;
+        */
+        case InputType::InputMUX:
+            switch (*inmode) {
+                case InputMUXMode::MUX4051:
+                    in = InputMUX_4051();
+                    break;
+                case InputMUXMode::MUX4067:
+                    in = InputMUX_4067();
+                    break;
+                case InputMUXMode::MUX4067_Dual:
+                    in = InputMUX_4067_Dual();
+                    break;
+            }
+            break;
     }
-
-    outmode = &config[ConfigOptions::OUTPUT_MODE];  // not sure if i need parentheses here
-
-#else
     
-
-#endif
-
-    watchdogEnable(WATCHDOG_TIMEOUT);
 
     switch (*outmode) {
         case OutputMode::Serial:
-            Output out = Output_Serial();
-        break;
+            out = Output_Serial();
+            break;
         case OutputMode::Joystick:
-            Output out = Output_Joystick();
-        break;
+            out = Output_Joystick();
+            break;
         case OutputMode::Keyboard:
-            Output out = Output_Keyboard();
-        break;
+            out = Output_Keyboard();
+            break;
         case OutputMode::PIUIO:
-            Output out = Output_PIUIO();
-        break;
+            out = Output_PIUIO();
+            break;
         case OutputMode::LXIO:
-            Output out = Output_LXIO();
-        break;
+            out = Output_LXIO();
+            break;
         case OutputMode::Switch:
-            Output out = Output_Switch();
-        break;
+            out = Output_Switch();
+            break;
         case OutputMode::MIDI:
-            Output out = Output_MIDI();
-        break;
+            out = Output_MIDI();
+            break;
     }
     out.attach();
 
+    #ifdef LIGHT_OUTPUT
+        switch (*lightsmode) {
+            case LightsMode::Latch:
+                out = Lights_Latch();
+                break;
+            case LightsMode::WS2812X:
+                out = Lights_WS2812X();
+                break;
+            case LightsMode::APA102:
+                out = Lights_APA102();
+                break;
+            case LightsMode::Signal:
+                out = Lights_Signal();
+                break;
+        }
+        lt.setup();
+
+        if (&config[ConfigOptions::EXTRA_LIGHTS]) {
+            switch (*extralightsmode) {
+                case LightsCustom::WS2812X:
+                    lightc = LightsCustom_WS2812X();
+                    break;
+                case LightsCustom::APA102:
+                    lightc = LightsCustom_APA102();
+                    break;
+            }
+        }
+        lightc.setPins(EXTRA_LIGHTS_DATA, EXTRA_LIGHTS_CLOCK);
+    #endif
+
     EnableUSB(out.getUSBData());  // SetupEndpoints();
+
+    inVals = &in.getValues();
+    inMuxes = &in.getMuxes();
 
 }
 
 void loop() {
 
-    watchdogReset();
+    #if defined(__SAM3X8E__)
+        watchdogReset();
+    #elif defined(__AVR__)
+        wdt_reset();
+    #endif
 
-    GetHostInput();
-    UpdateInput();  // if DMA this isn't needed
-    UpdateLights();  // this might need to be redone or split
-    SendOutput();
+    UpdateHost(&out);
+
+    UpdateInput(&in);  // if DMA this isn't needed
+
+    #ifdef LIGHT_OUTPUT
+
+        UpdateLights(&lt);  // this might need to be redone or split
+
+        UpdateCustomLights(&lightc);
+
+    #endif
+
+    if (*outmode == OutputMode::PIUIO) {
+        if !(&config[ConfigOptions::MERGED_INPUTS]) {
+            #ifdef SIMPLE_PIUIO_MUX
+                outbuf = &inVals[inMuxes[0]];
+            #else
+                outbuf = in.getP1andP2();  // get a buffer of the input values but OR operator done on the two muxes (for sensor pins)
+            #endif
+        } else {
+            outbuf = InputMUX_4067_Dual.getMergedValues();  // make this part of Input instead or something
+        }
+    }
+    SendOutput(&out, &outbuf);
 
 }

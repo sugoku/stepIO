@@ -16,24 +16,27 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _INPUTMUX_H
-#define _INPUTMUX_H
+#ifndef _LIGHTS_H
+#define _LIGHTS_H
 
 #include "Config.h"
 
-class InputMUX
+class Lights
 {
+    protected:
+        uint8_t* lights;
 
     public:
-        virtual void setup() = 0;  // setup any pins and any values, also any objects that are needed
-        virtual uint8_t update() = 0;  // return the amount of pins checked
+        virtual int setup() = 0;
+        virtual int send() = 0;
 
 };
 
-enum InputMUXMode {
-    MUX4067_Dual,
-    MUX4067,
-    MUX4051
+enum LightsMode {
+    Latch32,  // brokeIO
+    Latch,
+    RGB,
+    Signal
 };
 
 #endif
