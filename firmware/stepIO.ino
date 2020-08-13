@@ -30,9 +30,13 @@ how will we structure this code?
 #include "Config.h"
 #include "Output/Output.h"
 #include "InputMUX/InputMUX_4067_Dual.h"
+#ifdef EEPROM_ENABLED
+    #include "EEPROM/EEPROM_IO.h"
+#endif
 
 uint8_t status;
 uint8_t* outmode;
+uint32_t outbuf;
 uint32_t* inVals[4];
 uint32_t* inMuxes[2];
 uint8_t config[255];
@@ -41,7 +45,8 @@ uint8_t config[255];
 InputMUX in;
 Output out;
 Lights lt;
-LightsCustom lightc;
+LightsCustom lightc;  // eventually this should become Lights as well but then I have to implement it for real
+EEPROM_IO ee;
 
 uint8_t UpdateHost(Output* out) {
     if (out == NULL) return -1;
@@ -75,11 +80,11 @@ int EnableUSB(uint8_t* usbdata) {
 void setup() {
 
     #ifdef EEPROM_ENABLED
-        version = EEPROM_VersionCheck();
-        if (EEPROM_FIRST_TIME || version == 0xFF) {
+        version = ee.versionCheck();
+        if (EEPROM_FIRST_TIME || version == 0xFF || version == 0x00) {
             EEPROM_WriteDefaults();
         }
-        status = EEPROM_ReadConfig(*config);
+        status = ee.readConfig(*config);
         #ifndef BROKEIO
             if (status < 0) {
                 if (-readValue == EEPROM_ADDR_ERR) {
@@ -92,6 +97,8 @@ void setup() {
         intype = &config[ConfigOptions::INPUT_TYPE];
         inmode = &config[ConfigOptions::INPUT_MODE];
         outmode = &config[ConfigOptions::OUTPUT_MODE];  // not sure if i need parentheses here
+        lightsmode = &config[ConfigOptions::LIGHTS_MODE];
+        extralightsmode = &config[ConfigOptions::EXTRA_LIGHTS_MODE];
     #else
         config = defaults;
     #endif
@@ -162,6 +169,7 @@ void setup() {
     out.attach();
 
     #ifdef LIGHT_OUTPUT
+
         switch (*lightsmode) {
             case LightsMode::Latch:
                 out = Lights_Latch();
@@ -178,20 +186,24 @@ void setup() {
         }
         lt.setup();
 
-        if (&config[ConfigOptions::EXTRA_LIGHTS]) {
-            switch (*extralightsmode) {
-                case LightsCustom::WS2812X:
-                    lightc = LightsCustom_WS2812X();
-                    break;
-                case LightsCustom::APA102:
-                    lightc = LightsCustom_APA102();
-                    break;
-            }
+        switch (*extralightsmode) {
+            case LightsCustom::FastLED:  // this takes up a LOT of RAM so not great for brokeIO
+                lightc = LightsCustom_FastLED();  // FastLED library
+                break;
+            case LightsCustom::WS2812X:
+                lightc = LightsCustom_WS2812X();  // neopixel library probably
+                break;
+            case LightsCustom::APA102:
+                lightc = LightsCustom_APA102();  // <APA102.h> probably
+                break;
         }
         lightc.setPins(EXTRA_LIGHTS_DATA, EXTRA_LIGHTS_CLOCK);
+        
     #endif
 
     EnableUSB(out.getUSBData());  // SetupEndpoints();
+
+    Serial.begin(SERIAL_BAUD);
 
     inVals = &in.getValues();
     inMuxes = &in.getMuxes();
@@ -209,6 +221,8 @@ void loop() {
     UpdateHost(&out);
 
     UpdateInput(&in);  // if DMA this isn't needed
+
+    HandleSerial(&ser);
 
     #ifdef LIGHT_OUTPUT
 

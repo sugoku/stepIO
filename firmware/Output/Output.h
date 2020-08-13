@@ -36,6 +36,7 @@ class Output
 };
 
 enum OutputMode {
+    None,
     Serial,
     Joystick,
     Keyboard,

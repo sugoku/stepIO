@@ -54,13 +54,21 @@
 #define LIGHT_RGB_OUTPUT  // Enables support for RGB lighting via FastLED
 #define RGB_LED_COUNT 288  // Amount of RGB LEDs to use
 
-
 // Advanced configuration options
 
 #define SIMPLE_PIUIO_MUX  // Comment out if you want to request separate P1 and P2 multiplexer values in the same packet (no reason to normally do this)
 
+#define SERIAL_BAUD 115200  // Change this to affect the speed at which data is sent on USB serial
+
 #define EEPROM_ENABLED  // Comment out if you aren't using EEPROM (custom PCB maybe)
 #define PULLUP_IN  // Comment out if you do not want to use pull-up resistors for digital inputs
+
+#ifndef BROKEIO
+    #define EEPROM_EXTERNAL  // Use an external EEPROM (should be defaulted to for non-AVR microcontrollers)
+#endif
+
+#define EEPROM_FIRST_TIME false  // Write defaults into EEPROM every time at startup (for debug only, this will shorten the lifespan of the EEPROM)
+// Set this to a boolean and don't comment it out
 
 // Don't edit anything below unless you know what you're doing!
 
@@ -77,13 +85,13 @@
 // VERSION INFO
 
 #ifndef BROKEIO
-    #define STEPIO_VERSION_MODEL 0x00  // stepIO
+    #define STEPIO_VERSION_MODEL 0x01  // stepIO
 #else
-    #define STEPIO_VERSION_MODEL 0x01  // brokeIO
+    #define STEPIO_VERSION_MODEL 0x02  // brokeIO
 #endif
 #define STEPIO_VERSION_MAJOR 0x00
 #define STEPIO_VERSION_MINOR 0x01
-#define STEPIO_VERSION_REVISION 0x01
+#define STEPIO_VERSION_REVISION 0x01  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
 #define STEPIO_VERSION_GEN 0x02
 
 // PLAYERS
@@ -245,6 +253,9 @@
     #define LATCH_ENABLE_MODE DDRD
     #define LATCH_ENABLE_PIN 7
 
+    #define EXTRA_LIGHTS_DATA 9  // PB5
+    #define EXTRA_LIGHTS_CLOCK 10  // PB6
+
     // according to pins_arduino.h, SS, MOSI, MISO and SCK are assigned pins already and SPI library should handle our worries too
 
     enum BROKEIO_MUX_IN {
@@ -338,6 +349,11 @@
 
 // CONFIG ENUM
 
+// this is also the EEPROM mapping as well
+// brokeIO has 0x400 bytes (1000)
+// stepIO has 256Kb = 0x7D00 bytes
+
+// not everything is used yet but eventually they should be used
 enum ConfigOptions {
     VERSION_MODEL, // 0x0000
     VERSION_MAJOR, 
@@ -348,39 +364,20 @@ enum ConfigOptions {
     UPDATE_STATUS, // 0x0005
     LAST_ERROR,
 
-    OUTPUT_MODE,  // 0x0007
-    LIGHTS_MODE,  // for example, getting lights from whatever's hooked to USB? or internally through what's being pressed? or SPI?
-    LIGHT_LATCH_MODE,  // either outputs cabinet lights,
-    RGB_LIGHTS,  // RGB lighting mode
+    INPUT_TYPE,  // InputMUX vs. InputSensor (should go unused soon)
+    INPUT_MODE,
 
-    PLAYER,  // 0x000B, which player is the main PCB hooked up to?
+    OUTPUT_MODE,  
+    LIGHTS_MODE,  // light output mode
+    LIGHTS_FROM_SENSORS,  // read lights directly from the sensor inputs instead of from the host
+    EXTRA_LIGHTS_MODE,  // programmable lights etc.
+
+    PLAYER,  // which player is the main PCB hooked up to? (no longer needed)
     PANEL_COUNT,  // number of panels per player (anything from 1-5)
     P1BUTTON_COUNT,  // number of buttons for player 1
     P2BUTTON_COUNT,  // number of buttons for player 2
     BUTTON_COUNT,  // number of non-player-specific buttons
 }
-
-/* probably going to use enum as default mapping
-// EEPROM MAPPING
-
-// 256Kb = 0x7D00 bytes
-
-#define EADDR_VERSION_MAJOR 0x0001
-#define EADDR_VERSION_MINOR 0x0002
-#define EADDR_VERSION_REVISION 0x0003
-#define EADDR_VERSION_GEN 0x0004
-
-#define EADDR_UPDATE_STATUS 0x0006
-#define EADDR_LAST_ERROR 0x0008
-
-#define EADDR_OUTPUT_MODE 0x000A
-#define EADDR_LIGHTS_MODE 0x000B  // for example, getting lights from whatever's hooked to USB? or internally through what's being pressed? or SPI?
-
-#define EADDR_PLAYER 0x001A  // which player is the main PCB hooked up to?
-#define EADDR_PANEL_COUNT 0x001B  // number of panels per player (anything from 1-5)
-#define EADDR_PBUTTON_COUNT 0x001C  // number of buttons per player
-#define EADDR_BUTTON_COUNT 0x001D  // number of non-player-specific buttons
-*/
 
 // OUTPUT CONSTANTS
 
@@ -494,8 +491,17 @@ enum PIUIO_LightsPacket {
 
 // SERIAL COMMANDS
 
-#define SERIAL_CONFIG_HEADER 0xA1
-#define SERIAL_CONFIG_CHANGE_MODE 0x03
+enum SerialCommands {
+    CHANGE_INPUT_MODE,
+    CHANGE_OUTPUT_MODE,
+    CHANGE_LIGHTS_MODE,
+    LIGHTS_FROM_SENSORS,
+    CHANGE_EXTRA_LIGHTS_MODE,
+    CHANGE_MUX_POLLING_MODE,
+    SET_EXTRA_LED,
+    EDIT_INPUT,  // anything that corresponds to InputPacket, uint32_t and nth byte
+    ANALOG_THRESHOLD,
+}
 
 // RUNTIME
 

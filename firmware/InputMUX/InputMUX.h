@@ -31,6 +31,7 @@ class InputMUX
 };
 
 enum InputMUXMode {
+    None,
     MUX4067_Dual,
     MUX4067,
     MUX4051

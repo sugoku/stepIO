@@ -19,18 +19,20 @@
 #ifndef _EEPROM_IO_H
 #define _EEPROM_IO_H
 
-#include "../Config.h"
+#include "Config.h"
+#include <EEPROM.h>
 
-// for external EEPROM only
-class EEPROM_IO 
-{ 
-    private:
-        extEEPROM ee;
+class EEPROM_ext
+{
+    #ifdef EEPROM_EXTERNAL 
+        private:
+            extEEPROM ee;
+    #endif
 
     public: 
         uint8_t initialize();
         uint8_t read(uint32_t loc, uint8_t* buf[], int n);
-        int readInt(uint32_t loc);
+        uint8_t readByte(uint32_t loc);
         uint8_t write(int loc, uint8_t* buf[], int n);
     
 }; 

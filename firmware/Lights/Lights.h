@@ -33,10 +33,12 @@ class Lights
 };
 
 enum LightsMode {
+    None,
     Latch32,  // brokeIO
     Latch,
-    RGB,
-    Signal
+    Signal,
+    WS281X,
+    APA102
 };
 
 #endif

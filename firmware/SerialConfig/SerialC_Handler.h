@@ -19,33 +19,16 @@
 #ifndef _SERIALC_HANDLER_H
 #define _SERIALC_HANDLER_H
 
-#include "../Config.h"
+#include "Config.h"
 
-void SerialC::sendConfig(uint8_t *config) {
-    // check if config exists here
-    
-    for (int i = 0; i < EEPROM_MAX_ADDR; i++) {
-        this->sendByte((uint8_t)(config[i]));
-    }
-    
-}
+class SerialC
+{
 
-int SerialC::sendEEPROM(EEPROM_IO *e) {  // Same as sendConfig for most purposes but reads EEPROM directly
-    int tmp;
+    public:
+        void setup(); 
+        void sendConfig(); 
+        void sendEEPROM();
 
-    for (uint16_t i = 0; i < EEPROM_MAX_ADDR; i++) {
-
-        tmp = e.readInt(i);
-
-        if (tmp < 0) {
-            return tmp;
-        }
-
-        this->sendByte((uint8_t)tmp);
-
-    }
-    
-    return 0;
-}
+};
 
 #endif
