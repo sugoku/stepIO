@@ -40,6 +40,7 @@ uint32_t outbuf;
 uint32_t* inVals[4];
 uint32_t* inMuxes[2];
 uint8_t config[255];
+uint32_t blocked;
 
 // InputSensor in;
 InputMUX in;
@@ -47,6 +48,7 @@ Output out;
 Lights lt;
 LightsCustom lightc;  // eventually this should become Lights as well but then I have to implement it for real
 EEPROM_IO ee;
+SerialC serialc;
 
 uint8_t UpdateHost(Output* out) {
     if (out == NULL) return -1;
@@ -58,12 +60,23 @@ uint8_t UpdateInput(Input* in) {
     return in->update();
 }
 
-uint8_t UpdateLights(Lights* lt, uint8_t* buf) {
+uint8_t UpdateLights(Lights* lt, uint32_t* buf) {
     if (lt == NULL) return -1;
     return lt->send(buf);
 }
 
-uint8_t SendOutput(Output* out, uint8_t* buf) {
+void HandleSerial(SerialC* ser) {
+    ser->update();
+    if (ser->overflow()) {
+        ser->sendStatus(SerialMessages::ERROR_OVERFLOW);
+    }
+}
+
+void FilterOutput(uint32_t* buf) {
+    buf &= blocked;
+}
+
+uint8_t SendOutput(Output* out, uint32_t* buf) {
     if (out == NULL) return -1;
     return out->send(buf);
 }
@@ -82,7 +95,7 @@ void setup() {
     #ifdef EEPROM_ENABLED
         version = ee.versionCheck();
         if (EEPROM_FIRST_TIME || version == 0xFF || version == 0x00) {
-            EEPROM_WriteDefaults();
+            ee.writeDefaults();
         }
         status = ee.readConfig(*config);
         #ifndef BROKEIO
@@ -201,9 +214,16 @@ void setup() {
         
     #endif
 
+    // get blocked inputs from the config
+    blocked = (uint32_t)(&config[ConfigOptions::BLOCKED_INPUTS_3] << 24);
+    blocked |= (uint32_t)(&config[ConfigOptions::BLOCKED_INPUTS_2] << 16);
+    blocked |= (uint32_t)(&config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
+    blocked |= (uint32_t)(&config[ConfigOptions::BLOCKED_INPUTS_0]);
+
     EnableUSB(out.getUSBData());  // SetupEndpoints();
 
     Serial.begin(SERIAL_BAUD);
+    serialc.setup(&Serial, &ee);
 
     inVals = &in.getValues();
     inMuxes = &in.getMuxes();
@@ -221,8 +241,6 @@ void loop() {
     UpdateHost(&out);
 
     UpdateInput(&in);  // if DMA this isn't needed
-
-    HandleSerial(&ser);
 
     #ifdef LIGHT_OUTPUT
 
@@ -243,6 +261,10 @@ void loop() {
             outbuf = InputMUX_4067_Dual.getMergedValues();  // make this part of Input instead or something
         }
     }
+
+    FilterOutput(&outbuf);
+
     SendOutput(&out, &outbuf);
 
+    HandleSerial(&serialc);
 }

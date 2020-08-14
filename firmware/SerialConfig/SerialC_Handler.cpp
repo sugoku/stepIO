@@ -18,29 +18,81 @@
 
 #include "SerialC_Handler.h"
 
-void SerialC::sendConfig(uint8_t *config) {
-    // check if config exists here
-    
-    for (int i = 0; i < EEPROM_MAX_ADDR; i++) {
-        this->sendByte((uint8_t)(config[i]));
-    }
-    
+void SerialC::setup(Stream* stream, EEPROM_IO* eepromio) {
+    this->ser.setStream(stream);
+    this->ser.setPacketHandler(&this.parseCommand);
+
+    this->ee = eepromio;
 }
 
-int SerialC::sendEEPROM(EEPROM_IO *e) {  // Same as sendConfig for most purposes but reads EEPROM directly
-    int tmp;
+void SerialC::parseCommand(const uint8_t* buf, size_t size) {
+    if (size == 0) { sendStatus(SerialMessages::ERROR_SHORT); }
 
-    for (uint16_t i = 0; i < EEPROM_MAX_ADDR; i++) {
-
-        tmp = e.readInt(i);
-
-        if (tmp < 0) {
-            return tmp;
+    if (size > 1) {
+        switch (buf[0]) {
+            case SerialCommands::CHANGE_INPUT_MODE:
+                this->config[ConfigOptions::INPUT_MODE] = buf[1];
+                break;
+            case SerialCommands::CHANGE_OUTPUT_MODE:
+                this->config[ConfigOptions::OUTPUT_MODE] = buf[1];
+                break;
+            case SerialCommands::CHANGE_LIGHTS_MODE:
+                this->config[ConfigOptions::LIGHTS_MODE] = buf[1];
+                break;
+            case SerialCommands::CHANGE_EXTRA_LIGHTS_MODE:
+                this->config[ConfigOptions::EXTRA_LIGHTS_MODE] = buf[1];
+                break;
+            case SerialCommands::CHANGE_MUX_POLLING_MODE:
+                this->config[ConfigOptions::MUX_POLLING_MODE] = buf[1];
+                break;
+            case SerialCommands::CHANGE_DEBOUNCE_MODE:
+                break;
+            case SerialCommands::ANALOG_THRESHOLD:
+                break;
+            case SerialCommands::EDIT_INPUT:
+                break;
+            case SerialCommands::SET_EXTRA_LED:
+                break;
+            case SerialCommands::LIGHTS_FROM_SENSORS:
+                this->config[ConfigOptions::LIGHTS_FROM_SENSORS] = buf[1] & 1;
+                break;
+            default:
+                sendStatus(SerialMessages::ERROR_UNKNOWN);
+                break;
         }
-
-        this->sendByte((uint8_t)tmp);
-
+    } else {
+        switch (buf[0]) {
+            case SerialCommands::LOAD_FROM_EEPROM:
+                this->loadEEPROM();
+                break;
+            case SerialCommands::SAVE_TO_EEPROM:
+                this->saveEEPROM();
+                break;
+        }
     }
-    
-    return 0;
+}
+
+void SerialC::sendPacket(uint8_t* buf) {
+    this->ser.send(buf, sizeof(buf));
+}
+
+void SerialC::sendConfig() {
+    this->sendPacket(this->config);
+}
+
+void SerialC::sendStatus(uint8_t status) {
+    pkt = {SerialMessageTypes::STATUS, status};
+    this->sendPacket(&pkt);
+}
+
+void SerialC::loadEEPROM() {
+    this->ee->readConfig(this->config);
+}
+
+void SerialC::saveEEPROM() {
+    this->ee->writeConfig(this->config);
+}
+
+bool SerialC::overflow() {
+    return this->ser.overflow();
 }

@@ -35,9 +35,9 @@ void InputMUX_4067_Dual::setup() {
     SETBIT(MUX_S3_MODE, MUX_S3_PIN);  // set to output
 
     // make sure everything is low
-    this.reset();
+    this->reset();
     // enable MUXes
-    this.enable();
+    this->enable();
 }
 
 void InputMUX_4067_Dual::enable() {
@@ -50,7 +50,7 @@ void InputMUX_4067_Dual::disable() {
 
 void InputMUX_4067_Dual::reset() {
     // set read inputs to 0
-    this.vals = 0;
+    this->vals = 0;
 
     // clear all selector pins
     CLRBIT(MUX_S0_PORT, MUX_S0_PIN);
@@ -59,7 +59,7 @@ void InputMUX_4067_Dual::reset() {
     CLRBIT(MUX_S3_PORT, MUX_S3_PIN);
 
     // disable MUX until enabled again
-    this.disable();
+    this->disable();
 }
 
 uint8_t InputMUX_4067_Dual::update(uint8_t mux=0) {
@@ -89,9 +89,9 @@ static uint32_t InputMUX_4067_Dual::mergeValues(uint32_t* vals) {
 
 uint32_t InputMUX_4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
     if (mux1 == mux2)  // if they are the same there's no reason to try and merge something with itself
-        return this.vals[mux1];
+        return this->vals[mux1];
 
-    uint32_t buf = this.vals[mux1];
+    uint32_t buf = this->vals[mux1];
     ORBIT(buf, PIUIO_InputPacket::P2_UPLEFT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_UPLEFT));
     ORBIT(buf, PIUIO_InputPacket::P2_UPRIGHT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_UPRIGHT));
     ORBIT(buf, PIUIO_InputPacket::P2_CENTER, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_CENTER));
@@ -103,5 +103,5 @@ uint32_t InputMUX_4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
 
 
 const uint32_t* InputMUX_4067_Dual::getValues() {
-    return &this.vals;
+    return &this->vals;
 }

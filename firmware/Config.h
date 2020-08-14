@@ -366,17 +366,167 @@ enum ConfigOptions {
 
     INPUT_TYPE,  // InputMUX vs. InputSensor (should go unused soon)
     INPUT_MODE,
+    MUX_POLLING_MODE,  // normal, merged, etc.
 
     OUTPUT_MODE,  
     LIGHTS_MODE,  // light output mode
     LIGHTS_FROM_SENSORS,  // read lights directly from the sensor inputs instead of from the host
     EXTRA_LIGHTS_MODE,  // programmable lights etc.
+    DEBOUNCE_MODE,
 
     PLAYER,  // which player is the main PCB hooked up to? (no longer needed)
     PANEL_COUNT,  // number of panels per player (anything from 1-5)
     P1BUTTON_COUNT,  // number of buttons for player 1
     P2BUTTON_COUNT,  // number of buttons for player 2
     BUTTON_COUNT,  // number of non-player-specific buttons
+
+    BLOCKED_INPUTS_0,  // inputs based on InputPacket to filter out and prevent the user from using (potentially good for polling or disabling coin mode)
+    BLOCKED_INPUTS_1,  // 1 is not blocked, 0 is blocked (because AND operation used)
+    BLOCKED_INPUTS_2,
+    BLOCKED_INPUTS_3,
+
+    LIGHT_P1_UPLEFT_REMAP,  // for remapping lights (their position in the LightsPacket)
+    LIGHT_P1_UPRIGHT_REMAP,
+    LIGHT_P1_CENTER_REMAP,
+    LIGHT_P1_DOWNLEFT_REMAP,
+    LIGHT_P1_DOWNRIGHT_REMAP,
+    LIGHT_P2_UPLEFT_REMAP,
+    LIGHT_P2_UPRIGHT_REMAP,
+    LIGHT_P2_CENTER_REMAP,
+    LIGHT_P2_DOWNLEFT_REMAP,
+    LIGHT_P2_DOWNRIGHT_REMAP,
+    LIGHT_MARQUEE_1_REMAP,
+    LIGHT_MARQUEE_2_REMAP,
+    LIGHT_MARQUEE_3_REMAP,
+    LIGHT_MARQUEE_4_REMAP,
+    LIGHT_SUB_LEFT_REMAP,
+    LIGHT_SUB_RIGHT_REMAP,
+
+    P1_UPLEFT_REMAP,  // for remapping to other input (their position in the InputPacket)
+    P1_UPRIGHT_REMAP,
+    P1_CENTER_REMAP,
+    P1_DOWNLEFT_REMAP,
+    P1_DOWNRIGHT_REMAP,
+    P2_UPLEFT_REMAP,
+    P2_UPRIGHT_REMAP,
+    P2_CENTER_REMAP,
+    P2_DOWNLEFT_REMAP,
+    P2_DOWNRIGHT_REMAP,
+    P1_COIN_REMAP,
+    P2_COIN_REMAP,
+    TEST_BUTTON_REMAP,
+    SERVICE_BUTTON_REMAP,
+    CLEAR_BUTTON_REMAP,
+
+    P1_UPLEFT_KEYCODE,  // for keyboard
+    P1_UPRIGHT_KEYCODE,
+    P1_CENTER_KEYCODE,
+    P1_DOWNLEFT_KEYCODE,
+    P1_DOWNRIGHT_KEYCODE,
+    P2_UPLEFT_KEYCODE,
+    P2_UPRIGHT_KEYCODE,
+    P2_CENTER_KEYCODE,
+    P2_DOWNLEFT_KEYCODE,
+    P2_DOWNRIGHT_KEYCODE,
+    P1_COIN_KEYCODE,
+    P2_COIN_KEYCODE,
+    TEST_BUTTON_KEYCODE,
+    SERVICE_BUTTON_KEYCODE,
+    CLEAR_BUTTON_KEYCODE,
+
+    P1_UPLEFT_GAMEPAD,  // for gamepad
+    P1_UPRIGHT_GAMEPAD,
+    P1_CENTER_GAMEPAD,
+    P1_DOWNLEFT_GAMEPAD,
+    P1_DOWNRIGHT_GAMEPAD,
+    P2_UPLEFT_GAMEPAD,
+    P2_UPRIGHT_GAMEPAD,
+    P2_CENTER_GAMEPAD,
+    P2_DOWNLEFT_GAMEPAD,
+    P2_DOWNRIGHT_GAMEPAD,
+    P1_COIN_GAMEPAD,
+    P2_COIN_GAMEPAD,
+    TEST_BUTTON_GAMEPAD,
+    SERVICE_BUTTON_GAMEPAD,
+    CLEAR_BUTTON_GAMEPAD,
+
+    P1_UPLEFT_SWITCH,  // for switch
+    P1_UPRIGHT_SWITCH,
+    P1_CENTER_SWITCH,
+    P1_DOWNLEFT_SWITCH,
+    P1_DOWNRIGHT_SWITCH,
+    P2_UPLEFT_SWITCH,
+    P2_UPRIGHT_SWITCH,
+    P2_CENTER_SWITCH,
+    P2_DOWNLEFT_SWITCH,
+    P2_DOWNRIGHT_SWITCH,
+    P1_COIN_SWITCH,
+    P2_COIN_SWITCH,
+    TEST_BUTTON_SWITCH,
+    SERVICE_BUTTON_SWITCH,
+    CLEAR_BUTTON_SWITCH,
+
+    P1_UPLEFT_MIDI0,  // for MIDI, defining a MIDI event in order of header, byte1, byte2, byte3
+    P1_UPLEFT_MIDI1,
+    P1_UPLEFT_MIDI2,
+    P1_UPLEFT_MIDI3,
+    P1_UPRIGHT_MIDI0,
+    P1_UPRIGHT_MIDI1,
+    P1_UPRIGHT_MIDI2,
+    P1_UPRIGHT_MIDI3,
+    P1_CENTER_MIDI0,
+    P1_CENTER_MIDI1,
+    P1_CENTER_MIDI2,
+    P1_CENTER_MIDI3,
+    P1_DOWNLEFT_MIDI0,
+    P1_DOWNLEFT_MIDI1,
+    P1_DOWNLEFT_MIDI2,
+    P1_DOWNLEFT_MIDI3,
+    P1_DOWNRIGHT_MIDI0,
+    P1_DOWNRIGHT_MIDI1,
+    P1_DOWNRIGHT_MIDI2,
+    P1_DOWNRIGHT_MIDI3,
+    P2_UPLEFT_MIDI0,
+    P2_UPLEFT_MIDI1,
+    P2_UPLEFT_MIDI2,
+    P2_UPLEFT_MIDI3,
+    P2_UPRIGHT_MIDI0,
+    P2_UPRIGHT_MIDI1,
+    P2_UPRIGHT_MIDI2,
+    P2_UPRIGHT_MIDI3,
+    P2_CENTER_MIDI0,
+    P2_CENTER_MIDI1,
+    P2_CENTER_MIDI2,
+    P2_CENTER_MIDI3,
+    P2_DOWNLEFT_MIDI0,
+    P2_DOWNLEFT_MIDI1,
+    P2_DOWNLEFT_MIDI2,
+    P2_DOWNLEFT_MIDI3,
+    P2_DOWNRIGHT_MIDI0,
+    P2_DOWNRIGHT_MIDI1,
+    P2_DOWNRIGHT_MIDI2,
+    P2_DOWNRIGHT_MIDI3,
+    P1_COIN_MIDI0,
+    P1_COIN_MIDI1,
+    P1_COIN_MIDI2,
+    P1_COIN_MIDI3,
+    P2_COIN_MIDI0,
+    P2_COIN_MIDI1,
+    P2_COIN_MIDI2,
+    P2_COIN_MIDI3,
+    TEST_BUTTON_MIDI0,
+    TEST_BUTTON_MIDI1,
+    TEST_BUTTON_MIDI2,
+    TEST_BUTTON_MIDI3,
+    SERVICE_BUTTON_MIDI0,
+    SERVICE_BUTTON_MIDI1,
+    SERVICE_BUTTON_MIDI2,
+    SERVICE_BUTTON_MIDI3,
+    CLEAR_BUTTON_MIDI0,
+    CLEAR_BUTTON_MIDI1,
+    CLEAR_BUTTON_MIDI2,
+    CLEAR_BUTTON_MIDI3,
+
 }
 
 // OUTPUT CONSTANTS
@@ -498,9 +648,26 @@ enum SerialCommands {
     LIGHTS_FROM_SENSORS,
     CHANGE_EXTRA_LIGHTS_MODE,
     CHANGE_MUX_POLLING_MODE,
+    CHANGE_DEBOUNCE_MODE,
     SET_EXTRA_LED,
     EDIT_INPUT,  // anything that corresponds to InputPacket, uint32_t and nth byte
-    ANALOG_THRESHOLD,
+    ANALOG_THRESHOLD,  // global or per input
+    SAVE_TO_EEPROM,
+    LOAD_FROM_EEPROM,
+}
+
+// outgoing messages
+enum SerialMessageTypes {
+    STATUS,
+    SENSOR,
+    CONFIG,
+}
+
+enum SerialMessages {
+    SUCCESS,
+    ERROR_OVERFLOW,
+    ERROR_SHORT,
+    ERROR_UNKNOWN
 }
 
 // RUNTIME

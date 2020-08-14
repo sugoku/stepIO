@@ -23,11 +23,20 @@
 
 class SerialC
 {
+    private:
+        PacketSerial ser;
+        EEPROM_IO* ee;
+        uint8_t* config;
 
     public:
-        void setup(); 
-        void sendConfig(); 
-        void sendEEPROM();
+        void setup(Stream* stream, EEPROM_IO* eepromio); 
+        void parseCommand(const uint8_t* buf, size_t size);
+        void sendPacket(uint8_t* buf);
+        void sendConfig();
+        void sendStatus(uint8_t status);  
+        void loadEEPROM();
+        void saveEEPROM();
+        void overflow();
 
 };
 
