@@ -46,6 +46,7 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 this->config[ConfigOptions::MUX_POLLING_MODE] = buf[1];
                 break;
             case SerialCommands::CHANGE_DEBOUNCE_MODE:
+                this->config[ConfigOptions::DEBOUNCE_MODE] = buf[1];
                 break;
             case SerialCommands::ANALOG_THRESHOLD:
                 break;

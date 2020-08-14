@@ -16,27 +16,35 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _LIGHTS_H
-#define _LIGHTS_H
+#ifndef _LIGHTS_APA102_H
+#define _LIGHTS_APA102_H
 
-#include "Config.h"
+#include "Lights.h"
 
-class Lights
+#include <FastGPIO.h>
+#define APA102_USE_FAST_GPIO
+#include <APA102.h>
+
+class Lights_APA102 : public Lights
 {
+    protected:
+        APA102* leds;
+        uint8_t* color[3];  // red, green, blue
+        int count = DEFAULT_RGB_LED_COUNT;  // how many LEDs we are controlling
+        int triggerall = -1;  // whichever byte this is in LightsPacket will turn all the LEDs on, -1 ignores this behavior
+
     public:
-        virtual void setup() = 0;
-        virtual int send(uint32_t* buf) = 0;
+        void setup(int n=0);
+        uint32_t send(uint32_t* buf);
+        void setColor(uint8_t* arr);
+        void setCount(int n);
+        void setTrigger(int n);
+        int write(int start, int end, uint8_t* color=NULL);
+        int write(int* list, uint8_t* color=NULL);
+        void enable();
+        void disable();
+        void reset();
 
-};
-
-enum LightsMode {
-    None,
-    Latch32,  // brokeIO
-    Latch,
-    Signal,
-    FastLED,
-    WS281X,
-    APA102
 };
 
 #endif

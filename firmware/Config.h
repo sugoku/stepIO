@@ -52,7 +52,9 @@
     #define LIGHT_LATCH_OUTPUT  // Enables support for cabinet light outputs using the 74HC595
 #endif
 #define LIGHT_RGB_OUTPUT  // Enables support for RGB lighting via FastLED
-#define RGB_LED_COUNT 288  // Amount of RGB LEDs to use
+
+#define DEFAULT_RGB_LED_COUNT 288  // Default amount of RGB LEDs to use
+#define DEFAULT_LED_COLORS {0, 230, 255};  // Default LED colors in RGB order (this is bright blue like the subwoofer neons)
 
 // Advanced configuration options
 
@@ -385,6 +387,9 @@ enum ConfigOptions {
     BLOCKED_INPUTS_2,
     BLOCKED_INPUTS_3,
 
+    RGB_LED_COUNT,
+    EXTRA_LED_TRIGGER,  // 0xFF default, means disabled (based on nth bit of LightsPacket)
+
     LIGHT_P1_UPLEFT_REMAP,  // for remapping lights (their position in the LightsPacket)
     LIGHT_P1_UPRIGHT_REMAP,
     LIGHT_P1_CENTER_REMAP,
@@ -638,6 +643,7 @@ enum PIUIO_LightsPacket {
     NC_31
 }
 #define PIUIO_ENDPOINT 0xAE
+
 
 // SERIAL COMMANDS
 

@@ -24,13 +24,12 @@
 
 class Lights_Latch32 : public Lights
 {
-    protected:
-        uint32_t lights;
-
     public:
-        virtual void setup() = 0;
-        virtual uint32_t send() = 0;
-
+        void setup();
+        int send(uint32_t* buf);
+        void enable();
+        void disable();
+        void reset();
 };
 
 #endif

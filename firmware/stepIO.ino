@@ -37,16 +37,17 @@ how will we structure this code?
 uint8_t status;
 uint8_t* outmode;
 uint32_t outbuf;
+uint32_t* lightbuf;
 uint32_t* inVals[4];
 uint32_t* inMuxes[2];
 uint8_t config[255];
 uint32_t blocked;
 
 // InputSensor in;
-InputMUX in;
+InputMUX in;  // should be Input eventually
 Output out;
 Lights lt;
-LightsCustom lightc;  // eventually this should become Lights as well but then I have to implement it for real
+Lights lightex;  // extra lights (RGB, etc.)
 EEPROM_IO ee;
 SerialC serialc;
 
@@ -60,10 +61,16 @@ uint8_t UpdateInput(Input* in) {
     return in->update();
 }
 
-uint8_t UpdateLights(Lights* lt, uint32_t* buf) {
+int UpdateLights(Lights* lt, uint32_t* buf) {
     if (lt == NULL) return -1;
     return lt->send(buf);
 }
+
+int UpdateExtraLights(Lights* le, uint32_t* buf) {
+    if (le == NULL) return -1;
+    return le->send(buf);
+}
+
 
 void HandleSerial(SerialC* ser) {
     ser->update();
@@ -180,6 +187,7 @@ void setup() {
             break;
     }
     out.attach();
+    lightbuf = out.getLights();
 
     #ifdef LIGHT_OUTPUT
 
@@ -200,17 +208,19 @@ void setup() {
         lt.setup();
 
         switch (*extralightsmode) {
-            case LightsCustom::FastLED:  // this takes up a LOT of RAM so not great for brokeIO
-                lightc = LightsCustom_FastLED();  // FastLED library
+            case LightsMode::FastLED:  // this takes up a LOT of RAM so not great for brokeIO
+                lightex = Lights_FastLED();  // FastLED library
                 break;
-            case LightsCustom::WS2812X:
-                lightc = LightsCustom_WS2812X();  // neopixel library probably
+            case LightsMode::WS2812X:
+                lightex = Lights_WS2812X();  // neopixel library probably
                 break;
-            case LightsCustom::APA102:
-                lightc = LightsCustom_APA102();  // <APA102.h> probably
+            case LightsMode::APA102:
+                lightex = Lights_APA102();  // <APA102.h> probably
                 break;
         }
-        lightc.setPins(EXTRA_LIGHTS_DATA, EXTRA_LIGHTS_CLOCK);
+        lightex.setup(&config[ConfigOptions::RGB_LED_COUNT]);
+        if (&config[ConfigOptions::EXTRA_LED_TRIGGER] != 0xFF)
+            lightrgb.setTrigger(&config[ConfigOptions::EXTRA_LED_TRIGGER]);
         
     #endif
 
@@ -244,9 +254,9 @@ void loop() {
 
     #ifdef LIGHT_OUTPUT
 
-        UpdateLights(&lt);  // this might need to be redone or split
+        UpdateLights(&lt, &lightbuf);  // this might need to be redone or split
 
-        UpdateCustomLights(&lightc);
+        UpdateExtraLights(&lightex, &lightbuf);
 
     #endif
 

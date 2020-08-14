@@ -36,7 +36,7 @@ void Lights_Latch32::setup() {
     SETBIT(LATCH_RCLK_PORT, LATCH_RCLK_PIN);
 }
 
-uint32_t Lights_Latch32::send(uint32_t* buf) {
+int Lights_Latch32::send(uint32_t* buf) {
     // tell latch to receive from SPI
     CLRBIT(LATCH_RCLK_PORT, LATCH_RCLK_PIN);
 
@@ -56,6 +56,8 @@ uint32_t Lights_Latch32::send(uint32_t* buf) {
 
     // tell latch to update values with what we just sent
     SETBIT(LATCH_RCLK_PORT, LATCH_RCLK_PIN);
+
+    return 32;
 }
 
 void Lights_Latch32::enable() {
