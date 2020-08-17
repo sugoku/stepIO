@@ -69,6 +69,9 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
             case SerialCommands::SAVE_TO_EEPROM:
                 this->saveEEPROM();
                 break;
+            case SerialCommands::GET_CONFIG:
+                this->sendConfig();
+                break;
         }
     }
 }
@@ -91,7 +94,7 @@ void SerialC::loadEEPROM() {
 }
 
 void SerialC::saveEEPROM() {
-    this->ee->writeConfig(this->config);
+    this->ee->updateConfig(this->config);
 }
 
 bool SerialC::overflow() {

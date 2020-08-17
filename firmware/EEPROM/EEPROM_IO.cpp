@@ -74,7 +74,6 @@ uint8_t EEPROM_IO::updateConfig(uint8_t* config) {
     return this->update(0, config, sizeof(config));
 }
 
-
 uint8_t EEPROM_IO::versionCheck(uint8_t* config) {
     return this->readByte(ConfigOptions::VERSION_REVISION);
 }

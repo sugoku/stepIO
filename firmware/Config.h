@@ -20,9 +20,7 @@
 #define _CONFIG_H
 
 #include <Arduino.h>
-#include <Wire.h>
-#include <extEEPROM.h>
-
+#include <HID-Project.h>
 
 // IF YOU ARE USING A BROKEIO, UNCOMMENT THIS
 #define BROKEIO
@@ -58,6 +56,9 @@
 
 // Advanced configuration options
 
+#define SERIAL_CONFIG Serial  // This is the serial port used to send commands/access configuration.
+// Serial usually refers to the USB serial connection while Serial1, Serial2, etc. are hardware serial ports with TX and RX pins.
+
 #define SIMPLE_PIUIO_MUX  // Comment out if you want to request separate P1 and P2 multiplexer values in the same packet (no reason to normally do this)
 
 #define SERIAL_BAUD 115200  // Change this to affect the speed at which data is sent on USB serial
@@ -69,10 +70,19 @@
     #define EEPROM_EXTERNAL  // Use an external EEPROM (should be defaulted to for non-AVR microcontrollers)
 #endif
 
+#define EEPROM_DEFAULT_VALUE 0xFF  // The default value of all data in the EEPROM. For ATmega chips with built in EEPROM this is 0xFF.
+// You would probably want this value to be correct to ensure that you don't waste write cycles when writing the initial configuration to EEPROM.
+
 #define EEPROM_FIRST_TIME false  // Write defaults into EEPROM every time at startup (for debug only, this will shorten the lifespan of the EEPROM)
 // Set this to a boolean and don't comment it out
 
 // Don't edit anything below unless you know what you're doing!
+
+// Let me know if you have a use for I2C which doesn't involve the EEPROM, in that case we can include Wire.h with a separate define.
+#ifdef EEPROM_EXTERNAL
+    #include <Wire.h>
+    #include <extEEPROM.h>
+#endif
 
 // PORT MANIPULATION MACROS
 
@@ -98,8 +108,15 @@
 
 // PLAYERS
 
+// this stuff is currently unused but if button board support is added it probably will matter more
 #define PLAYER_1 0x0
 #define PLAYER_2 0x1
+#define DEFAULT_PLAYER PLAYER_1
+#define DEFAULT_PLAYER_COUNT 2
+#define PANELS_PER_PLAYER 5
+#define PLAYER_1_BUTTONS 5  // p1 coin, left, right, select, back
+#define PLAYER_2_BUTTONS 5  // p2 coin, left, right, select, back
+#define OTHER_BUTTONS 3  // test, service, clear
 
 // PINS
 
@@ -341,6 +358,9 @@
 // EEPROM
 // for external EEPROM which is needed for stepIO but not brokeIO
 
+#define EEPROM_TRUE 0x01
+#define EEPROM_FALSE 0x00
+
 #ifndef BROKEIO
     #define EEPROM_SIZE kbits_256  // size of EEPROM
     #define EEPROM_MAX_ADDR 0x7D00
@@ -380,7 +400,7 @@ enum ConfigOptions {
     PANEL_COUNT,  // number of panels per player (anything from 1-5)
     P1BUTTON_COUNT,  // number of buttons for player 1
     P2BUTTON_COUNT,  // number of buttons for player 2
-    BUTTON_COUNT,  // number of non-player-specific buttons
+    OTHERBUTTON_COUNT,  // number of non-player-specific buttons
 
     BLOCKED_INPUTS_0,  // inputs based on InputPacket to filter out and prevent the user from using (potentially good for polling or disabling coin mode)
     BLOCKED_INPUTS_1,  // 1 is not blocked, 0 is blocked (because AND operation used)
@@ -471,70 +491,75 @@ enum ConfigOptions {
     SERVICE_BUTTON_SWITCH,
     CLEAR_BUTTON_SWITCH,
 
+    MIDI_ANALOG,  // if using analog input, send analog values as note velocity
+    MIDI_ANALOG_MIN,
+    MIDI_ANALOG_MAX,
+    MIDI_CHANNEL,
+
     P1_UPLEFT_MIDI0,  // for MIDI, defining a MIDI event in order of header, byte1, byte2, byte3
     P1_UPLEFT_MIDI1,
     P1_UPLEFT_MIDI2,
-    P1_UPLEFT_MIDI3,
+    P1_UPLEFT_CHANNEL,
     P1_UPRIGHT_MIDI0,
     P1_UPRIGHT_MIDI1,
     P1_UPRIGHT_MIDI2,
-    P1_UPRIGHT_MIDI3,
+    P1_UPRIGHT_CHANNEL,
     P1_CENTER_MIDI0,
     P1_CENTER_MIDI1,
     P1_CENTER_MIDI2,
-    P1_CENTER_MIDI3,
+    P1_CENTER_CHANNEL,
     P1_DOWNLEFT_MIDI0,
     P1_DOWNLEFT_MIDI1,
     P1_DOWNLEFT_MIDI2,
-    P1_DOWNLEFT_MIDI3,
+    P1_DOWNLEFT_CHANNEL,
     P1_DOWNRIGHT_MIDI0,
     P1_DOWNRIGHT_MIDI1,
     P1_DOWNRIGHT_MIDI2,
-    P1_DOWNRIGHT_MIDI3,
+    P1_DOWNRIGHT_CHANNEL,
     P2_UPLEFT_MIDI0,
     P2_UPLEFT_MIDI1,
     P2_UPLEFT_MIDI2,
-    P2_UPLEFT_MIDI3,
+    P2_UPLEFT_CHANNEL,
     P2_UPRIGHT_MIDI0,
     P2_UPRIGHT_MIDI1,
     P2_UPRIGHT_MIDI2,
-    P2_UPRIGHT_MIDI3,
+    P2_UPRIGHT_CHANNEL,
     P2_CENTER_MIDI0,
     P2_CENTER_MIDI1,
     P2_CENTER_MIDI2,
-    P2_CENTER_MIDI3,
+    P2_CENTER_CHANNEL,
     P2_DOWNLEFT_MIDI0,
     P2_DOWNLEFT_MIDI1,
     P2_DOWNLEFT_MIDI2,
-    P2_DOWNLEFT_MIDI3,
+    P2_DOWNLEFT_CHANNEL,
     P2_DOWNRIGHT_MIDI0,
     P2_DOWNRIGHT_MIDI1,
     P2_DOWNRIGHT_MIDI2,
-    P2_DOWNRIGHT_MIDI3,
+    P2_DOWNRIGHT_CHANNEL,
     P1_COIN_MIDI0,
     P1_COIN_MIDI1,
     P1_COIN_MIDI2,
-    P1_COIN_MIDI3,
+    P1_COIN_CHANNEL,
     P2_COIN_MIDI0,
     P2_COIN_MIDI1,
     P2_COIN_MIDI2,
-    P2_COIN_MIDI3,
+    P2_COIN_CHANNEL,
     TEST_BUTTON_MIDI0,
     TEST_BUTTON_MIDI1,
     TEST_BUTTON_MIDI2,
-    TEST_BUTTON_MIDI3,
+    TEST_BUTTON_CHANNEL,
     SERVICE_BUTTON_MIDI0,
     SERVICE_BUTTON_MIDI1,
     SERVICE_BUTTON_MIDI2,
-    SERVICE_BUTTON_MIDI3,
+    SERVICE_BUTTON_CHANNEL,
     CLEAR_BUTTON_MIDI0,
     CLEAR_BUTTON_MIDI1,
     CLEAR_BUTTON_MIDI2,
-    CLEAR_BUTTON_MIDI3,
+    CLEAR_BUTTON_CHANNEL,
 
 }
 
-// OUTPUT CONSTANTS
+// INPUT/OUTPUT CONSTANTS
 
 enum InputPacket {
     P1_UPLEFT,
@@ -553,6 +578,11 @@ enum InputPacket {
     SERVICE_BUTTON,
     CLEAR_BUTTON
 }
+
+#define DEFAULT_BLOCKED_INPUTS_0 EEPROM_DEFAULT_VALUE
+#define DEFAULT_BLOCKED_INPUTS_1 EEPROM_DEFAULT_VALUE
+#define DEFAULT_BLOCKED_INPUTS_2 EEPROM_DEFAULT_VALUE
+#define DEFAULT_BLOCKED_INPUTS_3 EEPROM_DEFAULT_VALUE
 
 enum LightsPacket {
     P1_UPLEFT,
@@ -644,6 +674,69 @@ enum PIUIO_LightsPacket {
 }
 #define PIUIO_ENDPOINT 0xAE
 
+// NINTENDO SWITCH
+
+#define EEPROM_SWITCH_BUTTON_Y 0x00
+#define EEPROM_SWITCH_BUTTON_B 0x01
+#define EEPROM_SWITCH_BUTTON_A 0x02
+#define EEPROM_SWITCH_BUTTON_X 0x03
+#define EEPROM_SWITCH_BUTTON_L 0x04
+#define EEPROM_SWITCH_BUTTON_R 0x05
+#define EEPROM_SWITCH_BUTTON_ZL 0x06
+#define EEPROM_SWITCH_BUTTON_ZR 0x07
+#define EEPROM_SWITCH_BUTTON_MINUS 0x08
+#define EEPROM_SWITCH_BUTTON_PLUS 0x09
+#define EEPROM_SWITCH_BUTTON_LCLICK 0x0A
+#define EEPROM_SWITCH_BUTTON_RCLICK 0x0B
+#define EEPROM_SWITCH_BUTTON_HOME 0x0C
+#define EEPROM_SWITCH_BUTTON_CAPTURE 0x0D
+
+#define EEPROM_SWITCH_HAT_TOP 0x10
+#define EEPROM_SWITCH_HAT_TOP_RIGHT 0x11
+#define EEPROM_SWITCH_HAT_RIGHT 0x12
+#define EEPROM_SWITCH_HAT_BOTTOM_RIGHT 0x13
+#define EEPROM_SWITCH_HAT_BOTTOM 0x14
+#define EEPROM_SWITCH_HAT_BOTTOM_LEFT 0x15
+#define EEPROM_SWITCH_HAT_LEFT 0x16
+#define EEPROM_SWITCH_HAT_TOP_LEFT 0x17
+#define EEPROM_SWITCH_HAT_CENTER 0x18
+
+#define EEPROM_SWITCH_STICK_LX 0x20
+#define EEPROM_SWITCH_STICK_LY 0x21
+#define EEPROM_SWITCH_STICK_RX 0x22
+#define EEPROM_SWITCH_STICK_RY 0x23
+
+// MIDI
+
+#define DEFAULT_MIDI_CHANNEL 0
+
+#define MIDI_MIN_VELOCITY 0x00
+#define MIDI_MAX_VELOCITY 0xFF
+#define MIDI_STANDARD_VELOCITY 100
+#define DEFAULT_MIDI_VELOCITY MIDI_STANDARD_VELOCITY
+
+// headers are shifted left one bit but second byte has them like this so you can |= channel
+// https://www.midi.org/specifications-old/item/table-2-expanded-messages-list-status-bytes
+#define MIDI_NOTE_ON 0x90
+#define MIDI_NOTE_OFF 0x80
+#define MIDI_POLYPHONIC_AFTERTOUCH 0xB0
+#define MIDI_CONTROL_CHANGE 0xB0
+#define MIDI_PROGRAM_CHANGE 0xC0
+#define MIDI_CHANNEL_AFTERTOUCH 0xD0
+#define MIDI_PITCH_BEND 0xE0
+#define MIDI_SYSEX 0xF0
+#define MIDI_TIME_CODE 0xF1
+#define MIDI_SONG_POSITION 0xF2
+#define MIDI_SONG_SELECT 0xF3
+#define MIDI_TUNE_REQUEST 0xF6
+#define MIDI_SYSEX_END 0xF7
+#define MIDI_TIMING_CLOCK 0xF8
+#define MIDI_START 0xFA
+#define MIDI_CONTINUE 0xFB
+#define MIDI_STOP 0xFC
+#define MIDI_ACTIVE_SENSING 0xFE
+#define MIDI_SYSTEM_RESET 0xFF
+
 
 // SERIAL COMMANDS
 
@@ -660,6 +753,7 @@ enum SerialCommands {
     ANALOG_THRESHOLD,  // global or per input
     SAVE_TO_EEPROM,
     LOAD_FROM_EEPROM,
+    GET_CONFIG,
 }
 
 // outgoing messages
@@ -675,6 +769,31 @@ enum SerialMessages {
     ERROR_SHORT,
     ERROR_UNKNOWN
 }
+
+
+// UPDATES
+// for stepIO bootloader only (if applicable)
+
+enum UpdateStatus {
+    SUCCESS,
+    PENDING_FLASH,
+    FLASH_ERROR,
+    NOT_FLASHED = 0xFF
+}
+
+// ERRORS
+
+enum WireError {  // I2C errors, EEPROM
+    DATA_TOO_LONG = 1,
+    NACK_ON_ADDR,
+    NACK_ON_DATA,
+    OTHER_ERROR
+}
+
+enum RuntimeError {
+    NONE = 0xFF
+}
+
 
 // RUNTIME
 

@@ -24,7 +24,7 @@
 class Output
 {
     protected:
-        uint16_t* lights;  // a LightsPacket (enum in Config.h)
+        uint16_t lights;  // a LightsPacket (enum in Config.h)
 
     public:
         virtual int setup() = 0;

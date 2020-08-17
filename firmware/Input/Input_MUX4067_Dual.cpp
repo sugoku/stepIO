@@ -16,9 +16,9 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#include "InputMUX_4067_Dual.h"
+#include "Input_MUX4067_Dual.h"
 
-void InputMUX_4067_Dual::setup() {
+void Input_MUX4067_Dual::setup() {
     // set pinModes
     SETBIT(MUX_ENABLE_MODE, MUX_ENABLE_PIN);  // set to output
 
@@ -40,15 +40,15 @@ void InputMUX_4067_Dual::setup() {
     this->enable();
 }
 
-void InputMUX_4067_Dual::enable() {
+void Input_MUX4067_Dual::enable() {
     CLRBIT(MUX_ENABLE_PORT, MUX_ENABLE_PIN);
 }
 
-void InputMUX_4067_Dual::disable() {
+void Input_MUX4067_Dual::disable() {
     SETBIT(MUX_ENABLE_PORT, MUX_ENABLE_PIN);
 }
 
-void InputMUX_4067_Dual::reset() {
+void Input_MUX4067_Dual::reset() {
     // set read inputs to 0
     this->vals = 0;
 
@@ -62,7 +62,7 @@ void InputMUX_4067_Dual::reset() {
     this->disable();
 }
 
-uint8_t InputMUX_4067_Dual::update(uint8_t mux=0) {
+uint8_t Input_MUX4067_Dual::update(uint8_t mux=0) {
     for (uint8_t i = 15; i >= 0; i--) {
         // set the selector pins to the current value
         SETORCLRBIT(MUX_S3_PORT, MUX_S3_PIN, (i >> 3) & 1);
@@ -83,11 +83,11 @@ uint8_t InputMUX_4067_Dual::update(uint8_t mux=0) {
     return i*2;
 }
 
-static uint32_t InputMUX_4067_Dual::mergeValues(uint32_t* vals) {
+static uint32_t Input_MUX4067_Dual::mergeValues(uint32_t* vals) {
     return vals[0] | vals[1] | vals[2] | vals[3];
 }
 
-uint32_t InputMUX_4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
+uint32_t Input_MUX4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
     if (mux1 == mux2)  // if they are the same there's no reason to try and merge something with itself
         return this->vals[mux1];
 
@@ -101,7 +101,10 @@ uint32_t InputMUX_4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
     return buf;
 }
 
-
-const uint32_t* InputMUX_4067_Dual::getValues() {
+const uint32_t* Input_MUX4067_Dual::getValues() {
     return &this->vals;
+}
+
+const uint32_t* Input_MUX4067_Dual::getMergedValues() {
+    return &Input_MUX4067_Dual.mergeValues(&this->vals);
 }

@@ -24,8 +24,8 @@
 class Output_PIUIO : public Output
 {
     protected:
-        uint8_t* mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
-        uint16_t* lights = 0;
+        uint8_t mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
+        uint16_t lights = 0;
 
     public:
         int setup();
