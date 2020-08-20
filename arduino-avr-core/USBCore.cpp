@@ -543,6 +543,14 @@ bool SendDescriptor(USBSetup& setup)
 	return true;
 }
 
+typedef FuncHandler(USBSetup setup);
+
+void VendorControl(USBSetup setup)
+{
+}
+
+FuncHandler vendorHandler = VendorControl;
+
 //	Endpoint 0 interrupt
 ISR(USB_COM_vect)
 {
@@ -629,6 +637,10 @@ ISR(USB_COM_vect)
 		else if (SET_INTERFACE == r)
 		{
 		}
+	}
+	else if (REQUEST_VENDOR == (requestType & REQUEST_TYPE))
+	{
+		vendorHandler(setup);
 	}
 	else
 	{

@@ -696,7 +696,11 @@ enum PIUIO_LightsPacket {
     P1_DOWNRIGHT,
     NC_31
 }
-#define PIUIO_ENDPOINT 0xAE
+
+#define PIUIO_ENDPOINT 0x00  // control endpoint
+#define PIUIO_ADDRESS 0xAE
+#define PIUIO_INDEX 0x00
+#define PIUIO_VALUE 0x00
 
 // NINTENDO SWITCH
 

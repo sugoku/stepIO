@@ -20,7 +20,7 @@
 
 void Output_PIUIO::setup(Config* config) {
     this->setConfig(config);
-    // the other setup
+    vendorHandler = this->handleControl;
 }
 
 void Output_PIUIO::setConfig(Config* config) {
@@ -28,8 +28,11 @@ void Output_PIUIO::setConfig(Config* config) {
 }
 
 void Output_PIUIO::updateHost() {
-    uint32_t buf = recvControl(PIUIO_ENDPOINT) >> 16;
+    // done when host updates USB instead
+    return;
+}
 
+void Output_PIUIO::update(uint32_t buf) { 
     // i don't think you can loop through enums so this is the best i'll get for now
     // PIUIO uses negative logic hence the NOT operators
     SETORCLRBIT(this->lights, LightsPacket::P1_UPLEFT, !(GETBIT(buf, PIUIO_LightsPacket::P1_UPLEFT)));
@@ -65,7 +68,8 @@ const uint8_t* Output_PIUIO::getMuxes() {
 }
 
 void Output_PIUIO::send(uint16_t* buf) {
-    uint64_t tmp = 0xFFFFFFFF;
+    // doesn't actually send, just updates the data to send when it is requested by the host
+    uint32_t tmp = 0xFFFFFFFF;
     
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_UPLEFT, !(GETBIT(*buf, InputPacket::P1_UPLEFT)));
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_UPRIGHT, !(GETBIT(*buf, InputPacket::P1_UPRIGHT)));
@@ -80,15 +84,36 @@ void Output_PIUIO::send(uint16_t* buf) {
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_COIN, !(GETBIT(*buf, InputPacket::P1_COIN)));
     SETORCLRBIT(tmp, PIUIO_InputPacket::P2_COIN, !(GETBIT(*buf, InputPacket::P2_COIN)));
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_TEST, !(GETBIT(*buf, InputPacket::TEST_BUTTON)));
-    // SETORCLRBIT(buf, PIUIO_InputPacket::P2_TEST, !(GETBIT(*buf, InputPacket::TEST_BUTTON)));
+    // SETORCLRBIT(tmp, PIUIO_InputPacket::P2_TEST, !(GETBIT(*buf, InputPacket::TEST_BUTTON)));
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_SERVICE, !(GETBIT(*buf, InputPacket::SERVICE_BUTTON)));
-    // SETORCLRBIT(buf, PIUIO_InputPacket::P2_SERVICE, !(GETBIT(*buf, InputPacket::SERVICE_BUTTON)));
+    // SETORCLRBIT(tmp, PIUIO_InputPacket::P2_SERVICE, !(GETBIT(*buf, InputPacket::SERVICE_BUTTON)));
     SETORCLRBIT(tmp, PIUIO_InputPacket::P1_CLEAR, !(GETBIT(*buf, InputPacket::CLEAR_BUTTON)));
-    // SETORCLRBIT(buf, PIUIO_InputPacket::P2_CLEAR, !(GETBIT(*buf, InputPacket::CLEAR_BUTTON)));
+    // SETORCLRBIT(tmp, PIUIO_InputPacket::P2_CLEAR, !(GETBIT(*buf, InputPacket::CLEAR_BUTTON)));
 
-    sendControl(PIUIO_ENDPOINT, tmp);
+    this->payload[3] = (tmp >> 24) & 0xFF;
+    this->payload[2] = (tmp >> 16) & 0xFF;
+    this->payload[1] = (tmp >> 8) & 0xFF;
+    this->payload[0] = tmp & 0xFF;
 }
 
-// endpoint 0xAE
-// sendControl()
-// recvControl()
+void Output_PIUIO::handleControl(USBSetup setup) {
+    uint8_t buf[USB_EP_SIZE];
+    uint32_t tmp;
+
+    if (setup.bRequest == PIUIO_ADDRESS) {
+        if (setup.bmRequestType == REQUEST_DEVICETOHOST) {
+            InitControl(sizeof(this->payload));
+            USBD_SendControl(this->payload);
+        } else if (setup.bmRequestType == REQUEST_HOSTTODEVICE) {
+            // not sure if I need to InitControl
+            if (USBD_RecvControl(buf, setup.wLength) != setup.wLength) {
+                // return; ???
+            }
+            tmp |= buf[3] << 24;
+            tmp |= buf[2] << 16;
+            tmp |= buf[1] << 8;
+            tmp |= buf[0];
+            this->update(tmp);
+        }
+    }
+}

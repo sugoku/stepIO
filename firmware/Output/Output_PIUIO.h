@@ -27,12 +27,15 @@ class Output_PIUIO : public Output
         uint8_t* config;
         uint8_t mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
         uint16_t lights = 0;
+        uint8_t payload[4] = {[0 ... 3] = 0xFF};
 
     public:
         void setup(Config* config);
         void setConfig(Config* config);
         void updateHost();
+        void update(uint32_t buf);
         void send(uint16_t* buf);
+        void handleControl(USBSetup setup);
         const uint16_t* getLights();
         const uint8_t* getMuxes();
         const uint8_t* getUSBData();
