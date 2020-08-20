@@ -72,11 +72,11 @@ uint8_t Input_MUX4067_Dual::update(uint8_t mux=0) {
 
         // read this value from BOTH muxes and store them in the ith bit and the (i+16)th bit respectively
         #ifdef PULLUP_IN
-            SETORCLRBIT(this.vals[mux], i, !(GETBIT(MUX1_IN_READ, MUX1_IN_PIN)));
-            SETORCLRBIT(this.vals[mux], i+16, !(GETBIT(MUX2_IN_READ, MUX2_IN_PIN)));
+            SETORCLRBIT(this->vals[mux], i, !(GETBIT(MUX1_IN_READ, MUX1_IN_PIN)));
+            SETORCLRBIT(this->vals[mux], i+16, !(GETBIT(MUX2_IN_READ, MUX2_IN_PIN)));
         #else
-            SETORCLRBIT(this.vals[mux], i, GETBIT(MUX1_IN_READ, MUX1_IN_PIN));
-            SETORCLRBIT(this.vals[mux], i+16, GETBIT(MUX2_IN_READ, MUX2_IN_PIN));
+            SETORCLRBIT(this->vals[mux], i, GETBIT(MUX1_IN_READ, MUX1_IN_PIN));
+            SETORCLRBIT(this->vals[mux], i+16, GETBIT(MUX2_IN_READ, MUX2_IN_PIN));
         #endif
     }
 
@@ -92,11 +92,11 @@ uint32_t Input_MUX4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
         return this->vals[mux1];
 
     uint32_t buf = this->vals[mux1];
-    ORBIT(buf, PIUIO_InputPacket::P2_UPLEFT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_UPLEFT));
-    ORBIT(buf, PIUIO_InputPacket::P2_UPRIGHT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_UPRIGHT));
-    ORBIT(buf, PIUIO_InputPacket::P2_CENTER, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_CENTER));
-    ORBIT(buf, PIUIO_InputPacket::P2_DOWNLEFT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_DOWNLEFT));
-    ORBIT(buf, PIUIO_InputPacket::P2_DOWNRIGHT, GETBIT(this.vals[mux2], PIUIO_InputPacket:P2_DOWNRIGHT));
+    ORBIT(buf, PIUIO_InputPacket::P2_UPLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPLEFT));
+    ORBIT(buf, PIUIO_InputPacket::P2_UPRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPRIGHT));
+    ORBIT(buf, PIUIO_InputPacket::P2_CENTER, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_CENTER));
+    ORBIT(buf, PIUIO_InputPacket::P2_DOWNLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNLEFT));
+    ORBIT(buf, PIUIO_InputPacket::P2_DOWNRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNRIGHT));
 
     return buf;
 }

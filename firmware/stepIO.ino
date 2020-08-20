@@ -186,7 +186,7 @@ void setup() {
             out = Output_MIDI();
             break;
     }
-    out.setup();
+    out.setup(&config);
     out.attach();
     lightbuf = out.getLights();
 
@@ -234,7 +234,9 @@ void setup() {
     EnableUSB(out.getUSBData());  // SetupEndpoints();
 
     SERIAL_CONFIG.begin(SERIAL_BAUD);
-    serialc.setup(&Serial, &ee);
+    serialc.setup(&config, &Serial, &ee);
+    if (outmode == OutputMode::Serial)
+        serialc.setOutput(&out);
 
     inVals = in.getValues();
     outMuxes = out.getMuxes();

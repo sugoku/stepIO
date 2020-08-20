@@ -18,15 +18,27 @@
 
 #include "SerialC_Handler.h"
 
-void SerialC::setup(Stream* stream, EEPROM_IO* eepromio) {
+void SerialC::setup(Config* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr, Output_Serial* out=nullptr) {
+    this->setConfig(config);
+
     this->ser.setStream(stream);
-    this->ser.setPacketHandler(&this.parseCommand);
+    this->ser.setPacketHandler(&this->parseCommand);
 
     this->ee = eepromio;
+    this->setOutput(out);
+    
+}
+
+void SerialC::setOutput(Output_Serial* out) {
+    this->out = out;
+}
+
+void SerialC::setConfig(Config* config) {
+    this->config = config;
 }
 
 void SerialC::parseCommand(const uint8_t* buf, size_t size) {
-    if (size == 0) { sendStatus(SerialMessages::ERROR_SHORT); }
+    if (size == 0) { this->sendStatus(SerialMessages::ERROR_SHORT); }
 
     if (size > 1) {
         switch (buf[0]) {
@@ -56,6 +68,16 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 break;
             case SerialCommands::LIGHTS_FROM_SENSORS:
                 this->config[ConfigOptions::LIGHTS_FROM_SENSORS] = buf[1] & 1;
+                break;
+            case SerialCommands::SEND_LIGHTSMUX:
+                if (this->out == nullptr) return;
+
+                uint8_t tmp[size-1];
+                for (int i = 1; i < size; i++) {
+                    tmp[i-1] = buf[i];
+                }
+
+                this->out->update(tmp);
                 break;
             default:
                 sendStatus(SerialMessages::ERROR_UNKNOWN);

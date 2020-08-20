@@ -151,6 +151,8 @@ const uint8_t defaults[256] = {
     [ConfigOptions::MIDI_ANALOG_MAX] = MIDI_MAX_VELOCITY,
     [ConfigOptions::MIDI_CHANNEL] = DEFAULT_MIDI_CHANNEL,
 
+    [ConfigOptions::MIDI_USE_FIRST_BYTE] = EEPROM_FALSE,
+
     [ConfigOptions::P1_UPLEFT_MIDI0] = MIDI_NOTE_ON,
     [ConfigOptions::P1_UPLEFT_MIDI1] = 60,  // C5
     [ConfigOptions::P1_UPLEFT_MIDI2] = MIDI_STANDARD_VELOCITY,

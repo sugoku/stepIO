@@ -16,15 +16,16 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _OUTPUT_JOYSTICK_H
-#define _OUTPUT_JOYSTICK_H
+#ifndef _OUTPUT_MIDI_H
+#define _OUTPUT_MIDI_H
 
 #include "Output.h"
 
-class Output_Joystick : public Output
+class Output_MIDI : public Output
 {
     protected:
         uint8_t* config;
+        MIDI_* usbmidi;
 
     public:
         void setup(Config* config);
@@ -32,6 +33,7 @@ class Output_Joystick : public Output
         void updateHost();
         void send(uint16_t* buf);
         void sendAnalog(uint16_t* buf);  // buffer is an array
+        void set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on);
         const uint16_t* getLights();
         const uint8_t* getUSBData();
 };

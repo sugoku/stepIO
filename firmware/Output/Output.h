@@ -20,16 +20,19 @@
 #define _OUTPUT_H
 
 #include "Config.h"
+#include "HID-Project.h"
 
 class Output
 {
     protected:
-        uint16_t lights;  // a LightsPacket (enum in Config.h)
+        uint8_t* config;  // a link to a config
+        // uint16_t lights;  // a LightsPacket (enum in Config.h)
 
     public:
-        virtual int setup() = 0;
-        virtual int updateIn() = 0;
-        virtual int updateHost() = 0;
+        virtual void setup(Config* config) = 0;
+        virtual void setConfig(Config* config) = 0;
+        virtual void send() = 0;
+        virtual void updateHost() = 0;
         virtual uint8_t* getLights() const = 0;
         virtual uint8_t* getUSBData() const = 0;
 

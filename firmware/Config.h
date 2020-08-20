@@ -495,8 +495,10 @@ enum ConfigOptions {
     MIDI_ANALOG_MIN,
     MIDI_ANALOG_MAX,
     MIDI_CHANNEL,
+    
+    MIDI_USE_FIRST_BYTE,  // first byte (MIDI0) contains note on or note off info, enabling this bypasses note on and off signals by pressing and releasing
 
-    P1_UPLEFT_MIDI0,  // for MIDI, defining a MIDI event in order of header, byte1, byte2, byte3
+    P1_UPLEFT_MIDI0,  // for MIDI, defining a MIDI event in order of header (byte1 >> 4), byte0, byte1, byte2
     P1_UPLEFT_MIDI1,
     P1_UPLEFT_MIDI2,
     P1_UPLEFT_CHANNEL,
@@ -578,6 +580,28 @@ enum InputPacket {
     SERVICE_BUTTON,
     CLEAR_BUTTON
 }
+
+#define INPUT_COUNT 15
+
+/*
+const uint8_t INPUT_LIST[] = {
+    InputPacket::P1_UPLEFT,
+    InputPacket::P1_UPRIGHT,
+    InputPacket::P1_CENTER,
+    InputPacket::P1_DOWNLEFT,
+    InputPacket::P1_DOWNRIGHT,
+    InputPacket::P2_UPLEFT,
+    InputPacket::P2_UPRIGHT,
+    InputPacket::P2_CENTER,
+    InputPacket::P2_DOWNLEFT,
+    InputPacket::P2_DOWNRIGHT,
+    InputPacket::P1_COIN,
+    InputPacket::P2_COIN,
+    InputPacket::TEST_BUTTON,
+    InputPacket::SERVICE_BUTTON,
+    InputPacket::CLEAR_BUTTON
+}
+*/
 
 #define DEFAULT_BLOCKED_INPUTS_0 EEPROM_DEFAULT_VALUE
 #define DEFAULT_BLOCKED_INPUTS_1 EEPROM_DEFAULT_VALUE
@@ -676,6 +700,11 @@ enum PIUIO_LightsPacket {
 
 // NINTENDO SWITCH
 
+// bitshift, check 2nd digit
+#define EEPROM_SWITCH_BUTTON 0x0
+#define EEPROM_SWITCH_HAT 0x1
+#define EEPROM_SWITCH_STICK 0x2
+
 #define EEPROM_SWITCH_BUTTON_Y 0x00
 #define EEPROM_SWITCH_BUTTON_B 0x01
 #define EEPROM_SWITCH_BUTTON_A 0x02
@@ -754,6 +783,9 @@ enum SerialCommands {
     SAVE_TO_EEPROM,
     LOAD_FROM_EEPROM,
     GET_CONFIG,
+    SEND_INPUT,
+    SEND_INPUT_ANALOG,
+    SEND_LIGHTSMUX,
 }
 
 // outgoing messages

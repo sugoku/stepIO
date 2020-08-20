@@ -23,17 +23,20 @@
 
 class SerialC
 {
-    private:
+    protected:
         PacketSerial ser;
         EEPROM_IO* ee;
+        Output_Serial* out;
         uint8_t* config;
 
     public:
-        void setup(Stream* stream, EEPROM_IO* eepromio); 
+        void setup(Config* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr); 
+        void setConfig(Config* config);
         void parseCommand(const uint8_t* buf, size_t size);
         void sendPacket(uint8_t* buf);
         void sendConfig();
         void sendStatus(uint8_t status);  
+        void setOutput(Output_Serial* out);  // Output object, SerialC actually takes input from it
         void loadEEPROM();
         void saveEEPROM();
         void overflow();

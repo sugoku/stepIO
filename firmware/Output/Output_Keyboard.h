@@ -16,22 +16,22 @@
 /*            https://github.com/sugoku/stepIO            */
 /**********************************************************/
 
-#ifndef _OUTPUT_JOYSTICK_H
-#define _OUTPUT_JOYSTICK_H
+#ifndef _OUTPUT_KEYBOARD_H
+#define _OUTPUT_KEYBOARD_H
 
 #include "Output.h"
 
-class Output_Joystick : public Output
+class Output_Keyboard : public Output
 {
     protected:
         uint8_t* config;
+        uint16_t input = 0;  // we need to actually keep track of what we've pressed and what we haven't
 
     public:
         void setup(Config* config);
         void setConfig(Config* config);
         void updateHost();
         void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
         const uint16_t* getLights();
         const uint8_t* getUSBData();
 };
