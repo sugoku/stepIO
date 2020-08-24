@@ -35,7 +35,6 @@ class Output_MIDI : public Output
         void sendAnalog(uint16_t* buf);  // buffer is an array
         void set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on);
         const uint16_t* getLights();
-        const uint8_t* getUSBData();
 };
 
 #endif

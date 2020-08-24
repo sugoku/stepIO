@@ -108,10 +108,12 @@ void SendOutput(Output* out, uint32_t* buf) {
     out->send(buf);
 }
 
-int EnableUSB(uint8_t* usbdata) {
-    // check *usbdata is valid
+int EnableUSB(Output* out) {
+    STRING_MANUFACTURER = out->getManufacturer();
+    STRING_PRODUCT = out->getProduct();
+    USB_DeviceDescriptorIAD = out->getDeviceDescriptor();
 
-    USBDevice_ USBDevice(usbdata);  // comment this out in core and modify constructor so i can change VID and PID
+    USBDevice_ USBDevice();  // comment this out in core and modify constructor so i can change VID and PID
     USBDevice.attach();  // connects device, needs to be commented out from main.cpp
 
     // alternatively, could detach, change constructor, then reattach (though pluggableusb might make that annoying?)
@@ -170,6 +172,7 @@ void setup() {
             break;
         case OutputMode::PIUIO:
             out = Output_PIUIO();
+            vendorHandler = out.handleControl;
             break;
         case OutputMode::LXIO:
             out = Output_LXIO();
@@ -226,7 +229,7 @@ void setup() {
     blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
     blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_0]);
 
-    EnableUSB(out.getUSBData());  // SetupEndpoints();
+    EnableUSB(&out);  // SetupEndpoints();
 
     SERIAL_CONFIG.begin(SERIAL_BAUD);
     serialc.setup(&config, &Serial, &ee);

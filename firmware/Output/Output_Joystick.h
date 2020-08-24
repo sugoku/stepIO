@@ -33,7 +33,6 @@ class Output_Joystick : public Output
         void send(uint16_t* buf);
         void sendAnalog(uint16_t* buf);  // buffer is an array
         const uint16_t* getLights();
-        const uint8_t* getUSBData();
 };
 
 #endif

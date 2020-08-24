@@ -19,8 +19,15 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+
 #include <Arduino.h>
+
+#include <USBAPI.h>
+#include <USBCore.h>
+#include <USBDesc.h>
+
 #include <HID-Project.h>
+
 
 // IF YOU ARE USING A BROKEIO, UNCOMMENT THIS
 #define BROKEIO
@@ -111,17 +118,54 @@
 #endif
 
 
-// VERSION INFO
+// STEPIO INFO
+
+#define STEPIO_MANUFACTURER "sugoku"
+
+// test PID, should not be used in production!
+#define STEPIO_VID 0x1209
+#define STEPIO_PID 0x0001
+
+#define STEPIO_VERSION_GEN 0x02
 
 #ifndef BROKEIO
+
     #define STEPIO_VERSION_MODEL 0x01  // stepIO
+    #define STEPIO_VERSION_MAJOR 0x00
+    #define STEPIO_VERSION_MINOR 0x01
+    #define STEPIO_VERSION_REVISION 0x01  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
+
+    #define STEPIO_PRODUCT "brokeIO"
+
 #else
+
     #define STEPIO_VERSION_MODEL 0x02  // brokeIO
+    #define STEPIO_VERSION_MAJOR 0x00
+    #define STEPIO_VERSION_MINOR 0x01
+    #define STEPIO_VERSION_REVISION 0x01
+
+    #define STEPIO_PRODUCT "stepIO"
+
 #endif
-#define STEPIO_VERSION_MAJOR 0x00
-#define STEPIO_VERSION_MINOR 0x01
-#define STEPIO_VERSION_REVISION 0x01  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
-#define STEPIO_VERSION_GEN 0x02
+
+#define STEPIO_DEVICE_DESCRIPTOR D_DEVICE(  \
+    0xEF,   \
+    0x02,   \
+    0x01,   \
+    USB_EP_SIZE,    \
+    STEPIO_VID,     \
+    STEPIO_PID,     \
+    (STEPIO_VERSION_MAJOR << 2) | (STEPIO_VERSION_MINOR << 1),  \
+    IMANUFACTURER,  \
+    IPRODUCT,   \
+    ISERIAL,    \
+    1  \
+)
+
+// EF,02,01 are three magic bytes which indicate that the board has multiple IADs
+// 1 at the end indicates one configuration
+
+
 
 // PLAYERS
 
@@ -720,6 +764,9 @@ enum PIUIO_LightsPacket {
 #define PIUIO_INDEX 0x00
 #define PIUIO_VALUE 0x00
 
+#define PIUIO_VID 0x0547
+#define PIUIO_PID 0x1002
+
 // NINTENDO SWITCH
 
 // bitshift, check 2nd digit
@@ -756,6 +803,11 @@ enum PIUIO_LightsPacket {
 #define EEPROM_SWITCH_STICK_LY 0x21
 #define EEPROM_SWITCH_STICK_RX 0x22
 #define EEPROM_SWITCH_STICK_RY 0x23
+
+#define SWITCH_VID 0x0F0D
+#define SWITCH_PID 0x0092
+#define SWITCH_MANUFACTURER "HORI CO.,LTD."  // unused
+#define SWITCH_PRODUCT "POKKEN CONTROLLER"
 
 // MIDI
 

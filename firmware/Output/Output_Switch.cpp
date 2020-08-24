@@ -40,24 +40,24 @@ static uint8_t Output_Switch::buttonToBit(uint8_t n) {
 }
 
 void Output_Switch::send(uint16_t* buf) {
-    uint32_t tmp = 0x0000;
+    uint32_t tmp = 0x0;
     
     // need to parse switch defs first (probably in config)
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_UPLEFT_GAMEPAD]), GETBIT(*buf, InputPacket::P1_UPLEFT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_UPRIGHT_GAMEPAD]), GETBIT(*buf, InputPacket::P1_UPRIGHT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_CENTER_GAMEPAD]), GETBIT(*buf, InputPacket::P1_CENTER));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_DOWNLEFT_GAMEPAD]), GETBIT(*buf, InputPacket::P1_DOWNLEFT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_DOWNRIGHT_GAMEPAD]), GETBIT(*buf, InputPacket::P1_DOWNRIGHT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_UPLEFT_GAMEPAD]), GETBIT(*buf, InputPacket::P2_UPLEFT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_UPRIGHT_GAMEPAD]), GETBIT(*buf, InputPacket::P2_UPRIGHT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_CENTER_GAMEPAD]), GETBIT(*buf, InputPacket::P2_CENTER));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_DOWNLEFT_GAMEPAD]), GETBIT(*buf, InputPacket::P2_DOWNLEFT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_DOWNRIGHT_GAMEPAD]), GETBIT(*buf, InputPacket::P2_DOWNRIGHT));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_COIN_GAMEPAD]), GETBIT(*buf, InputPacket::P1_COIN));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_COIN_GAMEPAD]), GETBIT(*buf, InputPacket::P2_COIN));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::TEST_BUTTON_GAMEPAD]), GETBIT(*buf, InputPacket::TEST_BUTTON));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::SERVICE_BUTTON_GAMEPAD]), GETBIT(*buf, InputPacket::SERVICE_BUTTON));
-    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::CLEAR_BUTTON_GAMEPAD]), GETBIT(*buf, InputPacket::CLEAR_BUTTON));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_UPLEFT_SWITCH]), GETBIT(*buf, InputPacket::P1_UPLEFT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_UPRIGHT_SWITCH]), GETBIT(*buf, InputPacket::P1_UPRIGHT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_CENTER_SWITCH]), GETBIT(*buf, InputPacket::P1_CENTER));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_DOWNLEFT_SWITCH]), GETBIT(*buf, InputPacket::P1_DOWNLEFT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_DOWNRIGHT_SWITCH]), GETBIT(*buf, InputPacket::P1_DOWNRIGHT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_UPLEFT_SWITCH]), GETBIT(*buf, InputPacket::P2_UPLEFT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_UPRIGHT_SWITCH]), GETBIT(*buf, InputPacket::P2_UPRIGHT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_CENTER_SWITCH]), GETBIT(*buf, InputPacket::P2_CENTER));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_DOWNLEFT_SWITCH]), GETBIT(*buf, InputPacket::P2_DOWNLEFT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_DOWNRIGHT_SWITCH]), GETBIT(*buf, InputPacket::P2_DOWNRIGHT));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P1_COIN_SWITCH]), GETBIT(*buf, InputPacket::P1_COIN));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::P2_COIN_SWITCH]), GETBIT(*buf, InputPacket::P2_COIN));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::TEST_BUTTON_SWITCH]), GETBIT(*buf, InputPacket::TEST_BUTTON));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::SERVICE_BUTTON_SWITCH]), GETBIT(*buf, InputPacket::SERVICE_BUTTON));
+    SETORCLRBIT(tmp, Output_Switch::buttonToBit(this->config[ConfigOptions::CLEAR_BUTTON_SWITCH]), GETBIT(*buf, InputPacket::CLEAR_BUTTON));
 
     SwitchJoystick.buttons(tmp);
     SwitchJoystick.write();

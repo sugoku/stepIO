@@ -26,7 +26,10 @@ class Output
 {
     protected:
         uint8_t* config;  // a link to a config
-        // uint16_t lights;  // a LightsPacket (enum in Config.h)
+        uint8_t manufacturer[] = STEPIO_MANUFACTURER;
+        uint8_t product[] = STEPIO_PRODUCT;
+        DeviceDescriptor ddescriptor = STEPIO_DEVICE_DESCRIPTOR;
+
 
     public:
         virtual void setup(Config* config) = 0;
@@ -34,7 +37,9 @@ class Output
         virtual void send() = 0;
         virtual void updateHost() = 0;
         virtual uint8_t* getLights() const = 0;
-        virtual uint8_t* getUSBData() const = 0;
+        uint8_t* getManufacturer() { return manufacturer; }
+        uint8_t* getProduct() { return product; }
+        DeviceDescriptor getDeviceDescriptor() { return ddescriptor; }
 
 };
 

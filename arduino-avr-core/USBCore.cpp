@@ -31,12 +31,13 @@ volatile u8 RxLEDPulse; /**< Milliseconds remaining for data Rx LED pulse */
 //==================================================================
 //==================================================================
 
-extern const u16 STRING_LANGUAGE[] PROGMEM;
-extern const u8 STRING_PRODUCT[] PROGMEM;
-extern const u8 STRING_MANUFACTURER[] PROGMEM;
-extern const DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM;
+// extern const u16 STRING_LANGUAGE[] PROGMEM;
+// extern const u8 STRING_PRODUCT[] PROGMEM;
+// extern const u8 STRING_MANUFACTURER[] PROGMEM;
+// extern const DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM;
+// no longer constants, moved to header
 
-const u16 STRING_LANGUAGE[2] = {
+u16 STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
 	0x0409	// English
 };
@@ -46,8 +47,9 @@ const u16 STRING_LANGUAGE[2] = {
 #define USB_PRODUCT     "USB IO Board"
 #endif
 
-const u8 STRING_PRODUCT[] PROGMEM = USB_PRODUCT;
+u8 STRING_PRODUCT[] = USB_PRODUCT;
 
+/*
 #if USB_VID == 0x2341
 #  if defined(USB_MANUFACTURER)
 #    undef USB_MANUFACTURER
@@ -58,12 +60,14 @@ const u8 STRING_PRODUCT[] PROGMEM = USB_PRODUCT;
 #    undef USB_MANUFACTURER
 #  endif
 #  define USB_MANUFACTURER "SparkFun"
-#elif !defined(USB_MANUFACTURER)
+*/  // don't replace any manufacturer info if we've specified it before
+
+#ifndef USB_MANUFACTURER
 // Fall through to unknown if no manufacturer name was provided in a macro
-#  define USB_MANUFACTURER "Unknown"
+#define USB_MANUFACTURER "Unknown"
 #endif
 
-const u8 STRING_MANUFACTURER[] PROGMEM = USB_MANUFACTURER;
+u8 STRING_MANUFACTURER[] = USB_MANUFACTURER;
 
 
 #define DEVICE_CLASS 0x02
@@ -521,10 +525,10 @@ bool SendDescriptor(USBSetup& setup)
 			desc_addr = (const u8*)&STRING_LANGUAGE;
 		}
 		else if (setup.wValueL == IPRODUCT) {
-			return USB_SendStringDescriptor(STRING_PRODUCT, strlen(USB_PRODUCT), TRANSFER_PGM);
+			return USB_SendStringDescriptor(STRING_PRODUCT, strlen(STRING_PRODUCT), TRANSFER_PGM);
 		}
 		else if (setup.wValueL == IMANUFACTURER) {
-			return USB_SendStringDescriptor(STRING_MANUFACTURER, strlen(USB_MANUFACTURER), TRANSFER_PGM);
+			return USB_SendStringDescriptor(STRING_MANUFACTURER, strlen(STRING_MANUFACTURER), TRANSFER_PGM);
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED

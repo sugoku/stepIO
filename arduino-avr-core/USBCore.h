@@ -151,8 +151,12 @@ typedef struct {
 	u8	bNumConfigurations;
 } DeviceDescriptor;
 
-// this allows to modify the descriptor before enabling the USB device
+extern u16 STRING_LANGUAGE[2];
+// max for product and manufacturer is 255
+extern u8 STRING_PRODUCT[];
+extern u8 STRING_MANUFACTURER[];
 extern DeviceDescriptor USB_DeviceDescriptorIAD;
+// this allows to modify USB info before enabling the USB device
 
 // handling vendor control transfers
 typedef FuncHandler(USBSetup setup);
