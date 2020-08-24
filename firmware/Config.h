@@ -148,6 +148,14 @@
 
 #endif
 
+// #define REPORT_ACTUAL_VERSION
+
+#ifdef REPORT_ACTUAL_VERSION
+    #define STEPIO_VERSION_USB (STEPIO_VERSION_MAJOR << 2) | (STEPIO_VERSION_MINOR << 1)
+#else
+    #define STEPIO_VERSION_USB STEPIO_VERSION_MODEL << 2
+#endif
+
 #define STEPIO_DEVICE_DESCRIPTOR D_DEVICE(  \
     0xEF,   \
     0x02,   \
@@ -155,12 +163,14 @@
     USB_EP_SIZE,    \
     STEPIO_VID,     \
     STEPIO_PID,     \
-    (STEPIO_VERSION_MAJOR << 2) | (STEPIO_VERSION_MINOR << 1),  \
+    STEPIO_VERSION_USB,  \
     IMANUFACTURER,  \
     IPRODUCT,   \
     ISERIAL,    \
     1  \
 )
+
+// to use actual version under version, use 
 
 // EF,02,01 are three magic bytes which indicate that the board has multiple IADs
 // 1 at the end indicates one configuration

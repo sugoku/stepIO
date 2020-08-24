@@ -37,7 +37,7 @@ class Output_PIUIO : public Output
             USB_EP_SIZE,
             PIUIO_VID,
             PIUIO_PID,
-            0x100,  // version 1
+            STEPIO_VERSION_USB,
             IMANUFACTURER,
             IPRODUCT,
             ISERIAL,

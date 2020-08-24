@@ -34,7 +34,7 @@ class Output_Switch : public Output
             USB_EP_SIZE,
             SWITCH_VID,
             SWITCH_PID,
-            0x100,  // version 1
+            STEPIO_VERSION_USB,
             IMANUFACTURER,
             IPRODUCT,
             ISERIAL,
