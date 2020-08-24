@@ -38,7 +38,7 @@ void Lights_APA102::setTrigger(int n) {
     this->triggerall = n;
 }
 
-uint32_t Lights_APA102::send(uint32_t* buf) {
+int Lights_APA102::send(uint32_t* buf) {
     if (this->triggerall >= 0) {
         if ((buf >> this->triggerall) & 1) {  // if triggered bit is on
             return this->write(0, this->count);

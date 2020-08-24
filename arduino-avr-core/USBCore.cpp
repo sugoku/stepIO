@@ -69,7 +69,9 @@ const u8 STRING_MANUFACTURER[] PROGMEM = USB_MANUFACTURER;
 #define DEVICE_CLASS 0x02
 
 //	DEVICE DESCRIPTOR
-const DeviceDescriptor USB_DeviceDescriptorIAD =
+
+// this is no longer a constant, we want to be able to change this
+DeviceDescriptor USB_DeviceDescriptorIAD =
 	D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
 
 //==================================================================
@@ -542,8 +544,6 @@ bool SendDescriptor(USBSetup& setup)
 	USB_SendControl(TRANSFER_PGM,desc_addr,desc_length);
 	return true;
 }
-
-typedef FuncHandler(USBSetup setup);
 
 void VendorControl(USBSetup setup)
 {

@@ -79,8 +79,20 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
 
                 this->out->update(tmp);
                 break;
+            case SerialCommands::CHANGE_BAUD:
+                // not implemented yet
+                break;
+            case SerialCommands::SET_CONFIG:
+                uint8_t tmp[size-1];
+                for (int i = 1; i < size; i++) {
+                    tmp[i-1] = buf[i];
+                }
+
+                if (size == 257)
+                    this->setConfig(tmp, true);
+                break;
             default:
-                sendStatus(SerialMessages::ERROR_UNKNOWN);
+                this->sendStatus(SerialMessages::ERROR_UNKNOWN);
                 break;
         }
     } else {
@@ -93,6 +105,12 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 break;
             case SerialCommands::GET_CONFIG:
                 this->sendConfig();
+                break;
+            case SerialCommands::RESET:
+                LOOP_FOREVER;
+                break;
+            case SerialCommands::STATUS_GET:
+                this->sendStatus(SerialMessages::ALIVE);
                 break;
         }
     }
@@ -112,12 +130,20 @@ void SerialC::sendStatus(uint8_t status) {
 }
 
 void SerialC::loadEEPROM() {
+    if (this->ee == nullptr) return;
     this->ee->readConfig(this->config);
 }
 
 void SerialC::saveEEPROM() {
+    if (this->ee == nullptr) return;
     this->ee->updateConfig(this->config);
 }
+
+void SerialC::setConfig(const uint8_t* buf) {
+    if (this->ee == nullptr) return;
+    this->ee->updateConfig(buf);
+}
+
 
 bool SerialC::overflow() {
     return this->ser.overflow();

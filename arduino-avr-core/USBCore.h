@@ -151,6 +151,13 @@ typedef struct {
 	u8	bNumConfigurations;
 } DeviceDescriptor;
 
+// this allows to modify the descriptor before enabling the USB device
+extern DeviceDescriptor USB_DeviceDescriptorIAD;
+
+// handling vendor control transfers
+typedef FuncHandler(USBSetup setup);
+extern FuncHandler vendorHandler;
+
 //	Config
 typedef struct {
 	u8	len;			// 9

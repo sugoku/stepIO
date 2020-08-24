@@ -35,7 +35,7 @@ class Lights_APA102 : public Lights
 
     public:
         void setup(int n=0);
-        uint32_t send(uint32_t* buf);
+        int send(uint32_t* buf);
         void setColor(uint8_t* arr);
         void setCount(int n);
         void setTrigger(int n);

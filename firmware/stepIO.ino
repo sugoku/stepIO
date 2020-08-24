@@ -103,9 +103,9 @@ void FilterOutput(uint32_t* buf) {
     #endif
 }
 
-uint8_t SendOutput(Output* out, uint32_t* buf) {
-    if (out == NULL) return -1;
-    return out->send(buf);
+void SendOutput(Output* out, uint32_t* buf) {
+    if (out == NULL) return;
+    out->send(buf);
 }
 
 int EnableUSB(uint8_t* usbdata) {
@@ -142,12 +142,7 @@ void setup() {
         config = defaults;
     #endif
 
-
-    #if defined(__SAM3X8E__)
-        watchdogEnable(WATCHDOG_TIMEOUT);
-    #elif defined(__AVR__)
-        wdt_enable(WATCHDOG_TIMEOUT);
-    #endif
+    WATCHDOG_ENABLE;
 
     switch (inmode) {
         case InputMode::MUX4051:
@@ -245,11 +240,7 @@ void setup() {
 
 void loop() {
 
-    #if defined(__SAM3X8E__)
-        watchdogReset();
-    #elif defined(__AVR__)
-        wdt_reset();
-    #endif
+    WATCHDOG_RESET;
 
     UpdateHost(&out);
 

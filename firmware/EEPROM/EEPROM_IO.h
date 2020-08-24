@@ -31,12 +31,13 @@ class EEPROM_ext
 
     public: 
         uint8_t initialize();
-        uint8_t read(int loc, uint8_t* buf[], size_t n=1);
+        int read(int loc, uint8_t* buf[], size_t n=1);
         uint8_t readByte(int loc);
-        uint8_t write(int loc, uint8_t* buf[], size_t n);
-        uint8_t update(int loc, uint8_t* buf[], size_t n);
-        uint8_t readConfig(uint8_t* config);
-        uint8_t versionCheck(uint8_t* config);
+        int write(int loc, uint8_t* buf[], size_t n);
+        int update(int loc, uint8_t* buf[], size_t n);
+        int readConfig(uint8_t* config);
+        int updateConfig(uint8_t* config);
+        int versionCheck(uint8_t* config);
     
 }; 
 

@@ -94,6 +94,23 @@
 #define ORBIT(port,bit,val) ((port) |= (val << (bit))
 #define ANDBIT(port,bit,val) ((port) &= ~(!val << (bit))  // i think this makes sense?
 
+// OTHER MACROS
+
+#define LOOP_FOREVER for(;;){}  // useful to force a reset as long as watchdog is enabled
+
+#define WATCHDOG_TIMEOUT 1000  // in milliseconds
+#if defined(__SAM3X8E__)
+    #define WATCHDOG_ENABLE watchdogEnable(WATCHDOG_TIMEOUT)
+    #define WATCHDOG_RESET watchdogReset()
+#elif defined(__AVR__)
+    #define WATCHDOG_ENABLE wdt_enable(WATCHDOG_TIMEOUT)
+    #define WATCHDOG_RESET wdt_reset()
+#else
+    #define WATCHDOG_ENABLE
+    #define WATCHDOG_RESET
+#endif
+
+
 // VERSION INFO
 
 #ifndef BROKEIO
@@ -358,6 +375,8 @@
 // EEPROM
 // for external EEPROM which is needed for stepIO but not brokeIO
 
+#define EEPROM_OFFSET 0x00  // needs to be implemented
+
 #define EEPROM_TRUE 0x01
 #define EEPROM_FALSE 0x00
 
@@ -558,7 +577,6 @@ enum ConfigOptions {
     CLEAR_BUTTON_MIDI1,
     CLEAR_BUTTON_MIDI2,
     CLEAR_BUTTON_CHANNEL,
-
 }
 
 // INPUT/OUTPUT CONSTANTS
@@ -790,6 +808,9 @@ enum SerialCommands {
     SEND_INPUT,
     SEND_INPUT_ANALOG,
     SEND_LIGHTSMUX,
+    CHANGE_BAUD,
+    RESET,
+    STATUS_GET,
 }
 
 // outgoing messages
@@ -801,9 +822,10 @@ enum SerialMessageTypes {
 
 enum SerialMessages {
     SUCCESS,
+    ALIVE,
     ERROR_OVERFLOW,
     ERROR_SHORT,
-    ERROR_UNKNOWN
+    ERROR_UNKNOWN,
 }
 
 
@@ -829,11 +851,6 @@ enum WireError {  // I2C errors, EEPROM
 enum RuntimeError {
     NONE = 0xFF
 }
-
-
-// RUNTIME
-
-#define WATCHDOG_TIMEOUT 1000  // in milliseconds
 
 
 #endif

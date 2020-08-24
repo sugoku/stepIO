@@ -22,7 +22,7 @@
 #include "Config.h"
 
 // These are the default settings which will be loaded into stepIO/brokeIO on first boot, change as needed
-const uint8_t defaults[256] = {
+const uint8_t defaults[256] PROGMEM = {
     [ConfigOptions::VERSION_MODEL] = STEPIO_VERSION_MODEL,
     [ConfigOptions::VERSION_MAJOR] = STEPIO_VERSION_MAJOR,
     [ConfigOptions::VERSION_MINOR] = STEPIO_VERSION_MINOR,
