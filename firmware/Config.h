@@ -480,6 +480,12 @@ enum ConfigOptions {
     BLOCKED_INPUTS_2,
     BLOCKED_INPUTS_3,
 
+    // LSB
+    SERIAL_BAUD_BYTE0,
+    SERIAL_BAUD_BYTE1,
+    SERIAL_BAUD_BYTE2,
+    SERIAL_BAUD_BYTE3,
+
     RGB_LED_COUNT,
     EXTRA_LED_TRIGGER,  // 0xFF default, means disabled (based on nth bit of LightsPacket)
 
@@ -879,6 +885,7 @@ enum SerialCommands {
 enum SerialMessageTypes {
     STATUS,
     SENSOR,
+    SENSOR_ANALOG,
     CONFIG,
 }
 

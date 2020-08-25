@@ -52,13 +52,13 @@ const uint8_t* Output_Serial::getMuxes() {
 
 void Output_Serial::send(uint16_t* buf) {
     if (this->serialc == nullptr) return;
-    this->serialc->sendPacket({SerialCommands::SEND_INPUT, buf >> 4, buf & 0b1111});
+    this->serialc->sendPacket({SerialMessageTypes::SENSOR, buf >> 4, buf & 0b1111});
 }
 
 void Output_Serial::sendAnalog(uint16_t* buf) {
     if (this->serialc == nullptr) return;
     uint8_t tmp = {
-        SerialCommands::SEND_INPUT_ANALOG,
+        SerialMessageTypes::SENSOR_ANALOG,
         // PLAYER 1
         buf[0],buf[1],buf[2],buf[3],buf[4],
         // PLAYER 2

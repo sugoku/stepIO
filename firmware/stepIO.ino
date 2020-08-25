@@ -148,10 +148,12 @@ void setup() {
 
     switch (inmode) {
         case InputMode::MUX4051:
-            in = InputMUX_4051();
+            // to be implemented in stepIO
+            // in = InputMUX_4051();
             break;
         case InputMode::MUX4067:
-            in = InputMUX_4067();
+            // to be implemented
+            // in = InputMUX_4067();
             break;
         case InputMode::MUX4067_Dual:
             in = Input_MUX4067_Dual();
@@ -172,16 +174,15 @@ void setup() {
             break;
         case OutputMode::PIUIO:
             out = Output_PIUIO();
-            vendorHandler = out.handleControl;
-            break;
-        case OutputMode::LXIO:
-            out = Output_LXIO();
+            vendorHandler = out.handleControl;  // allow us to handle vendor control transfers
             break;
         case OutputMode::Switch:
-            out = Output_Switch();
+            // todo: add modified HID library and SwitchJoystick in order to use
+            // out = Output_Switch();
             break;
         case OutputMode::MIDI:
-            out = Output_MIDI();
+            // todo: modify MIDIUSB to not instantly initialize in order to use
+            // out = Output_MIDI();
             break;
     }
     out.setup(&config);
