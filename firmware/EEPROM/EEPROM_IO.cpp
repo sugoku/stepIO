@@ -28,6 +28,7 @@ uint8_t EEPROM_IO::initialize() {
 }
 
 int EEPROM_IO::read(int loc, uint8_t* buf[], size_t n=1) {
+    loc += EEPROM_OFFSET
     #ifdef EEPROM_EXTERNAL
         return ee.read(loc, buf, n);
     #else
@@ -38,6 +39,7 @@ int EEPROM_IO::read(int loc, uint8_t* buf[], size_t n=1) {
 }
 
 uint8_t EEPROM_IO::readByte(int loc) {
+    loc += EEPROM_OFFSET
     #ifdef EEPROM_EXTERNAL
         return ee.read(loc);
     #else
@@ -46,6 +48,7 @@ uint8_t EEPROM_IO::readByte(int loc) {
 }
 
 int EEPROM_IO::write(int loc, uint8_t* buf[], size_t n) {
+    loc += EEPROM_OFFSET
     #ifdef EEPROM_EXTERNAL
         return ee.write(loc, buf, n);
     #else
@@ -56,6 +59,7 @@ int EEPROM_IO::write(int loc, uint8_t* buf[], size_t n) {
 }
 
 int EEPROM_IO::update(int loc, uint8_t* buf[], size_t n) {
+    loc += EEPROM_OFFSET
     #ifdef EEPROM_EXTERNAL
         // probably have some loop here to check first
         return ee.write(loc, buf, n);

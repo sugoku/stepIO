@@ -39,9 +39,9 @@ uint8_t status = 0;
 uint32_t outbuf = 0;
 uint32_t* lightbuf;
 uint32_t* inVals[];
-uint32_t* outMuxes[2];
+uint8_t* outMuxes[2];
 uint8_t config[256];
-uint32_t blocked = 0;
+uint32_t blocked[5] = {0, 0, 0, 0, 0};  // 5th is a global block
 
 uint8_t inmode = 0;
 uint8_t outmode = 0;
@@ -96,7 +96,14 @@ void GetOutput(Input *in, uint32_t* buf) {
 }
 
 void FilterOutput(uint32_t* buf) {
-    buf &= blocked;  // any disabled inputs get nulled here
+    // mux blocks
+    if (outmuxes[0] != 0xFF) {
+        buf &= (blocked[outMuxes[0]] & 0xFFFF0000);  // player 1
+        buf &= (blocked[outMuxes[1]] & 0x0000FFFF);  // player 2
+    }
+
+    buf &= blocked[5];  // global blocks
+    
     #ifdef DEBOUNCING
         // something
         // probably wait X ms before actually releasing if something is released
@@ -225,10 +232,30 @@ void setup() {
     #endif
 
     // get blocked inputs from the config
-    blocked = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_3] << 24);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_2] << 16);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_0]);
+    blocked[5] = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_3] << 24);
+    blocked[5] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_2] << 16);
+    blocked[5] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
+    blocked[5] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_0]);
+
+    blocked[0] = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX0_3] << 24);
+    blocked[0] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX0_2] << 16);
+    blocked[0] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX0_1] << 8);
+    blocked[0] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX0_0]);
+
+    blocked[1] = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX1_3] << 24);
+    blocked[1] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX1_2] << 16);
+    blocked[1] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX1_1] << 8);
+    blocked[1] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX1_0]);
+
+    blocked[2] = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX2_3] << 24);
+    blocked[2] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX2_2] << 16);
+    blocked[2] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX2_1] << 8);
+    blocked[2] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX2_0]);
+
+    blocked[3] = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX3_3] << 24);
+    blocked[3] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX3_2] << 16);
+    blocked[3] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX3_1] << 8);
+    blocked[3] |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_MUX3_0]);
 
     EnableUSB(&out);  // SetupEndpoints();
 
@@ -238,7 +265,12 @@ void setup() {
         serialc.setOutput(&out);
 
     inVals = in.getValues();
-    outMuxes = out.getMuxes();
+    if (outmode == OutputMode::Serial || outmode == OutputMode::PIUIO) {
+        outMuxes = out.getMuxes();
+    } else {
+        outMuxes = {0xFF, 0xFF};
+    }
+        
 
 }
 

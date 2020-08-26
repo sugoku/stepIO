@@ -37,6 +37,9 @@ void Lights_Latch32::setup() {
 }
 
 int Lights_Latch32::send(uint32_t* buf) {
+    // CONVERT LIGHTS INTO THEIR ACTUAL PINS IN THE SHIFT REGISTER, MAKE SURE WE CAN SEND MUX CLOCKS
+    // TODO: FIX THIS
+
     // tell latch to receive from SPI
     CLRBIT(LATCH_RCLK_PORT, LATCH_RCLK_PIN);
 

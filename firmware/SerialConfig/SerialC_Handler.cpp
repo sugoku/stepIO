@@ -44,30 +44,40 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
         switch (buf[0]) {
             case SerialCommands::CHANGE_INPUT_MODE:
                 this->config[ConfigOptions::INPUT_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::CHANGE_OUTPUT_MODE:
                 this->config[ConfigOptions::OUTPUT_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::CHANGE_LIGHTS_MODE:
                 this->config[ConfigOptions::LIGHTS_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::CHANGE_EXTRA_LIGHTS_MODE:
                 this->config[ConfigOptions::EXTRA_LIGHTS_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::CHANGE_MUX_POLLING_MODE:
                 this->config[ConfigOptions::MUX_POLLING_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::CHANGE_DEBOUNCE_MODE:
                 this->config[ConfigOptions::DEBOUNCE_MODE] = buf[1];
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::ANALOG_THRESHOLD:
+                this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
             case SerialCommands::EDIT_INPUT:
+                this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
             case SerialCommands::SET_EXTRA_LED:
+                this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
             case SerialCommands::LIGHTS_FROM_SENSORS:
                 this->config[ConfigOptions::LIGHTS_FROM_SENSORS] = buf[1] & 1;
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::SEND_LIGHTSMUX:
                 if (this->out == nullptr) return;
@@ -80,7 +90,7 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 this->out->update(tmp);
                 break;
             case SerialCommands::CHANGE_BAUD:
-                // not implemented yet
+                this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
             case SerialCommands::SET_CONFIG:
                 uint8_t tmp[size-1];
@@ -90,27 +100,31 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
 
                 if (size == 257)
                     this->setConfig(tmp, true);
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             default:
-                this->sendStatus(SerialMessages::ERROR_UNKNOWN);
+                this->sendStatus(SerialMessages::ERROR_UNKNOWN, buf[0]);
                 break;
         }
     } else {
         switch (buf[0]) {
             case SerialCommands::LOAD_FROM_EEPROM:
                 this->loadEEPROM();
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::SAVE_TO_EEPROM:
                 this->saveEEPROM();
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::GET_CONFIG:
                 this->sendConfig();
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::RESET:
                 LOOP_FOREVER;
                 break;
             case SerialCommands::STATUS_GET:
-                this->sendStatus(SerialMessages::ALIVE);
+                this->sendStatus(SerialMessages::ALIVE, SerialCommands::STATUS_GET);
                 break;
         }
     }
@@ -124,8 +138,8 @@ void SerialC::sendConfig() {
     this->sendPacket(this->config);
 }
 
-void SerialC::sendStatus(uint8_t status) {
-    pkt = {SerialMessageTypes::STATUS, status};
+void SerialC::sendStatus(uint8_t status, uint8_t command) {
+    pkt = {SerialMessageTypes::STATUS, command, status};
     this->sendPacket(&pkt);
 }
 
