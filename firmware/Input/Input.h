@@ -47,6 +47,7 @@ enum MUXPollingMode {
     Normal,
     Merged,
     HalfMerged,
-}
+    One,
+};
 
 #endif

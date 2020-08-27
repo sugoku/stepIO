@@ -34,11 +34,14 @@ class SerialC
         void setConfig(Config* config);
         void parseCommand(const uint8_t* buf, size_t size);
         void sendPacket(uint8_t* buf);
+        uint8_t makePacket(uint8_t command, uint8_t* buf);
         void sendConfig();
+        void sendDeviceInfo();
         void sendStatus(uint8_t status, uint8_t command);  
         void setOutput(Output_Serial* out);  // Output object, SerialC actually takes input from it
         void loadEEPROM();
         void saveEEPROM();
+        void saveConfig(uint8_t* buf);
         void overflow();
 
 };

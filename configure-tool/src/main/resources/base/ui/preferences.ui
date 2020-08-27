@@ -23,7 +23,7 @@
       <attribute name="title">
        <string>Tab 1</string>
       </attribute>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="checkBox_indmux">
        <property name="geometry">
         <rect>
          <x>10</x>

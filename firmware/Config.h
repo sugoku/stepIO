@@ -657,7 +657,7 @@ enum ConfigOptions {
     CLEAR_BUTTON_MIDI1,
     CLEAR_BUTTON_MIDI2,
     CLEAR_BUTTON_CHANNEL,
-}
+};
 
 // INPUT/OUTPUT CONSTANTS
 
@@ -677,7 +677,7 @@ enum InputPacket {
     TEST_BUTTON,
     SERVICE_BUTTON,
     CLEAR_BUTTON
-}
+};
 
 #define INPUT_COUNT 15
 
@@ -729,7 +729,7 @@ enum LightsPacket {
     MUX0_S1,
     MUX1_S0,
     MUX1_S1,
-}
+};
 
 // least to most significant bit
 enum PIUIO_InputPacket {
@@ -765,7 +765,7 @@ enum PIUIO_InputPacket {
     NC_29,
     NC_30,
     NC_31
-}
+};
 enum PIUIO_LightsPacket {
     MARQUEE_3,
     MARQUEE_2,
@@ -799,7 +799,7 @@ enum PIUIO_LightsPacket {
     P1_DOWNLEFT,
     P1_DOWNRIGHT,
     NC_31
-}
+};
 
 #define PIUIO_ENDPOINT 0x00  // control endpoint
 #define PIUIO_ADDRESS 0xAE
@@ -899,13 +899,17 @@ enum SerialCommands {
     SAVE_TO_EEPROM,
     LOAD_FROM_EEPROM,
     GET_CONFIG,
+    SET_CONFIG,
     SEND_INPUT,
     SEND_INPUT_ANALOG,
+    GET_LIGHTSMUX,
     SEND_LIGHTSMUX,
     CHANGE_BAUD,
     RESET,
     STATUS_GET,
-}
+    SET_FACTORY_DEFAULTS,
+    GET_DEVICE_INFO,
+};
 
 // outgoing messages
 enum SerialMessageTypes {
@@ -913,7 +917,7 @@ enum SerialMessageTypes {
     SENSOR,
     SENSOR_ANALOG,
     CONFIG,
-}
+};
 
 enum SerialMessages {
     SUCCESS,
@@ -922,7 +926,9 @@ enum SerialMessages {
     ERROR_SHORT,
     ERROR_UNKNOWN,
     NOT_IMPLEMENTED,
-}
+    ERROR_NOT_ATTACHED,
+    RESET,
+};
 
 
 // UPDATES
@@ -933,7 +939,7 @@ enum UpdateStatus {
     PENDING_FLASH,
     FLASH_ERROR,
     NOT_FLASHED = 0xFF
-}
+};
 
 // ERRORS
 
@@ -942,11 +948,11 @@ enum WireError {  // I2C errors, EEPROM
     NACK_ON_ADDR,
     NACK_ON_DATA,
     OTHER_ERROR
-}
+};
 
 enum RuntimeError {
     NONE = 0xFF
-}
+};
 
 
 #endif

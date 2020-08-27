@@ -80,26 +80,26 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::SEND_LIGHTSMUX:
-                if (this->out == nullptr) return;
+                if (this->out == nullptr) {
+                    this->sendStatus(SerialMessages::ERROR_NOT_ATTACHED, buf[0]);
+                } else {
+                    uint8_t tmp[size-1];
+                    for (int i = 1; i < size; i++)
+                        tmp[i-1] = buf[i];
 
-                uint8_t tmp[size-1];
-                for (int i = 1; i < size; i++) {
-                    tmp[i-1] = buf[i];
+                    this->out->update(tmp);
                 }
-
-                this->out->update(tmp);
                 break;
             case SerialCommands::CHANGE_BAUD:
                 this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
             case SerialCommands::SET_CONFIG:
                 uint8_t tmp[size-1];
-                for (int i = 1; i < size; i++) {
+                for (int i = 1; i < size; i++)
                     tmp[i-1] = buf[i];
-                }
 
                 if (size == 257)
-                    this->setConfig(tmp, true);
+                    this->saveConfig(tmp);
                 this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             default:
@@ -121,10 +121,28 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
             case SerialCommands::RESET:
+                this->sendStatus(SerialMessages::RESET, buf[0]);
                 LOOP_FOREVER;
                 break;
             case SerialCommands::STATUS_GET:
                 this->sendStatus(SerialMessages::ALIVE, SerialCommands::STATUS_GET);
+                break;
+            case SerialCommands::GET_LIGHTSMUX:
+                if (this->out == nullptr) {
+                    this->sendStatus(SerialMessages::ERROR_NOT_ATTACHED, buf[0]);
+                } else {
+                    this->sendLights();
+                    this->sendStatus(SerialMessages::SUCCESS, buf[0]);
+                }
+                break;
+            case SerialCommands::SET_FACTORY_DEFAULTS:
+                this->saveConfig(&defaults);
+                this->sendStatus(SerialMessages::RESET, buf[0]);
+                LOOP_FOREVER;
+                break;
+            case SerialCommands::GET_DEVICE_INFO:
+                this->sendDeviceInfo();
+                this->sendStatus(SerialMessages::SUCCESS, buf[0]);
                 break;
         }
     }
@@ -135,7 +153,27 @@ void SerialC::sendPacket(uint8_t* buf) {
 }
 
 void SerialC::sendConfig() {
-    this->sendPacket(this->config);
+    this->sendPacket(this->makePacket(SerialCommands::GET_CONFIG, this->config));
+}
+
+void SerialC::sendDeviceInfo() {
+    char buf[64];
+    sprintf(buf, "%s v%d.%d (rev %d)", STEPIO_PRODUCT, STEPIO_VERSION_MAJOR, STEPIO_VERSION_MINOR, STEPIO_VERSION_REVISION);
+    this->sendPacket(this->makePacket(SerialCommands:GET_DEVICE_INFO, buf));
+}
+
+uint8_t* SerialC::makePacket(uint8_t command, uint8_t* buf) {
+    uint8_t tmp[sizeof(buf)+1];
+
+    tmp[0] = command;
+    for (int i = 0; i < sizeof(buf), i++)
+        tmp[i+1] = buf[i];
+    return tmp;
+}
+
+void SerialC::sendLights() {
+    if (this->out == nullptr) return;
+    this->sendPacket(makePacket(SerialCommands::GET_LIGHTSMUX, this->out->getLights()));
 }
 
 void SerialC::sendStatus(uint8_t status, uint8_t command) {
@@ -153,7 +191,7 @@ void SerialC::saveEEPROM() {
     this->ee->updateConfig(this->config);
 }
 
-void SerialC::setConfig(const uint8_t* buf) {
+void SerialC::saveConfig(uint8_t* buf) {
     if (this->ee == nullptr) return;
     this->ee->updateConfig(buf);
 }

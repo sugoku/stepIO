@@ -49,9 +49,9 @@ enum OutputMode {
     Joystick,
     Keyboard,
     PIUIO,
-    LXIO,
+    PIUIO_ButtonBoard,
     Switch,
-    MIDI
+    MIDI,
 };
 
 #endif

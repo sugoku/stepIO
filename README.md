@@ -45,3 +45,5 @@ More info on stepIO is available on the repository wiki.
 ## LICENSE NOTES
 
 The firmware of stepIO is licensed under GPL-3.0, but the Arduino core is licensed under LGPL-2.1 and any schematics are licensed under CC BY-SA 3.0. The licenses are included in their respective folders.
+
+Copyright © 2020 sugoku

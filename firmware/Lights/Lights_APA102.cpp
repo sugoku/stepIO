@@ -48,9 +48,9 @@ int Lights_APA102::send(uint32_t* buf) {
     }
 }
 
-int Lights_APA102::write(int start, int end, uint8_t* color=NULL) {
+int Lights_APA102::write(int start, int end, uint8_t* color=nullptr) {
     this->leds->startFrame();
-    if (color != NULL) {
+    if (color != nullptr) {
         for (int i = start; i < end; i++)
             this->leds->sendColor(i, color[0], color[1], color[2]);
     } else {
@@ -61,9 +61,9 @@ int Lights_APA102::write(int start, int end, uint8_t* color=NULL) {
     return end-start;
 }
 
-int Lights_APA102::write(uint32* buf, uint8_t* color=NULL) {
+int Lights_APA102::write(uint32* buf, uint8_t* color=nullptr) {
     this->leds->startFrame();
-    if (color != NULL) {
+    if (color != nullptr) {
         for (int i = 0; i < 32; i++) {
             if (GETBIT(buf, i)) {
                 this->leds->sendColor(i, color[0], color[1], color[2]);
@@ -80,12 +80,6 @@ int Lights_APA102::write(uint32* buf, uint8_t* color=NULL) {
     return end-start;
 }
 
-void Lights_APA102::disable() {
-    SETBIT(LATCH_ENABLE_PORT, LATCH_ENABLE_PIN);
-}
-
 void Lights_APA102::reset() {
-    CLRBIT(LATCH_RST_PORT, LATCH_RST_PIN);
-    delayMicroseconds(1);  // just in case the latch takes some time to notice and reset
-    SETBIT(LATCH_RST_PORT, LATCH_RST_PIN);
+    this->write(0, this->count-1, {0, 0, 0});
 }

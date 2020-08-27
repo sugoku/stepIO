@@ -92,11 +92,11 @@ uint32_t Input_MUX4067_Dual::getP1andP2(uint8_t mux1, uint8_t mux2) {
         return this->vals[mux1];
 
     uint32_t buf = this->vals[mux1];
-    ORBIT(buf, PIUIO_InputPacket::P2_UPLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPLEFT));
-    ORBIT(buf, PIUIO_InputPacket::P2_UPRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPRIGHT));
-    ORBIT(buf, PIUIO_InputPacket::P2_CENTER, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_CENTER));
-    ORBIT(buf, PIUIO_InputPacket::P2_DOWNLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNLEFT));
-    ORBIT(buf, PIUIO_InputPacket::P2_DOWNRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNRIGHT));
+    SETORCLRBIT(buf, PIUIO_InputPacket::P2_UPLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPLEFT));
+    SETORCLRBIT(buf, PIUIO_InputPacket::P2_UPRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_UPRIGHT));
+    SETORCLRBIT(buf, PIUIO_InputPacket::P2_CENTER, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_CENTER));
+    SETORCLRBIT(buf, PIUIO_InputPacket::P2_DOWNLEFT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNLEFT));
+    SETORCLRBIT(buf, PIUIO_InputPacket::P2_DOWNRIGHT, GETBIT(this->vals[mux2], PIUIO_InputPacket:P2_DOWNRIGHT));
 
     return buf;
 }

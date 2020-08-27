@@ -1,5 +1,5 @@
 <RCC>
   <qresource prefix="stepIOIcon">
-    <file>stepiologo256.png</file>
+    <file>../images/stepiologo256.png</file>
   </qresource>
 </RCC>
