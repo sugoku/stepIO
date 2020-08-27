@@ -1,6 +1,9 @@
 {
     "app_name": "stepIO Configuration Tool",
     "author": "sugoku",
-    "main_module": "src/main/python/main.py",
-    "version": "0.1.0"
+    "main_module": "src/main/python/stepIO/main.py",
+    "version": "0.1.0",
+    "extra_pyinstaller_args": [
+        "--runtime-hook", "hooks/add_lib.py"
+    ]
 }

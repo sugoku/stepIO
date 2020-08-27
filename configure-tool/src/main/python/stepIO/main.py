@@ -4,9 +4,10 @@ from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
 
 import sys
+from pathlib import Path
 import serial
 import serial.tools.list_ports
-from constants import *
+from stepIO.constants import *
 
 appctxt = ApplicationContext()
 ser = serial.Serial()
