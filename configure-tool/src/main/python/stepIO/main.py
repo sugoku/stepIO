@@ -8,9 +8,9 @@ from pathlib import Path
 import serial
 import serial.tools.list_ports
 from stepIO.constants import *
+from stepIO.serialc import *
 
 appctxt = ApplicationContext()
-ser = serial.Serial()
 
 def get_com_port_list():
     return [x.device for x in serial.tools.list_ports.comports()]
@@ -20,27 +20,40 @@ class AboutWindow(QDialog):
         super().__init__(parent)
         uic.loadUi(appctxt.get_resource("ui/about.ui"), self)
 
-        self.setWindowTitle("About stepIO")
+        self.setWindowTitle("stepIO - About")
         self.setFixedSize(self.size())
 
         # set pixmap to logo picture instead of importing a qrc which is redundant
         logo_pixmap = QPixmap(appctxt.get_resource("images/stepiologo256.png"))
         self.logo.setPixmap(logo_pixmap)
+        
+        # set version
+        self.label_ver.setText(f"version {CONFIGTOOL_VERSION}")
 
 class InputsWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(appctxt.get_resource("ui/inputs.ui"), self)
 
-        self.setWindowTitle("stepIO Inputs")
+        self.setWindowTitle("stepIO - Inputs")
         self.setFixedSize(self.size())
+
+class SensorWindow(QDialog):
+    def __init__(self, inp, parent=None):
+        super().__init__(parent)
+        uic.loadUi(appctxt.get_resource("ui/sensor.ui"), self)
+
+        self.setWindowTitle(f"stepIO - Edit Input {inp}")
+        self.setFixedSize(self.size())
+
+        # below here, add code which populates the proper config for the sensors
 
 class LightsWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(appctxt.get_resource("ui/outputs.ui"), self)
 
-        self.setWindowTitle("stepIO Lights")
+        self.setWindowTitle("stepIO - Lights")
         self.setFixedSize(self.size())
 
 class PreferencesWindow(QDialog):
@@ -48,7 +61,7 @@ class PreferencesWindow(QDialog):
         super().__init__(parent)
         uic.loadUi(appctxt.get_resource("ui/preferences.ui"), self)
 
-        self.setWindowTitle("stepIO Preferences")
+        self.setWindowTitle("stepIO - Preferences")
         self.setFixedSize(self.size())
 
 class MainWindow(QMainWindow):
