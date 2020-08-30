@@ -24,7 +24,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QSpinBox" name="spinBox_analog"/>
+      <widget class="QSpinBox" name="spinBox_analog">
+       <property name="maximum">
+        <number>1023</number>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_keyboard">
@@ -80,16 +84,34 @@
      <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QSpinBox" name="spinBox_midi0"/>
+        <widget class="QSpinBox" name="spinBox_midi0">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_midi1"/>
+        <widget class="QSpinBox" name="spinBox_midi1">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_midi2"/>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinBox_midi3"/>
+        <widget class="QSpinBox" name="spinBox_midi2">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

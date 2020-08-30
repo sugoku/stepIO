@@ -41,6 +41,8 @@
 #define ANALOG  // Support for load-cells, velostat, FSRs, etc.
 #define ANALOG_AUTO_CALIBRATION
 
+#define DEFAULT_ANALOG_VALUE 200  // Default analog threshold from 0-255
+
 #define DEBOUNCING  // Prevents double-stepping and odd sensor behavior (not used in analog mode)
 #ifndef BROKEIO
     #define HARDWARE_DEBOUNCING  // Debounces directly through hardware for faster performance
@@ -657,6 +659,23 @@ enum ConfigOptions {
     CLEAR_BUTTON_MIDI1,
     CLEAR_BUTTON_MIDI2,
     CLEAR_BUTTON_CHANNEL,
+
+    P1_UPLEFT_ANALOG,
+    P1_UPRIGHT_ANALOG,
+    P1_CENTER_ANALOG,
+    P1_DOWNLEFT_ANALOG,
+    P1_DOWNRIGHT_ANALOG,
+    P2_UPLEFT_ANALOG,
+    P2_UPRIGHT_ANALOG,
+    P2_CENTER_ANALOG,
+    P2_DOWNLEFT_ANALOG,
+    P2_DOWNRIGHT_ANALOG,
+    P1_COIN_ANALOG,
+    P2_COIN_ANALOG,
+    TEST_BUTTON_ANALOG,
+    SERVICE_BUTTON_ANALOG,
+    CLEAR_BUTTON_ANALOG,
+    EXTRA_BUTTON_ANALOG,
 };
 
 // INPUT/OUTPUT CONSTANTS
