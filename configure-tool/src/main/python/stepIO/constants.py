@@ -1,4 +1,5 @@
 CONFIGTOOL_VERSION = '0.0.1'
+DEBUG_MODE = True
 
 _SerialCommands = (
     ('CHANGE_INPUT_MODE', 'Change Input Mode'),
@@ -27,6 +28,7 @@ _SerialCommands = (
 )
 
 SerialCommands = {k[0]: i for i, k in enumerate(_SerialCommands)}
+SerialCommandsStr = {i: k[0] for i, k in enumerate(_SerialCommands)}
 SerialCommandsDisplay = {s[1]: s[0] for s in _SerialCommands}
 
 SerialMessageTypes = {k: i for i, k in enumerate([
@@ -60,6 +62,7 @@ ConfigOptions = {k: i for i, k in enumerate([
     'INPUT_TYPE',  # InputMUX vs. InputSensor (should go unused soon)
     'INPUT_MODE',
     'MUX_POLLING_MODE',  # normal, merged, etc.
+    'MUX_SIMPLE',
 
     'OUTPUT_MODE',  
     'LIGHTS_MODE',  # light output mode
@@ -297,6 +300,7 @@ _InputPacket = (
 InputPacket = {k[0]: i for i, k in enumerate(_InputPacket)}
 InputPacketStr = {i: k[0] for i, k in enumerate(_InputPacket)}
 InputPacketDisplay = {s[1]: s[0] for s in _InputPacket}
+InputPacketNToDisplay = {i: k[1] for i, k in enumerate(_InputPacket)}
 
 # 32 bits long
 _LightsPacket = (
@@ -704,6 +708,7 @@ defaults[ConfigOptions['INPUT_TYPE']] = EEPROM_DEFAULT_VALUE,  # unused
 defaults[ConfigOptions['INPUT_MODE']] = InputMode['MUX4067_Dual']
 
 defaults[ConfigOptions['MUX_POLLING_MODE']] = MUXPollingMode['Normal']
+defaults[ConfigOptions['SIMPLE_MUX']] = EEPROM_TRUE
 
 defaults[ConfigOptions['OUTPUT_MODE']] = OutputMode['PIUIO']
 defaults[ConfigOptions['LIGHTS_MODE']] = LightsMode['Latch32']

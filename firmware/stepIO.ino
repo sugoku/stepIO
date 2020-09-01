@@ -95,7 +95,7 @@ void GetOutput(Input *in, uint32_t* buf) {
     }
 }
 
-void FilterOutput(uint32_t* buf) {
+void FilterOutput(uint16_t* buf) {
     // mux blocks
     if (outmuxes[0] != 0xFF) {
         buf &= (blocked[outMuxes[0]] & 0xFFFF0000);  // player 1
@@ -110,7 +110,7 @@ void FilterOutput(uint32_t* buf) {
     #endif
 }
 
-void SendOutput(Output* out, uint32_t* buf) {
+void SendOutput(Output* out, uint16_t* buf) {
     if (out == NULL) return;
     out->send(buf);
 }

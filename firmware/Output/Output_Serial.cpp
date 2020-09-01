@@ -32,6 +32,16 @@ void Output_Serial::setConfig(Config* config) {
     this->config = config;
 }
 
+void Output_Serial::update(uint32_t buf) { 
+    // first 16 bits should just match
+    this->lights = buf & 0xFFFF;
+
+    SETORCLRBIT(this->mux[0], 0, GETBIT(buf, LightsPacket::MUX0_S0));
+    SETORCLRBIT(this->mux[0], 1, GETBIT(buf, LightsPacket::MUX0_S1));
+    SETORCLRBIT(this->mux[1], 0, GETBIT(buf, LightsPacket::MUX1_S0));
+    SETORCLRBIT(this->mux[1], 1, GETBIT(buf, LightsPacket::MUX1_S1));
+}
+
 void Output_Serial::updateHost() {
     return;  // not necessary, SerialC will call when necessary
 }
@@ -52,7 +62,7 @@ const uint8_t* Output_Serial::getMuxes() {
 
 void Output_Serial::send(uint16_t* buf) {
     if (this->serialc == nullptr) return;
-    this->serialc->sendPacket({SerialMessageTypes::SENSOR, buf >> 4, buf & 0b1111});
+    this->serialc->sendPacket({SerialMessageTypes::SENSOR, 0xFF, (uint8_t)(buf >> 4), (uint8_t)(buf & 0b1111)});
 }
 
 void Output_Serial::sendAnalog(uint16_t* buf) {

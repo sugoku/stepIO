@@ -33,6 +33,7 @@ class Output_Serial : public Output
         void setup(Config* config, SerialC* serialc=nullptr);
         void setConfig(Config* config);
         void setSerialC(SerialC* serialc);
+        void update(uint32_t buf);
         void updateHost();
         void send(uint16_t* buf);
         void sendAnalog(uint16_t* buf);  // buffer is an array

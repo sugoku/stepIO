@@ -85,7 +85,7 @@ class SensorWindow(QDialog):
     def inp_setup(self, inp):
         self.inp = inp
 
-        self.setWindowTitle(f"stepIO - Edit Input {inp}")
+        self.setWindowTitle(f"stepIO - Edit Input ({InputPacketNToDisplay[inp]})")
         self.setFixedSize(self.size())
 
         # below here, add code which populates the proper config for the sensors

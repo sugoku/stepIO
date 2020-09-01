@@ -37,6 +37,11 @@ const uint8_t defaults[256] PROGMEM = {
         [ConfigOptions::INPUT_MODE] = InputMode::Software,
     #endif
     [ConfigOptions::MUX_POLLING_MODE] = MUXPollingMode::Normal,
+    #ifdef SIMPLE_PIUIO_MUX
+        [ConfigOptions::MUX_SIMPLE] = EEPROM_TRUE
+    #else
+        [ConfigOptions::MUX_SIMPLE] = EEPROM_FALSE
+    #endif
 
     [ConfigOptions::OUTPUT_MODE] = OutputMode::PIUIO,
     #ifdef BROKEIO

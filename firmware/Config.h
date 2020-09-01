@@ -464,6 +464,7 @@ enum ConfigOptions {
     INPUT_TYPE,  // InputMUX vs. InputSensor (should go unused soon)
     INPUT_MODE,
     MUX_POLLING_MODE,  // normal, merged, etc.
+    MUX_SIMPLE,  // basically if SIMPLE_PIUIO_MUX is enabled
 
     OUTPUT_MODE,  
     LIGHTS_MODE,  // light output mode
