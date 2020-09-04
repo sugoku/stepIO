@@ -1,3 +1,15 @@
+'''
+    # stepIO Configuration Tool
+
+    stage controller with
+    emulation of PIUIO
+    by BedrockSolid (@sugoku)
+
+    SPDX-License-Identifier: GPL-3.0-or-later
+    https://github.com/sugoku/stepIO
+'''
+
+
 CONFIGTOOL_VERSION = '0.0.1'
 DEBUG_MODE = True
 
@@ -35,7 +47,9 @@ SerialMessageTypes = {k: i for i, k in enumerate([
     'STATUS',
     'SENSOR',
     'SENSOR_ANALOG',
-    'CONFIG'
+    'CONFIG',
+    'LIGHTS',
+    'DEVICE_INFO',
 ])}
 
 SerialMessages = {k: i for i, k in enumerate([
@@ -46,7 +60,7 @@ SerialMessages = {k: i for i, k in enumerate([
     'ERROR_UNKNOWN',
     'NOT_IMPLEMENTED',
     'ERROR_NOT_ATTACHED',
-    'RESET'
+    'RESET',
 ])}
 
 ConfigOptions = {k: i for i, k in enumerate([

@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #include "SerialC_Handler.h"
@@ -153,31 +153,33 @@ void SerialC::sendPacket(uint8_t* buf) {
 }
 
 void SerialC::sendConfig() {
-    this->sendPacket(this->makePacket(SerialCommands::GET_CONFIG, this->config));
+    this->sendPacket(this->makePacket(SerialMessageTypes::CONFIG, SerialCommands::GET_CONFIG, this->config));
 }
 
 void SerialC::sendDeviceInfo() {
     char buf[64];
-    sprintf(buf, "%s v%d.%d (rev %d)", STEPIO_PRODUCT, STEPIO_VERSION_MAJOR, STEPIO_VERSION_MINOR, STEPIO_VERSION_REVISION);
-    this->sendPacket(this->makePacket(SerialCommands:GET_DEVICE_INFO, buf));
+    snprintf(buf, 64, "%s v%d.%d (rev %d)", STEPIO_PRODUCT, STEPIO_VERSION_MAJOR, STEPIO_VERSION_MINOR, STEPIO_VERSION_REVISION);
+    this->sendPacket(this->makePacket(SerialMessageTypes::DEVICE_INFO, SerialCommands::GET_DEVICE_INFO, buf));
 }
 
-uint8_t* SerialC::makePacket(uint8_t command, uint8_t* buf) {
-    uint8_t tmp[sizeof(buf)+1];
+uint8_t* SerialC::makePacket(uint8_t cmdtype, uint8_t requestcmd, uint8_t* buf) {
+    uint8_t tmp[sizeof(buf)+2];
 
-    tmp[0] = command;
+    tmp[0] = cmdtype;
+    tmp[1] = requestcmd;
     for (int i = 0; i < sizeof(buf), i++)
         tmp[i+1] = buf[i];
     return tmp;
 }
 
 void SerialC::sendLights() {
-    if (this->out == nullptr) return;
-    this->sendPacket(makePacket(SerialCommands::GET_LIGHTSMUX, this->out->getLights()));
+    if (this->out == nullptr) this->sendStatus(SerialMessages::ERROR_NOT_ATTACHED, SerialCommands::GET_LIGHTSMUX);
+    uint8_t pkt[] = this->makePacket(SerialMessageTypes::LIGHTS, SerialCommands::GET_LIGHTSMUX, this->out->getLights())
+    this->sendPacket(&pkt);
 }
 
 void SerialC::sendStatus(uint8_t status, uint8_t command) {
-    pkt = {SerialMessageTypes::STATUS, command, status};
+    uint8_t pkt[] = this->makePacket(SerialMessageTypes::STATUS, command, &status);
     this->sendPacket(&pkt);
 }
 

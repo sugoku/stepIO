@@ -38,12 +38,12 @@ As of writing this, the PCB and schematics are finalized but the stepIO firmware
 This is the **brokeIO**, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e** **IO** (in reference to the PIUIO and JAMMA).
 The brokeIO is intended to be a cheap drop-in replacement for the PIUIO and is able to replace the JAMMA as well. The JAMMA edge pinout is broken out onto 2.54mm headers and can be connected to a external board to attach a JAMMA edge connector to. The 7-pin and 10-pin connectors for the pad and cabinet lights normally included on the JAMMA are also included on the brokeIO. There are also several extra pins which can be used to control additional multiplexers and RGB LEDs, if programmed to do so.
 
-The stepIO codebase is currently focused on supporting brokeIO hardware.
+The stepIO codebase is currently focused on supporting brokeIO hardware. We hope to work further on stepIO as community support increases.
 
 More info on stepIO is available on the repository wiki.
 
 ## LICENSE NOTES
 
-The firmware of stepIO is licensed under GPL-3.0, but the Arduino core is licensed under LGPL-2.1 and any schematics are licensed under CC BY-SA 3.0. The licenses are included in their respective folders.
+The firmware and configuration tool of stepIO is licensed under GPL-3.0, but the Arduino core is licensed under LGPL-2.1 and any schematics are licensed under CC BY-SA 3.0. The licenses are included in their respective folders.
 
 Copyright © 2020 sugoku

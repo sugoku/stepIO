@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #ifndef _CONFIG_H
@@ -931,12 +931,14 @@ enum SerialCommands {
     GET_DEVICE_INFO,
 };
 
-// outgoing messages
+// outgoing messages (device -> host)
 enum SerialMessageTypes {
     STATUS,
     SENSOR,
     SENSOR_ANALOG,
     CONFIG,
+    LIGHTS,
+    DEVICE_INFO,
 };
 
 enum SerialMessages {

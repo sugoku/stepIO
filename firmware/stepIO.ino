@@ -12,20 +12,9 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
-
-/*
-notes:
-
-how will we structure this code?
-- any classes should have their own cpp
-    - especially modular HID things
-- provide serial interface with handlers and stuff in another cpp
-- EEPROM config can be in another cpp
-
-*/
 
 #include "Config.h"
 #include "Defaults.h"

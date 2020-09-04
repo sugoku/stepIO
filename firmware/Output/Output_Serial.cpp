@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #include "Output_Serial.h"
@@ -62,13 +62,14 @@ const uint8_t* Output_Serial::getMuxes() {
 
 void Output_Serial::send(uint16_t* buf) {
     if (this->serialc == nullptr) return;
-    this->serialc->sendPacket({SerialMessageTypes::SENSOR, 0xFF, (uint8_t)(buf >> 4), (uint8_t)(buf & 0b1111)});
+    uint8_t pkt[] = this->serialc->makePacket(SerialMessageTypes::SENSOR, 0xFF, {(uint8_t)(buf >> 4), (uint8_t)(buf & 0b1111)})
+    this->serialc->sendPacket(&pkt);
 }
 
 void Output_Serial::sendAnalog(uint16_t* buf) {
     if (this->serialc == nullptr) return;
-    uint8_t tmp = {
-        SerialMessageTypes::SENSOR_ANALOG,
+    uint8_t tmp[] = this->serialc->makePacket(
+        SerialMessageTypes::SENSOR_ANALOG, 0xFF, {
         // PLAYER 1
         buf[0],buf[1],buf[2],buf[3],buf[4],
         // PLAYER 2
@@ -79,8 +80,8 @@ void Output_Serial::sendAnalog(uint16_t* buf) {
         buf[12],buf[13],buf[14],
         
         buf[15]
-    };
-    this->serialc->sendPacket(tmp);
+    });
+    this->serialc->sendPacket(&tmp);
 }
 
 // endpoint 0xAE

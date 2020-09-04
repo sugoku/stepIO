@@ -1,3 +1,15 @@
+'''
+    # stepIO Configuration Tool
+
+    stage controller with
+    emulation of PIUIO
+    by BedrockSolid (@sugoku)
+
+    SPDX-License-Identifier: GPL-3.0-or-later
+    https://github.com/sugoku/stepIO
+'''
+
+
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from PyQt5.QtWidgets import QMainWindow, QDialog
 from PyQt5.QtGui import QPixmap

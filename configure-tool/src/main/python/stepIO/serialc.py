@@ -1,12 +1,87 @@
+'''
+    # stepIO Configuration Tool
+
+    stage controller with
+    emulation of PIUIO
+    by BedrockSolid (@sugoku)
+
+    SPDX-License-Identifier: GPL-3.0-or-later
+    https://github.com/sugoku/stepIO
+'''
+
+
 from stepIO.constants import *
 import serial
 import struct
 import cobs
+import traceback
 
-if DEBUG_MODE:
-    import traceback
+# resp (the response) is the entire response
 
+## device -> host packets (which means there is no need to create these packets from the host)
+class ConfigPacket:
+    msgtype = SerialMessageTypes['CONFIG']
+    requestcmd = SerialCommands['GET_CONFIG']
 
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.config = resp[2:]
+
+class SensorPacket:
+    msgtype = SerialMessageTypes['SENSOR']
+    requestcmd = 0xFF
+
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.sensorsraw = int.from_bytes(resp[2:], 'big')
+        self.sensors = [255*(self.sensorsraw >> i & 1) for i in range(15, -1, -1)]  # 15 to 0 inclusive
+
+class SensorAnalogPacket:
+    msgtype = SerialMessageTypes['SENSOR_ANALOG']
+    requestcmd = 0xFF
+
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.sensors = [x for x in resp[2:]]  # convert to integers
+
+class StatusPacket:
+    msgtype = SerialMessageTypes['STATUS']
+    requestcmd = None
+
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.status = resp[2]
+
+class LightsPacket:
+    msgtype = SerialMessageTypes['LIGHTS']
+    requestcmd = SerialCommands['GET_LIGHTSMUX']
+
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.lightsraw = int.from_bytes(resp[2:], 'little')
+        self.lights = [255*(self.sensorsraw >> i & 1) for i in range(31, -1, -1)]  # 31 to 0 inclusive
+
+class DeviceInfoPacket:
+    msgtype = SerialMessageTypes['DEVICE_INFO']
+    requestcmd = SerialCommands['GET_DEVICE_INFO']
+
+    def __init__(self, resp):
+        if resp[0] != self.msgtype:  # header must match
+            raise
+        self.requestcmd = resp[1]
+        self.info = resp[2:].decode('ascii')
+
+## serial processor class
 class SerialC:
     def __init__(self, com=None, baud=DEFAULT_BAUD, config=None):
         self.ser = serial.Serial(com, baudrate=baud)
@@ -17,14 +92,17 @@ class SerialC:
         self.map = {
             'STATUS': self.handleStatus,
             'SENSOR': self.handleSensor,
-            'SENSOR_ANALOG': self.handleSensorAnalog,
+            'SENSOR_ANALOG': self.handleSensor,
             'CONFIG': self.handleConfig,
+            'LIGHTS': self.handleLights,
+            'DEVICE_INFO': self.handleDeviceInfo,
         }
 
         self.sensors = [
             [0, 0, 0, 0] for i in range(len(InputPacket))
         ]
         self.mux = [0, 0]
+        self.lights = [0 for i in range(len(LightsPacket))]
 
     def SendConfigRequest(self):
         self.sendPacket()
@@ -48,30 +126,19 @@ class SerialC:
 
     def handleConfig(self, resp):
         try:
-            pck = ConfigPacket(resp)
-            self.config = pck.config.copy()
+            cfgpck = ConfigPacket(resp)
+            self.config = cfgpck.config.copy()
+            pck = self.q.get(cfgpck.requestcmd)
+            if pck is not None:
+                q[cfgpck.requestcmd] = None
         except Exception:
             if DEBUG_MODE:
                 traceback.print_exc()
 
     def handleSensor(self, resp):
         try:
-            pck = SensorPacket(resp)
-            for i in range(len(pck.sensors)):
-                if self.config['MUX_SIMPLE'] != EEPROM_FALSE:
-                    self.sensors[i][self.mux[0]] = int(pck.sensors[i])
-                else:
-                    if 'P2' in InputPacketStr[i]:
-                        self.sensors[i][self.mux[1]] = int(pck.sensors[i])
-                    else:
-                        self.sensors[i][self.mux[0]] = int(pck.sensors[i])
-        except Exception:
-            if DEBUG_MODE:
-                traceback.print_exc()
-
-    def handleSensorAnalog(self, resp):
-        try:
-            pck = SensorAnalogPacket(resp)
+            # it should be SENSOR or SENSOR_ANALOG, will raise error in constructor if neither
+            pck = SensorPacket(resp) if resp[0] == SerialMessageTypes['SENSOR'] else SensorAnalogPacket(resp)
             for i in range(len(pck.sensors)):
                 if self.config['MUX_SIMPLE'] != EEPROM_FALSE:
                     self.sensors[i][self.mux[0]] = pck.sensors[i]
@@ -92,6 +159,28 @@ class SerialC:
                 if stpck.status == SerialMessages['SUCCESS']:
                     q[stpck.command] = None
                 pck.status = stpck.status
+        except Exception:
+            if DEBUG_MODE:
+                traceback.print_exc()
+
+    def handleLights(self, resp):
+        try:
+            ltpck = LightsPacket(resp)
+            self.lights = ltpck.lights.copy()
+            pck = self.q.get(ltpck.requestcmd)
+            if pck is not None:
+                q[ltpck.requestcmd] = None
+        except Exception:
+            if DEBUG_MODE:
+                traceback.print_exc()
+
+    def handleDeviceInfo(self, resp):
+        try:
+            dipck = DeviceInfoPacket(resp)
+            self.info = dipck.info
+            pck = self.q.get(dipck.requestcmd)
+            if pck is not None:
+                q[dipck.requestcmd] = None
         except Exception:
             if DEBUG_MODE:
                 traceback.print_exc()
