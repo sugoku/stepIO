@@ -16,9 +16,220 @@ import struct
 import cobs
 import traceback
 
-# resp (the response) is the entire response
+
+## host -> device packets
+
+class ChangeInputModePacket:
+    command = SerialCommands['CHANGE_INPUT_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class ChangeOutputModePacket:
+    command = SerialCommands['CHANGE_OUTPUT_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class ChangeLightsModePacket:
+    command = SerialCommands['CHANGE_LIGHTS_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class LightsFromSensorsPacket:
+    command = SerialCommands['LIGHTS_FROM_SENSORS']
+
+    def __init__(self, state):
+        self.state = state
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.state)
+
+class ChangeExtraLightsModePacket:
+    command = SerialCommands['CHANGE_EXTRA_LIGHTS_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class ChangeMuxPollingModePacket:
+    command = SerialCommands['CHANGE_MUX_POLLING_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class ChangeDebounceModePacket:
+    command = SerialCommands['CHANGE_DEBOUNCE_MODE']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack('BB', self.command, self.mode)
+
+class SetExtraLEDPacket:
+    command = SerialCommands['SET_EXTRA_LED']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack()
+
+class EditInputPacket:
+    command = SerialCommands['EDIT_INPUT']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack()
+
+class AnalogThresholdPacket:
+    command = SerialCommands['ANALOG_THRESHOLD']
+
+    def __init__(self, sensor, threshold):
+        self.sensor = sensor
+        self.threshold = threshold
+
+    def toBytes(self):
+        return struct.pack('BB<H', self.command, self.sensor, self.threshold)
+
+class SaveToEEPROMPacket:  # 0 args
+    command = SerialCommands['SAVE_TO_EEPROM']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class LoadFromEEPROMPacket:  # 0 args
+    command = SerialCommands['LOAD_FROM_EEPROM']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class GetConfigPacket:  # 0 args
+    command = SerialCommands['GET_CONFIG']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class SetConfigPacket:
+    command = SerialCommands['SET_CONFIG']
+
+    def __init__(self, config):
+        self.config = config
+
+    def toBytes(self):
+        return struct.pack('Bs', self.command, bytearray(self.config))
+
+class SendInputPacket:
+    command = SerialCommands['SEND_INPUT']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack()
+
+class SendInputAnalogPacket:
+    command = SerialCommands['SEND_INPUT_ANALOG']
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def toBytes(self):
+        return struct.pack()
+
+class GetLightsMuxPacket:  # 0 args
+    command = SerialCommands['GET_LIGHTSMUX']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class SendLightsMuxPacket:
+    command = SerialCommands['SEND_LIGHTSMUX']
+
+    def __init__(self, lightsmux):
+        self.lightsmux = lightsmux
+
+    def toBytes(self):
+        return struct.pack('B<L', self.command, self.lightsmux)
+
+class ChangeBaudPacket:
+    command = SerialCommands['CHANGE_BAUD']
+
+    def __init__(self, baud):
+        self.baud = baud
+
+    def toBytes(self):
+        return struct.pack('B<H', self.command, self.lightsmux)
+
+class ResetPacket:  # 0 args
+    command = SerialCommands['RESET']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class StatusGetPacket:  # 0 args
+    command = SerialCommands['STATUS_GET']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class SetFactoryDefaultsPacket:  # 0 args
+    command = SerialCommands['SET_FACTORY_DEFAULTS']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
+class GetDeviceInfoPacket:  # 0 args
+    command = SerialCommands['GET_DEVICE_INFO']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
 
 ## device -> host packets (which means there is no need to create these packets from the host)
+# resp (the response) is the entire response
 class ConfigPacket:
     msgtype = SerialMessageTypes['CONFIG']
     requestcmd = SerialCommands['GET_CONFIG']
@@ -187,5 +398,5 @@ class SerialC:
             
     def sendPacket(self, pck):
         self.q[pck.header] = pck
-        buf = pck.toBinary()
+        buf = pck.toBytes()
         self.ser.write(cobs.encode(buf))

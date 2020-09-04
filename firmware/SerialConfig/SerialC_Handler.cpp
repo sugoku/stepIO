@@ -83,10 +83,10 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
                 if (this->out == nullptr) {
                     this->sendStatus(SerialMessages::ERROR_NOT_ATTACHED, buf[0]);
                 } else {
-                    uint8_t tmp[size-1];
+                    uint32_t tmp = 0;
                     for (int i = 1; i < size; i++)
-                        tmp[i-1] = buf[i];
-
+                        tmp |= (buf[i] << (8 * (i-1)));
+                        
                     this->out->update(tmp);
                 }
                 break;
