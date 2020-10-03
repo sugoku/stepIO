@@ -13,6 +13,12 @@
 CONFIGTOOL_VERSION = '0.0.1'
 DEBUG_MODE = True
 
+def GETBIT(port,bit):
+    return port & (1 << bit)
+
+def SETORCLRBIT(port,bit,val):
+    return port | (1 << bit) if val else port & ~(1 << bit)
+
 _SerialCommands = (
     ('CHANGE_INPUT_MODE', 'Change Input Mode'),
     ('CHANGE_OUTPUT_MODE', 'Change Output Mode'),
@@ -22,6 +28,7 @@ _SerialCommands = (
     ('CHANGE_MUX_POLLING_MODE', 'Change Mux Polling Mode'),
     ('CHANGE_DEBOUNCE_MODE', 'Change Debounce Mode'),
     ('SET_EXTRA_LED', 'Set Extra LED'),
+    ('RESET_EXTRA_LEDS', 'Reset All Extra LEDs'),
     ('EDIT_INPUT', 'Edit Input'),
     ('ANALOG_THRESHOLD', 'Set Analog Threshold'),
     ('SAVE_TO_EEPROM', 'Save Config to EEPROM'),
@@ -114,6 +121,11 @@ ConfigOptions = {k: i for i, k in enumerate([
     'BLOCKED_INPUTS_MUX3_1',
     'BLOCKED_INPUTS_MUX3_2',
     'BLOCKED_INPUTS_MUX3_3',
+
+    'BLOCKED_LIGHTS_0',
+    'BLOCKED_LIGHTS_1',  
+    'BLOCKED_LIGHTS_2',
+    'BLOCKED_LIGHTS_3',
 
     # LSB
     'SERIAL_BAUD_BYTE0',
@@ -341,6 +353,7 @@ _LightsPacket = (
 )
 _LightsPacketUsable = _LightsPacket[:16]
 LightsPacket = {k[0]: i for i, k in enumerate(_LightsPacket)}
+LightsPacketStr = {i: k[0] for i, k in enumerate(_LightsPacket)}
 LightsPacketDisplay = {s[1]: s[0] for s in _LightsPacket}
 
 # least to most significant bit
@@ -619,10 +632,19 @@ EEPROM_SPEED = extEEPROM::twiClock100kHz  # more electrically stable which works
 
 INPUT_COUNT = 15
 
-DEFAULT_BLOCKED_INPUTS_0 = EEPROM_DEFAULT_VALUE
-DEFAULT_BLOCKED_INPUTS_1 = EEPROM_DEFAULT_VALUE
-DEFAULT_BLOCKED_INPUTS_2 = EEPROM_DEFAULT_VALUE
-DEFAULT_BLOCKED_INPUTS_3 = EEPROM_DEFAULT_VALUE
+ALL_INPUTS_ON = 0xFF
+
+DEFAULT_BLOCKED_INPUTS_0 = ALL_INPUTS_ON
+DEFAULT_BLOCKED_INPUTS_1 = ALL_INPUTS_ON
+DEFAULT_BLOCKED_INPUTS_2 = ALL_INPUTS_ON
+DEFAULT_BLOCKED_INPUTS_3 = ALL_INPUTS_ON
+
+ALL_LIGHTS_ON = 0xFF
+
+DEFAULT_BLOCKED_LIGHTS_0 = ALL_LIGHTS_ON
+DEFAULT_BLOCKED_LIGHTS_1 = ALL_LIGHTS_ON
+DEFAULT_BLOCKED_LIGHTS_2 = ALL_LIGHTS_ON
+DEFAULT_BLOCKED_LIGHTS_3 = ALL_LIGHTS_ON
 
 PIUIO_ENDPOINT = 0x00  # control endpoint
 PIUIO_ADDRESS = 0xAE
@@ -722,7 +744,7 @@ defaults[ConfigOptions['INPUT_TYPE']] = EEPROM_DEFAULT_VALUE,  # unused
 defaults[ConfigOptions['INPUT_MODE']] = InputMode['MUX4067_Dual']
 
 defaults[ConfigOptions['MUX_POLLING_MODE']] = MUXPollingMode['Normal']
-defaults[ConfigOptions['SIMPLE_MUX']] = EEPROM_TRUE
+defaults[ConfigOptions['MUX_SIMPLE']] = EEPROM_TRUE
 
 defaults[ConfigOptions['OUTPUT_MODE']] = OutputMode['PIUIO']
 defaults[ConfigOptions['LIGHTS_MODE']] = LightsMode['Latch32']
@@ -760,6 +782,11 @@ defaults[ConfigOptions['BLOCKED_INPUTS_MUX3_0']] = DEFAULT_BLOCKED_INPUTS_0
 defaults[ConfigOptions['BLOCKED_INPUTS_MUX3_1']] = DEFAULT_BLOCKED_INPUTS_1
 defaults[ConfigOptions['BLOCKED_INPUTS_MUX3_2']] = DEFAULT_BLOCKED_INPUTS_2
 defaults[ConfigOptions['BLOCKED_INPUTS_MUX3_3']] = DEFAULT_BLOCKED_INPUTS_3
+
+defaults[ConfigOptions['BLOCKED_LIGHTS_0']] = DEFAULT_BLOCKED_LIGHTS_0
+defaults[ConfigOptions['BLOCKED_LIGHTS_1']] = DEFAULT_BLOCKED_LIGHTS_1
+defaults[ConfigOptions['BLOCKED_LIGHTS_2']] = DEFAULT_BLOCKED_LIGHTS_2
+defaults[ConfigOptions['BLOCKED_LIGHTS_3']] = DEFAULT_BLOCKED_LIGHTS_3
 
 defaults[ConfigOptions['RGB_LED_COUNT']] = DEFAULT_RGB_LED_COUNT
 defaults[ConfigOptions['EXTRA_LED_TRIGGER']] = EEPROM_DEFAULT_VALUE
@@ -937,6 +964,47 @@ defaults[ConfigOptions['CLEAR_BUTTON_ANALOG']] = DEFAULT_ANALOG_VALUE
 defaults[ConfigOptions['EXTRA_BUTTON_ANALOG']] = DEFAULT_ANALOG_VALUE
 
 # configuration-tool-specific constants
+
+'''
+// LATCH1
+NC_OUT_3,NC_OUT_4,NC_OUT_5,NC_OUT_6,ALWAYS_ON,CABL_MARQ4,CABL_MARQ1,CABL_MARQ3,
+// LATCH2
+CABL_MARQ2,P2L_DOWNRIGHT,P2L_DOWNLEFT,P2L_CENTER,P2L_UPRIGHT,P2L_UPLEFT,P2_SQUARE_25HZ,P2_SQUARE_50HZ,
+// LATCH3
+NC_OUT_19,NC_OUT_20,NC_OUT_21,NC_OUT_22,NC_OUT_23,CABL_NEON,NC_OUT_25,NC_OUT_26,
+// LATCH4
+NC_OUT_27,P1L_DOWNRIGHT,P1L_DOWNLEFT,P1L_CENTER,P1L_UPRIGHT,P1L_UPLEFT,P1_SQUARE_25HZ,P1_SQUARE_50HZ,
+'''
+LightsButtons = [  # qt UI names
+    '3','4','5','6','alwayson','marq4','marq1','marq3',
+    'marq2','p2dr','p2dl','p2cen','p2ur','p2ul','p2s1','p2s0',
+    '19','20','21','22','23','neon','25','26',
+    '27','p1dr','p1dl','p1cen','p1ur','p1ul','p1s1','p1s0',
+]
+
+
+# border-style, border-width, border-color, background-color
+Stylesheet_Lights = """QPushButton {
+    border-style: {0};
+    border-width: {1};
+    border-color: {2};
+    background-color: {3};
+}"""
+
+# style
+Stylesheet_Lights_Enabled = 'solid'
+Stylesheet_Lights_Disabled = 'dashed'
+
+# width
+Stylesheet_Lights_Width = '3px'
+
+# color
+Stylesheet_Lights_On = 'red'
+Stylesheet_Lights_Off = 'black'
+
+# bg color
+Stylesheet_Lights_BGColor = '#D4D4D4'
+
 
 # for a 16 MHz 32u4 like brokeIO, 76800 is stable but 115200 is less, 250000 and its multiples are perfect, 230400 is really bad
 BAUD_LIST = [300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 76800, 115200, 230400, 250000, 500000, 1000000]

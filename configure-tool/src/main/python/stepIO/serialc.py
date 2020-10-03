@@ -91,6 +91,15 @@ class SetExtraLEDPacket:
     def toBytes(self):
         return struct.pack()
 
+class ResetExtraLEDsPacket:
+    command = SerialCommands['RESET_EXTRA_LEDS']
+
+    def __init__(self):
+        pass
+
+    def toBytes(self):
+        return struct.pack('B', self.command)
+
 class EditInputPacket:
     command = SerialCommands['EDIT_INPUT']
 
@@ -271,7 +280,7 @@ class StatusPacket:
         self.requestcmd = resp[1]
         self.status = resp[2]
 
-class LightsPacket:
+class LightsStatusPacket:
     msgtype = SerialMessageTypes['LIGHTS']
     requestcmd = SerialCommands['GET_LIGHTSMUX']
 
@@ -280,7 +289,7 @@ class LightsPacket:
             raise
         self.requestcmd = resp[1]
         self.lightsraw = int.from_bytes(resp[2:], 'little')
-        self.lights = [255*(self.sensorsraw >> i & 1) for i in range(31, -1, -1)]  # 31 to 0 inclusive
+        self.lights = [(self.sensorsraw >> i & 1) for i in range(31, -1, -1)]  # 31 to 0 inclusive
 
 class DeviceInfoPacket:
     msgtype = SerialMessageTypes['DEVICE_INFO']
@@ -313,7 +322,7 @@ class SerialC:
             [0, 0, 0, 0] for i in range(len(InputPacket))
         ]
         self.mux = [0, 0]
-        self.lights = [0 for i in range(len(LightsPacket))]
+        self.lights = [0 for i in range(len(LightsStatusPacket))]
 
     def SendConfigRequest(self):
         self.sendPacket()
@@ -338,9 +347,9 @@ class SerialC:
     def handleConfig(self, resp):
         try:
             cfgpck = ConfigPacket(resp)
-            self.config = cfgpck.config.copy()
             pck = self.q.get(cfgpck.requestcmd)
-            if pck is not None:
+            if pck is not None:  # only update the config if we requested it
+                self.config = cfgpck.config.copy()
                 q[cfgpck.requestcmd] = None
         except Exception:
             if DEBUG_MODE:
@@ -376,7 +385,7 @@ class SerialC:
 
     def handleLights(self, resp):
         try:
-            ltpck = LightsPacket(resp)
+            ltpck = LightsStatusPacket(resp)
             self.lights = ltpck.lights.copy()
             pck = self.q.get(ltpck.requestcmd)
             if pck is not None:
@@ -396,7 +405,9 @@ class SerialC:
             if DEBUG_MODE:
                 traceback.print_exc()
             
-    def sendPacket(self, pck):
-        self.q[pck.header] = pck
+    def sendPacket(self, pck, ignoreQueue=False):
+        if not ignoreQueue and self.q.get(pck.command) is not None: return 1
+        self.q[pck.command] = pck
         buf = pck.toBytes()
         self.ser.write(cobs.encode(buf))
+        return 0

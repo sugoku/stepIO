@@ -75,6 +75,9 @@ void SerialC::parseCommand(const uint8_t* buf, size_t size) {
             case SerialCommands::SET_EXTRA_LED:
                 this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
                 break;
+            case SerialCommands::RESET_EXTRA_LEDS:
+                this->sendStatus(SerialMessages::NOT_IMPLEMENTED, buf[0]);
+                break;
             case SerialCommands::LIGHTS_FROM_SENSORS:
                 this->config[ConfigOptions::LIGHTS_FROM_SENSORS] = buf[1] & 1;
                 this->sendStatus(SerialMessages::SUCCESS, buf[0]);
