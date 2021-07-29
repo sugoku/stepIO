@@ -1,20 +1,16 @@
-# stepIO
-This is the firmware for the **st**age controller with **e**mulation of **P**IU**IO**, or in short, **stepIO**.
-Originally based off racerxdl's PIUIO Clone, it is intended to be a foot PCB and IO replacement for dance pads. It focuses on customization and convenience, with several extra features, such as:
+# stepIO simple
+This is the simple version of the firmware for the **st**age controller with **e**mulation of **P**IU**IO**, or in short, **stepIO**.
+This branch is intended to be used with the **susIO**, **s**imple **U**SB **s**tage IO. susIO aims to be a stage PCB which allows one to directly connect Pump It Up pads to a computer as well as official games. It has:
 
-- Support for Pump It Up and Dance Dance Revolution connectors, as well as header pins for everything else
+- Support for Pump It Up and In the Groove connectors, as well as header pins for everything else
 - Full 12V pad light support with header pin outputs
-- Analog sensor reading (meaning support for Velostat and FSRs)
-- USB flashing support for using and updating to different firmwares
-- Configuration through serial connection
-- Emulation of HID and other USB devices such as joystick, keyboard, and legacy PIUIO
-- Support for up to 16 multiplexed button inputs + multiplexer expansion for another 16 inputs, as well as 8 cabinet light outputs per board (5V outputs, meant to connect to a light controller board)
-- RGB LED support (4 pin but 3 pin possible)
+- Open-source firmware and USB flashing support for using and updating to different firmwares
+- Emulation of HID and other USB devices such as joystick, keyboard, legacy PIUIO and LXIO
+- Direct configuration of boards through jumpers
+- Headers for coin, test, service and clear buttons
+- Extremely small size using modern surface mounted parts
 
-As of the latest iteration, you now only need one stepIO board to control two pads, and the second pad is connected to an extension board through two CAT-5 (Ethernet) cables. The master board uses 5V converted 3.3V from the USB cable and 12V from either a 12V DC supply or a Pump pad power cable.
-
-In addition, this is also the firmware for the **brokeIO**, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e** **IO** (in reference to the PIUIO and JAMMA).
-The brokeIO is intended to be a cheap drop-in replacement for the PIUIO and can replace the JAMMA as well. The JAMMA edge pinout is broken out onto 2.54mm headers and can be connected to a external converter board. The 7-pin and 10-pin connectors for the pad and cabinet lights normally included on the JAMMA are also included on the brokeIO. There are also several extra pins which can be used to control additional multiplexers and RGB LEDs.
+One susIO is required per pad, and two susIO boards may be connected through a CAT-5 cable. The primary board uses 5V from the USB cable and 12V from either a 12V DC supply or a Pump pad power cable, supplying power to the secondary board.
 
 More info is available on the repository wiki.
 
