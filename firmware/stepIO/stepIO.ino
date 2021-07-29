@@ -16,17 +16,6 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-/*
-notes:
-
-how will we structure this code?
-- any classes should have their own cpp
-    - especially modular HID things
-- provide serial interface with handlers and stuff in another cpp
-- EEPROM config can be in another cpp
-
-*/
-
 #include "Config.h"
 #include "Defaults.h"
 #include "Output/Output.h"
