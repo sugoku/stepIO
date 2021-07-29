@@ -20,6 +20,11 @@
 #define _CONFIG_H
 
 #include <Arduino.h>
+
+#include <USBAPI.h>
+#include <USBCore.h>
+#include <USBDesc.h>
+
 #include <HID-Project.h>
 #include <SPI.h>
 
@@ -37,6 +42,8 @@
 
 #define ANALOG  // Support for load-cells, velostat, FSRs, etc.
 #define ANALOG_AUTO_CALIBRATION
+
+#define DEFAULT_ANALOG_VALUE 200  // Default analog threshold from 0-255
 
 #define DEBOUNCING  // Prevents double-stepping and odd sensor behavior (not used in analog mode)
 #ifndef SIMPLE_IO
@@ -98,17 +105,82 @@
 #define ORBIT(port,bit,val) ((port) |= (val << (bit))
 #define ANDBIT(port,bit,val) ((port) &= ~(!val << (bit))  // i think this makes sense?
 
-// VERSION INFO
+// OTHER MACROS
+
+#define LOOP_FOREVER for(;;){}  // useful to force a reset as long as watchdog is enabled
+
+#define WATCHDOG_TIMEOUT 1000  // in milliseconds
+#if defined(__SAM3X8E__)
+    #define WATCHDOG_ENABLE watchdogEnable(WATCHDOG_TIMEOUT)
+    #define WATCHDOG_RESET watchdogReset()
+#elif defined(__AVR__)
+    #define WATCHDOG_ENABLE wdt_enable(WATCHDOG_TIMEOUT)
+    #define WATCHDOG_RESET wdt_reset()
+#else
+    #define WATCHDOG_ENABLE
+    #define WATCHDOG_RESET
+#endif
+
+
+// STEPIO INFO
+
+#define STEPIO_MANUFACTURER "sugoku"
+
+// test PID, should not be used in production!
+#define STEPIO_VID 0x1209
+#define STEPIO_PID 0x0001
+
+#define STEPIO_VERSION_GEN 0x02
 
 #ifndef SIMPLE_IO
+
     #define STEPIO_VERSION_MODEL 0x01  // stepIO
+    #define STEPIO_VERSION_MAJOR 0x00
+    #define STEPIO_VERSION_MINOR 0x01
+    #define STEPIO_VERSION_REVISION 0x01  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
+
+    #define STEPIO_PRODUCT "stepIO"
+
 #else
+
     #define STEPIO_VERSION_MODEL 0x03  // susIO
+    #define STEPIO_VERSION_MAJOR 0x00
+    #define STEPIO_VERSION_MINOR 0x01
+    #define STEPIO_VERSION_REVISION 0x01
+
+    #define STEPIO_PRODUCT "susIO"
+
 #endif
-#define STEPIO_VERSION_MAJOR 0x00
-#define STEPIO_VERSION_MINOR 0x02
-#define STEPIO_VERSION_REVISION 0x02  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
-#define STEPIO_VERSION_GEN 0x02
+
+// #define REPORT_ACTUAL_VERSION
+
+#ifdef REPORT_ACTUAL_VERSION
+    #define STEPIO_VERSION_USB (STEPIO_VERSION_MAJOR << 2) | (STEPIO_VERSION_MINOR << 1)
+#else
+    #define STEPIO_VERSION_USB STEPIO_VERSION_MODEL << 2
+#endif
+
+#define STEPIO_DEVICE_DESCRIPTOR D_DEVICE(  \
+    0xEF,   \
+    0x02,   \
+    0x01,   \
+    USB_EP_SIZE,    \
+    STEPIO_VID,     \
+    STEPIO_PID,     \
+    STEPIO_VERSION_USB,  \
+    IMANUFACTURER,  \
+    IPRODUCT,   \
+    ISERIAL,    \
+    1  \
+)
+
+// to use actual version under version, use 
+
+// EF,02,01 are three magic bytes which indicate that the board has multiple IADs
+// 1 at the end indicates one configuration
+
+
+
 
 // DEVICE MODE
 
@@ -351,11 +423,12 @@ enum ConfigOptions {
     INPUT_TYPE,  // InputMUX vs. InputSensor (should go unused soon)
     INPUT_MODE,
     MUX_POLLING_MODE,  // normal, merged, etc.
+    MUX_SIMPLE,  // basically if SIMPLE_PIUIO_MUX is enabled
 
     OUTPUT_MODE,  
     LIGHTS_MODE,  // light output mode
     LIGHTS_FROM_SENSORS,  // read lights directly from the sensor inputs instead of from the host
-    DEVICE_MODE,  // primary vs. secondary device (communicate via USB or to another board only?)
+    DEVICE_MODE,  // primary vs. secondary
     DEBOUNCE_MODE,
 
     PLAYER,  // which player is the main PCB hooked up to? (no longer needed)
@@ -368,6 +441,37 @@ enum ConfigOptions {
     BLOCKED_INPUTS_1,  // 1 is not blocked, 0 is blocked (because AND operation used)
     BLOCKED_INPUTS_2,
     BLOCKED_INPUTS_3,
+
+    BLOCKED_INPUTS_MUX0_0,
+    BLOCKED_INPUTS_MUX0_1,
+    BLOCKED_INPUTS_MUX0_2,
+    BLOCKED_INPUTS_MUX0_3,
+    
+    BLOCKED_INPUTS_MUX1_0,
+    BLOCKED_INPUTS_MUX1_1,
+    BLOCKED_INPUTS_MUX1_2,
+    BLOCKED_INPUTS_MUX1_3,
+    
+    BLOCKED_INPUTS_MUX2_0,
+    BLOCKED_INPUTS_MUX2_1,
+    BLOCKED_INPUTS_MUX2_2,
+    BLOCKED_INPUTS_MUX2_3,
+
+    BLOCKED_INPUTS_MUX3_0,
+    BLOCKED_INPUTS_MUX3_1,
+    BLOCKED_INPUTS_MUX3_2,
+    BLOCKED_INPUTS_MUX3_3,
+
+    BLOCKED_LIGHTS_0,  // 1 is not blocked, 0 is blocked (because AND operation used)
+    BLOCKED_LIGHTS_1,  
+    BLOCKED_LIGHTS_2,
+    BLOCKED_LIGHTS_3,
+
+    // LSB
+    SERIAL_BAUD_BYTE0,
+    SERIAL_BAUD_BYTE1,
+    SERIAL_BAUD_BYTE2,
+    SERIAL_BAUD_BYTE3,
 
     RGB_LED_COUNT,
     EXTRA_LED_TRIGGER,  // 0xFF default, means disabled (based on nth bit of LightsPacket)
@@ -521,8 +625,23 @@ enum ConfigOptions {
     CLEAR_BUTTON_MIDI2,
     CLEAR_BUTTON_CHANNEL,
 
-}
-
+    P1_UPLEFT_ANALOG,
+    P1_UPRIGHT_ANALOG,
+    P1_CENTER_ANALOG,
+    P1_DOWNLEFT_ANALOG,
+    P1_DOWNRIGHT_ANALOG,
+    P2_UPLEFT_ANALOG,
+    P2_UPRIGHT_ANALOG,
+    P2_CENTER_ANALOG,
+    P2_DOWNLEFT_ANALOG,
+    P2_DOWNRIGHT_ANALOG,
+    P1_COIN_ANALOG,
+    P2_COIN_ANALOG,
+    TEST_BUTTON_ANALOG,
+    SERVICE_BUTTON_ANALOG,
+    CLEAR_BUTTON_ANALOG,
+    EXTRA_BUTTON_ANALOG,
+};
 // INPUT/OUTPUT CONSTANTS
 
 enum InputPacket {
@@ -576,10 +695,20 @@ const uint8_t INPUT_LIST[] = {
 }
 */
 
-#define DEFAULT_BLOCKED_INPUTS_0 EEPROM_DEFAULT_VALUE
-#define DEFAULT_BLOCKED_INPUTS_1 EEPROM_DEFAULT_VALUE
-#define DEFAULT_BLOCKED_INPUTS_2 EEPROM_DEFAULT_VALUE
-#define DEFAULT_BLOCKED_INPUTS_3 EEPROM_DEFAULT_VALUE
+#define ALL_INPUTS_ON 0xFF
+
+#define DEFAULT_BLOCKED_INPUTS_0 ALL_INPUTS_ON
+#define DEFAULT_BLOCKED_INPUTS_1 ALL_INPUTS_ON
+#define DEFAULT_BLOCKED_INPUTS_2 ALL_INPUTS_ON
+#define DEFAULT_BLOCKED_INPUTS_3 ALL_INPUTS_ON
+
+#define ALL_LIGHTS_ON 0xFF
+
+#define DEFAULT_BLOCKED_LIGHTS_0 ALL_LIGHTS_ON
+#define DEFAULT_BLOCKED_LIGHTS_1 ALL_LIGHTS_ON
+#define DEFAULT_BLOCKED_LIGHTS_2 ALL_LIGHTS_ON
+#define DEFAULT_BLOCKED_LIGHTS_3 ALL_LIGHTS_ON
+
 
 enum LightsPacket {
     P1_UPLEFT,
@@ -674,6 +803,9 @@ enum PIUIO_LightsPacket {
 #define PIUIO_ADDRESS 0xAE
 #define PIUIO_INDEX 0x00
 #define PIUIO_VALUE 0x00
+
+#define PIUIO_VID 0x0547
+#define PIUIO_PID 0x1002
 
 // both input and lights packets are 16 bytes but any bit after the enums is unused
 enum LXIO_InputPacket {
@@ -863,6 +995,11 @@ enum LXIO_LightsPacket {
 #define EEPROM_SWITCH_STICK_RX 0x22
 #define EEPROM_SWITCH_STICK_RY 0x23
 
+#define SWITCH_VID 0x0F0D
+#define SWITCH_PID 0x0092
+#define SWITCH_MANUFACTURER "HORI CO.,LTD."  // unused
+#define SWITCH_PRODUCT "POKKEN CONTROLLER"
+
 // MIDI
 
 #define DEFAULT_MIDI_CHANNEL 0
@@ -906,36 +1043,44 @@ enum SerialCommands {
     CHANGE_MUX_POLLING_MODE,
     CHANGE_DEBOUNCE_MODE,
     SET_EXTRA_LED,
+    RESET_EXTRA_LEDS,
     EDIT_INPUT,  // anything that corresponds to InputPacket, uint32_t and nth byte
     ANALOG_THRESHOLD,  // global or per input
     SAVE_TO_EEPROM,
     LOAD_FROM_EEPROM,
     GET_CONFIG,
+    SET_CONFIG,
     SEND_INPUT,
     SEND_INPUT_ANALOG,
+    GET_LIGHTSMUX,
     SEND_LIGHTSMUX,
-}
+    CHANGE_BAUD,
+    RESET,
+    STATUS_GET,
+    SET_FACTORY_DEFAULTS,
+    GET_DEVICE_INFO,
+};
 
-// outgoing messages
+// outgoing messages (device -> host)
 enum SerialMessageTypes {
     STATUS,
     SENSOR,
+    SENSOR_ANALOG,
     CONFIG,
-}
+    LIGHTS,
+    DEVICE_INFO,
+};
 
 enum SerialMessages {
     SUCCESS,
+    ALIVE,
     ERROR_OVERFLOW,
     ERROR_SHORT,
-    ERROR_UNKNOWN
-}
-
-// BOARD MESSAGES
-
-enum BoardMessages {
-    NONE,
-    IDENTIFY_PLAYER,
-}
+    ERROR_UNKNOWN,
+    NOT_IMPLEMENTED,
+    ERROR_NOT_ATTACHED,
+    RESET,
+};
 
 
 // UPDATES
@@ -946,7 +1091,7 @@ enum UpdateStatus {
     PENDING_FLASH,
     FLASH_ERROR,
     NOT_FLASHED = 0xFF
-}
+};
 
 // ERRORS
 
@@ -955,16 +1100,11 @@ enum WireError {  // I2C errors, EEPROM
     NACK_ON_ADDR,
     NACK_ON_DATA,
     OTHER_ERROR
-}
+};
 
 enum RuntimeError {
     NONE = 0xFF
-}
-
-
-// RUNTIME
-
-#define WATCHDOG_TIMEOUT 1000  // in milliseconds
+};
 
 
 #endif

@@ -21,8 +21,8 @@
 
 #include "Config.h"
 
-// These are the default settings which will be loaded into stepIO/SIMPLE_IO on first boot, change as needed
-const uint8_t defaults[256] = {
+// These are the default settings which will be loaded into stepIO/brokeIO on first boot, change as needed
+const uint8_t defaults[256] PROGMEM = {
     [ConfigOptions::VERSION_MODEL] = STEPIO_VERSION_MODEL,
     [ConfigOptions::VERSION_MAJOR] = STEPIO_VERSION_MAJOR,
     [ConfigOptions::VERSION_MINOR] = STEPIO_VERSION_MINOR,
@@ -37,6 +37,11 @@ const uint8_t defaults[256] = {
         [ConfigOptions::INPUT_MODE] = InputMode::Software,
     #endif
     [ConfigOptions::MUX_POLLING_MODE] = MUXPollingMode::Normal,
+    #ifdef SIMPLE_PIUIO_MUX
+        [ConfigOptions::MUX_SIMPLE] = EEPROM_TRUE
+    #else
+        [ConfigOptions::MUX_SIMPLE] = EEPROM_FALSE
+    #endif
 
     [ConfigOptions::OUTPUT_MODE] = OutputMode::PIUIO,
     #ifdef SIMPLE_IO
@@ -59,6 +64,31 @@ const uint8_t defaults[256] = {
     [ConfigOptions::BLOCKED_INPUTS_2] = DEFAULT_BLOCKED_INPUTS_2,
     [ConfigOptions::BLOCKED_INPUTS_3] = DEFAULT_BLOCKED_INPUTS_3,
 
+    [ConfigOptions::BLOCKED_INPUTS_MUX0_0] = DEFAULT_BLOCKED_INPUTS_0,
+    [ConfigOptions::BLOCKED_INPUTS_MUX0_1] = DEFAULT_BLOCKED_INPUTS_1,
+    [ConfigOptions::BLOCKED_INPUTS_MUX0_2] = DEFAULT_BLOCKED_INPUTS_2,
+    [ConfigOptions::BLOCKED_INPUTS_MUX0_3] = DEFAULT_BLOCKED_INPUTS_3,
+
+    [ConfigOptions::BLOCKED_INPUTS_MUX1_0] = DEFAULT_BLOCKED_INPUTS_0,
+    [ConfigOptions::BLOCKED_INPUTS_MUX1_1] = DEFAULT_BLOCKED_INPUTS_1,
+    [ConfigOptions::BLOCKED_INPUTS_MUX1_2] = DEFAULT_BLOCKED_INPUTS_2,
+    [ConfigOptions::BLOCKED_INPUTS_MUX1_3] = DEFAULT_BLOCKED_INPUTS_3,
+
+    [ConfigOptions::BLOCKED_INPUTS_MUX2_0] = DEFAULT_BLOCKED_INPUTS_0,
+    [ConfigOptions::BLOCKED_INPUTS_MUX2_1] = DEFAULT_BLOCKED_INPUTS_1,
+    [ConfigOptions::BLOCKED_INPUTS_MUX2_2] = DEFAULT_BLOCKED_INPUTS_2,
+    [ConfigOptions::BLOCKED_INPUTS_MUX2_3] = DEFAULT_BLOCKED_INPUTS_3,
+
+    [ConfigOptions::BLOCKED_INPUTS_MUX3_0] = DEFAULT_BLOCKED_INPUTS_0,
+    [ConfigOptions::BLOCKED_INPUTS_MUX3_1] = DEFAULT_BLOCKED_INPUTS_1,
+    [ConfigOptions::BLOCKED_INPUTS_MUX3_2] = DEFAULT_BLOCKED_INPUTS_2,
+    [ConfigOptions::BLOCKED_INPUTS_MUX3_3] = DEFAULT_BLOCKED_INPUTS_3,
+
+    [ConfigOptions::BLOCKED_LIGHTS_0] = DEFAULT_BLOCKED_LIGHTS_0,
+    [ConfigOptions::BLOCKED_LIGHTS_1] = DEFAULT_BLOCKED_LIGHTS_1,
+    [ConfigOptions::BLOCKED_LIGHTS_2] = DEFAULT_BLOCKED_LIGHTS_2,
+    [ConfigOptions::BLOCKED_LIGHTS_3] = DEFAULT_BLOCKED_LIGHTS_3,
+
     [ConfigOptions::RGB_LED_COUNT] = DEFAULT_RGB_LED_COUNT,
     [ConfigOptions::EXTRA_LED_TRIGGER] = EEPROM_DEFAULT_VALUE,
 
@@ -79,21 +109,21 @@ const uint8_t defaults[256] = {
     [ConfigOptions::LIGHT_SUB_LEFT_REMAP] = EEPROM_DEFAULT_VALUE,
     [ConfigOptions::LIGHT_SUB_RIGHT_REMAP] = EEPROM_DEFAULT_VALUE,
 
-    [ConfigOptions::P1_UPLEFT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P1_UPRIGHT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P1_CENTER_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P1_DOWNLEFT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P1_DOWNRIGHT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_UPLEFT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_UPRIGHT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_CENTER_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_DOWNLEFT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_DOWNRIGHT_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P1_COIN_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::P2_COIN_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::TEST_BUTTON_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::SERVICE_BUTTON_REMAP] = EEPROM_DEFAULT_VALUE,
-    [ConfigOptions::CLEAR_BUTTON_REMAP] = EEPROM_DEFAULT_VALUE,
+    [ConfigOptions::P1_UPLEFT_REMAP] = InputPacket::P1_UPLEFT,
+    [ConfigOptions::P1_UPRIGHT_REMAP] = InputPacket::P1_UPRIGHT,
+    [ConfigOptions::P1_CENTER_REMAP] = InputPacket::P1_CENTER,
+    [ConfigOptions::P1_DOWNLEFT_REMAP] = InputPacket::P1_DOWNLEFT,
+    [ConfigOptions::P1_DOWNRIGHT_REMAP] = InputPacket::P1_DOWNRIGHT,
+    [ConfigOptions::P2_UPLEFT_REMAP] = InputPacket::P2_UPLEFT,
+    [ConfigOptions::P2_UPRIGHT_REMAP] = InputPacket::P2_UPRIGHT,
+    [ConfigOptions::P2_CENTER_REMAP] = InputPacket::P2_CENTER,
+    [ConfigOptions::P2_DOWNLEFT_REMAP] = InputPacket::P2_DOWNLEFT,
+    [ConfigOptions::P2_DOWNRIGHT_REMAP] = InputPacket::P2_DOWNRIGHT,
+    [ConfigOptions::P1_COIN_REMAP] = InputPacket::P1_COIN,
+    [ConfigOptions::P2_COIN_REMAP] = InputPacket::P2_COIN,
+    [ConfigOptions::TEST_BUTTON_REMAP] = InputPacket::TEST_BUTTON,
+    [ConfigOptions::SERVICE_BUTTON_REMAP] = InputPacket::SERVICE_BUTTON,
+    [ConfigOptions::CLEAR_BUTTON_REMAP] = InputPacket::CLEAR_BUTTON,
 
     // keycodes from HID library
     [ConfigOptions::P1_UPLEFT_KEYCODE] = KeyboardKeycode::KEY_Q,
@@ -213,6 +243,23 @@ const uint8_t defaults[256] = {
     [ConfigOptions::CLEAR_BUTTON_MIDI1] = 74,
     [ConfigOptions::CLEAR_BUTTON_MIDI2] = MIDI_STANDARD_VELOCITY,
     [ConfigOptions::CLEAR_BUTTON_CHANNEL] = DEFAULT_MIDI_CHANNEL,
+
+    [ConfigOptions::P1_UPLEFT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P1_UPRIGHT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P1_CENTER_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P1_DOWNLEFT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P1_DOWNRIGHT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_UPLEFT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_UPRIGHT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_CENTER_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_DOWNLEFT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_DOWNRIGHT_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P1_COIN_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::P2_COIN_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::TEST_BUTTON_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::SERVICE_BUTTON_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::CLEAR_BUTTON_ANALOG] = DEFAULT_ANALOG_VALUE,
+    [ConfigOptions::EXTRA_BUTTON_ANALOG] = DEFAULT_ANALOG_VALUE,
 };
 
 

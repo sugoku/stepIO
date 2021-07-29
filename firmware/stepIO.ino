@@ -97,23 +97,26 @@ void GetOutput(Input *in, uint32_t* buf) {
     *buf = *inVals[0];
 }
 
-void FilterOutput(uint32_t* buf) {
-    buf &= blocked;  // any disabled inputs get nulled here
+void FilterOutput(uint16_t* buf) {
+    buf &= blocked;  // global blocks
+    
     #ifdef DEBOUNCING
         // something
         // probably wait X ms before actually releasing if something is released
     #endif
 }
 
-uint8_t SendOutput(Output* out, uint32_t* buf) {
-    if (out == NULL) return -1;
-    return out->send(buf);
+void SendOutput(Output* out, uint32_t* buf) {
+    if (out == NULL) return;
+    out->send(buf);
 }
 
-int EnableUSB(uint8_t* usbdata) {
-    // check *usbdata is valid
+int EnableUSB(Output* out) {
+    STRING_MANUFACTURER = out->getManufacturer();
+    STRING_PRODUCT = out->getProduct();
+    USB_DeviceDescriptorIAD = out->getDeviceDescriptor();
 
-    USBDevice_ USBDevice(usbdata);  // comment this out in core and modify constructor so i can change VID and PID
+    USBDevice_ USBDevice();  // comment this out in core and modify constructor so i can change VID and PID
     USBDevice.attach();  // connects device, needs to be commented out from main.cpp
 
     // alternatively, could detach, change constructor, then reattach (though pluggableusb might make that annoying?)
@@ -164,11 +167,7 @@ void setup() {
         config[ConfigOptions::OUTPUT_MODE] = (pinconfig >> 1) & 0b111;
     #endif
 
-    #if defined(__SAM3X8E__)
-        watchdogEnable(WATCHDOG_TIMEOUT);
-    #elif defined(__AVR__)
-        wdt_enable(WATCHDOG_TIMEOUT);
-    #endif
+    WATCHDOG_ENABLE;
 
     USBCON |= (1<<OTGPADE); // enable VBUS detection
     devicemode = (USBSTA & 1) ? DEVICE_PRIMARY : DEVICE_SECONDARY;  // set device mode based on if USB power is received
@@ -176,7 +175,6 @@ void setup() {
     in = Input_Simple();
     in.setup();
 
-    // fix this a lot
     if (devicemode == DEVICE_PRIMARY) {
         boardcomm = CommPrimary_SPI();
 
@@ -205,6 +203,7 @@ void setup() {
         lightbuf = out.getLights();
     } else {
         boardcomm = CommSecondary_SPI();
+        lightbuf = nullptr;
     }
 
     #ifdef LIGHT_OUTPUT
@@ -227,7 +226,7 @@ void setup() {
     blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
     blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_0]);
 
-    EnableUSB(out.getUSBData());  // SetupEndpoints();
+    EnableUSB(&out);  // SetupEndpoints();
 
     #ifdef SERIAL_ENABLED
         SERIAL_CONFIG.begin(SERIAL_BAUD);
@@ -237,15 +236,12 @@ void setup() {
     #endif
 
     inVals = in.getValues();
+    // outMuxes = {0xFF, 0xFF};
 }
 
 void loop() {
 
-    #if defined(__SAM3X8E__)
-        watchdogReset();
-    #elif defined(__AVR__)
-        wdt_reset();
-    #endif
+    WATCHDOG_RESET;
 
     if (devicemode == DEVICE_PRIMARY)
         UpdateHost(&out);
