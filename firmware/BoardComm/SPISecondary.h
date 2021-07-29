@@ -16,27 +16,42 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#ifndef _LIGHTS_H
-#define _LIGHTS_H
+#ifndef _SPISECONDARY_H
+#define _SPISECONDARY_H
 
 #include "Config.h"
 
-class Lights
+class SPISecondary
 {
     public:
-        virtual void setup() = 0;
-        virtual int send(uint32_t* buf) = 0;
+        inline static void begin() {
+            pinMode(MISO, OUTPUT);  // set MISO as output
+            // SS, MOSI and SCK should all be inputs
+            pinMode(SS, INPUT);  // unused currently
+            pinMode(MOSI, INPUT);
+            pinMode(SCK, INPUT);
 
-};
-
-enum LightsMode {
-    None,
-    Latch32,  // SIMPLE_IO
-    Latch,
-    Signal,
-    FastLED,
-    WS281X,
-    APA102
+            SPCR |= _BV(SPE);  // enable SPI in secondary mode
+            SPCR |= _BV(SPIE);  // enable interrupts
+        };
+        // inline static void setClockDivider(uint8_t clockDiv) {
+        //     SPI.setClockDivider(clockDiv);
+        // }
+        inline static uint8_t transfer(uint8_t data) {
+            return SPI.transfer(data);
+        }
+        inline static uint16_t transfer16(uint16_t data) {
+            return SPI.transfer16(data);
+        }
+        inline static void transfer(void* buf, size_t count) {
+            SPI.transfer(buf, count);
+        }
+        inline static void end() {
+            SPI.end();
+        }
+        // inline static void endTransaction() {
+        //     SPI.endTransaction();
+        // }
 };
 
 #endif

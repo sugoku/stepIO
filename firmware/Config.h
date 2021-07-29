@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #ifndef _CONFIG_H
@@ -21,21 +21,25 @@
 
 #include <Arduino.h>
 #include <HID-Project.h>
+#include <SPI.h>
 
-// IF YOU ARE USING A BROKEIO, UNCOMMENT THIS
-#define BROKEIO
+// IF YOU ARE USING A SIMPLE_IO, UNCOMMENT THIS
+#define SIMPLE_IO
 
+#define PINCONFIG
 
 // Configuration options, change if you need to reduce the program's size or fix things
 // (all of this functionality can be configured and saved in real-time so don't remove unless you need to!)
 
 // #define TREAT_AS_FIRST_BOOT  // Reload defaults if something isn't working for some reason
 
+// #define SERIAL_ENABLED  // Not working yet, serial interface accessible through host to configure boards
+
 #define ANALOG  // Support for load-cells, velostat, FSRs, etc.
 #define ANALOG_AUTO_CALIBRATION
 
 #define DEBOUNCING  // Prevents double-stepping and odd sensor behavior (not used in analog mode)
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define HARDWARE_DEBOUNCING  // Debounces directly through hardware for faster performance
 #endif
 // Below settings are for software debouncing ONLY (using Bounce2 library)
@@ -45,7 +49,7 @@
 #define DMA_INPUT  // Direct memory access for faster performance
 
 #define LIGHT_OUTPUT  // Enables light support
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define LIGHT_PAD_OUTPUT  // Enables pad lighting support
     #define LIGHT_LATCH_OUTPUT  // Enables support for cabinet light outputs using the 74HC595
 #endif
@@ -66,7 +70,7 @@
 #define EEPROM_ENABLED  // Comment out if you aren't using EEPROM (custom PCB maybe)
 #define PULLUP_IN  // Comment out if you do not want to use pull-up resistors for digital inputs
 
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define EEPROM_EXTERNAL  // Use an external EEPROM (should be defaulted to for non-AVR microcontrollers)
 #endif
 
@@ -96,15 +100,20 @@
 
 // VERSION INFO
 
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define STEPIO_VERSION_MODEL 0x01  // stepIO
 #else
-    #define STEPIO_VERSION_MODEL 0x02  // brokeIO
+    #define STEPIO_VERSION_MODEL 0x03  // susIO
 #endif
 #define STEPIO_VERSION_MAJOR 0x00
-#define STEPIO_VERSION_MINOR 0x01
-#define STEPIO_VERSION_REVISION 0x01  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
+#define STEPIO_VERSION_MINOR 0x02
+#define STEPIO_VERSION_REVISION 0x02  // an alternate version number which must be greater than 0x00 and less than 0xFF, otherwise EEPROM resets
 #define STEPIO_VERSION_GEN 0x02
+
+// DEVICE MODE
+
+#define DEVICE_PRIMARY 0x01
+#define DEVICE_SECONDARY 0x02
 
 // PLAYERS
 
@@ -120,7 +129,7 @@
 
 // PINS
 
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define SENSOR_1 54   // PA16, A0
     #define SENSOR_2 55   // PA24, A1
     #define SENSOR_3 56   // PA23, A2
@@ -206,162 +215,115 @@
         SUB_RIGHT
     };
 
-// BROKEIO PINS
+// SIMPLE_IO PINS
 #else
 
-    #define MUX_ENABLE A5   // PF0
-    #define MUX_ENABLE_READ PINF
-    #define MUX_ENABLE_PORT PORTF
-    #define MUX_ENABLE_MODE DDRF
-    #define MUX_ENABLE_PIN 0
+    #define MUX1_IN 13      // PC7
+    #define MUX1_IN_READ PINC
+    #define MUX1_IN_PORT PORTC
+    #define MUX1_IN_MODE DDRC
+    #define MUX1_IN_PIN 7
 
+    #define MUX_S0 9        // PB5
+    #define MUX_S0_READ PINB
+    #define MUX_S0_PORT PORTB
+    #define MUX_S0_MODE DDRB
+    #define MUX_S0_PIN 5
 
-    #define MUX1_IN 8       // PB4
-    #define MUX1_IN_READ PINB
-    #define MUX1_IN_PORT PORTB
-    #define MUX1_IN_MODE DDRB
-    #define MUX1_IN_PIN 4
+    #define MUX_S1 10       // PB6
+    #define MUX_S1_READ PINB
+    #define MUX_S1_PORT PORTB
+    #define MUX_S1_MODE DDRB
+    #define MUX_S1_PIN 6
 
-    #define MUX2_IN A4      // PF1
-    #define MUX2_IN_READ PINF
-    #define MUX2_IN_PORT PORTF
-    #define MUX2_IN_MODE DDRF
-    #define MUX2_IN_PIN 1
-
-
-    #define MUX_S0 A3       // PF4
-    #define MUX_S0_READ PINF
-    #define MUX_S0_PORT PORTF
-    #define MUX_S0_MODE DDRF
-    #define MUX_S0_PIN 4
-
-    #define MUX_S1 A2       // PF5
-    #define MUX_S1_READ PINF
-    #define MUX_S1_PORT PORTF
-    #define MUX_S1_MODE DDRF
-    #define MUX_S1_PIN 5
-
-    #define MUX_S2 A1       // PF6
-    #define MUX_S2_READ PINF
-    #define MUX_S2_PORT PORTF
-    #define MUX_S2_MODE DDRF
+    #define MUX_S2 5        // PC6
+    #define MUX_S2_READ PINC
+    #define MUX_S2_PORT PORTC
+    #define MUX_S2_MODE DDRC
     #define MUX_S2_PIN 6
 
-    #define MUX_S3 A0       // PF7
-    #define MUX_S3_READ PINF
-    #define MUX_S3_PORT PORTF
-    #define MUX_S3_MODE DDRF
-    #define MUX_S3_PIN 7
+    #define SENSOR_1 A1     // PF6
+    #define SENSOR_1_READ PINF
+    #define SENSOR_1_PORT PORTF
+    #define SENSOR_1_MODE DDRF
+    #define SENSOR_1_PIN 6
 
-    // look into pins_arduino.h to disable TXLED and RXLED
-    #define LATCH_RCLK      // PD5, TXLED
-    #define LATCH_RCLK_READ PIND
-    #define LATCH_RCLK_PORT PORTD
-    #define LATCH_RCLK_MODE DDRD
-    #define LATCH_RCLK_PIN 5
+    #define SENSOR_2 A2     // PF5
+    #define SENSOR_2_READ PINF
+    #define SENSOR_2_PORT PORTF
+    #define SENSOR_2_MODE DDRF
+    #define SENSOR_2_PIN 5
 
-    #define LATCH_RST 12    // PD6
-    #define LATCH_RST_READ PIND
-    #define LATCH_RST_PORT PORTD
-    #define LATCH_RST_MODE DDRD
-    #define LATCH_RST_PIN 6
+    #define SENSOR_3 A3     // PF4
+    #define SENSOR_3_READ PINF
+    #define SENSOR_3_PORT PORTF
+    #define SENSOR_3_MODE DDRF
+    #define SENSOR_3_PIN 4
 
-    #define LATCH_ENABLE 6  // PD7
-    #define LATCH_ENABLE_READ PIND
-    #define LATCH_ENABLE_PORT PORTD
-    #define LATCH_ENABLE_MODE DDRD
-    #define LATCH_ENABLE_PIN 7
+    #define SENSOR_4 A4     // PF1
+    #define SENSOR_4_READ PINF
+    #define SENSOR_4_PORT PORTF
+    #define SENSOR_4_MODE DDRF
+    #define SENSOR_4_PIN 1
 
-    #define EXTRA_LIGHTS_DATA 9  // PB5
-    #define EXTRA_LIGHTS_CLOCK 10  // PB6
+    #define SENSOR_5 A5     // PF0
+    #define SENSOR_5_READ PINF
+    #define SENSOR_5_PORT PORTF
+    #define SENSOR_5_MODE DDRF
+    #define SENSOR_5_PIN 0
+
+    #define LIGHTSIG_1 A5   // PD4
+    #define LIGHTSIG_1_READ PIND
+    #define LIGHTSIG_1_PORT PORTD
+    #define LIGHTSIG_1_MODE DDRD
+    #define LIGHTSIG_1_PIN 4
+
+    #define LIGHTSIG_2 12   // PD6
+    #define LIGHTSIG_2_READ PIND
+    #define LIGHTSIG_2_PORT PORTD
+    #define LIGHTSIG_2_MODE DDRD
+    #define LIGHTSIG_2_PIN 6
+
+    #define LIGHTSIG_3 6    // PD7
+    #define LIGHTSIG_3_READ PIND
+    #define LIGHTSIG_3_PORT PORTD
+    #define LIGHTSIG_3_MODE DDRD
+    #define LIGHTSIG_3_PIN 7
+
+    #define LIGHTSIG_4 8    // PB4
+    #define LIGHTSIG_4_READ PINB
+    #define LIGHTSIG_4_PORT PORTB
+    #define LIGHTSIG_4_MODE DDRB
+    #define LIGHTSIG_4_PIN 4
+
+    #define LIGHTSIG_5 A0   // PF7
+    #define LIGHTSIG_5_READ PINF
+    #define LIGHTSIG_5_PORT PORTF
+    #define LIGHTSIG_5_MODE DDRF
+    #define LIGHTSIG_5_PIN 7
 
     // according to pins_arduino.h, SS, MOSI, MISO and SCK are assigned pins already and SPI library should handle our worries too
 
-    enum BROKEIO_MUX_IN {
-        // MUX1
-        P2_DOWNRIGHT,
-        P2_DOWNLEFT,
-        P2_CENTER,
-        P2_UPRIGHT,
-        P2_UPLEFT,
-        NC_IN_11,
-        NC_IN_12,
-        NC_IN_13,
-        NC_IN_10,
-        NC_IN_9,
-        P2_COIN,
-        JAMMA_17,
-        NC_IN_6,
-        NC_IN_5,
-        NC_IN_4,
-        NC_IN_3,
-        // MUX2
-        JAMMA_Y,
-        JAMMA_X,
-        JAMMA_W,
-        P1_DOWNRIGHT,
-        P1_DOWNLEFT,
-        P1_CENTER,
-        P1_UPRIGHT,
-        P1_UPLEFT,
-        CLEAR_BUTTON,
-        SERVICE_BUTTON,
-        NC_IN_21,
-        NC_IN_22,
-        JAMMA_Q,
-        P1_COIN,
-        TEST_BUTTON,
-        JAMMA_Z
-    };
-
-    enum BROKEIO_LATCH_OUT {
-        // LATCH1
-        NC_OUT_3,
-        NC_OUT_4,
-        NC_OUT_5,
-        NC_OUT_6,
-        ALWAYS_ON,
-        CABL_MARQ4,
-        CABL_MARQ1,
-        CABL_MARQ3,
-        // LATCH2
-        CABL_MARQ2,
-        P2L_DOWNRIGHT,
-        P2L_DOWNLEFT,
-        P2L_CENTER,
-        P2L_UPRIGHT,
-        P2L_UPLEFT,
-        P2_SQUARE_25HZ,
-        P2_SQUARE_50HZ,
-        // LATCH3
-        NC_OUT_19,
-        NC_OUT_20,
-        NC_OUT_21,
-        NC_OUT_22,
-        NC_OUT_23,
-        CABL_NEON,
-        NC_OUT_25,
-        NC_OUT_26,
-        // LATCH4
-        NC_OUT_27,
-        P1L_DOWNRIGHT,
-        P1L_DOWNLEFT,
-        P1L_CENTER,
-        P1L_UPRIGHT,
-        P1L_UPLEFT,
-        P1_SQUARE_25HZ,
-        P1_SQUARE_50HZ,
-    };
+    enum SIMPLE_IO_MUX_IN {
+        COIN,
+        TEST,
+        SERVICE,
+        CLEAR,
+        CFG1,
+        CFG2,
+        CFG3,
+        CFG4
+    }
 
 #endif
 
 // EEPROM
-// for external EEPROM which is needed for stepIO but not brokeIO
+// for external EEPROM which is needed for stepIO but not SIMPLE_IO
 
 #define EEPROM_TRUE 0x01
 #define EEPROM_FALSE 0x00
 
-#ifndef BROKEIO
+#ifndef SIMPLE_IO
     #define EEPROM_SIZE kbits_256  // size of EEPROM
     #define EEPROM_MAX_ADDR 0x7D00
     #define EEPROM_COUNT 1  // how many EEPROM chips in I2C lane
@@ -372,7 +334,7 @@
 // CONFIG ENUM
 
 // this is also the EEPROM mapping as well
-// brokeIO has 0x400 bytes (1000)
+// SIMPLE_IO has 0x400 bytes (1000)
 // stepIO has 256Kb = 0x7D00 bytes
 
 // not everything is used yet but eventually they should be used
@@ -393,7 +355,7 @@ enum ConfigOptions {
     OUTPUT_MODE,  
     LIGHTS_MODE,  // light output mode
     LIGHTS_FROM_SENSORS,  // read lights directly from the sensor inputs instead of from the host
-    EXTRA_LIGHTS_MODE,  // programmable lights etc.
+    DEVICE_MODE,  // primary vs. secondary device (communicate via USB or to another board only?)
     DEBOUNCE_MODE,
 
     PLAYER,  // which player is the main PCB hooked up to? (no longer needed)
@@ -583,6 +545,17 @@ enum InputPacket {
 
 #define INPUT_COUNT 15
 
+enum BoardCommInputPacket {
+    UPLEFT,
+    UPRIGHT,
+    CENTER,
+    DOWNLEFT,
+    DOWNRIGHT,
+    CMD_1,
+    CMD_2,
+    CMD_3
+}
+
 /*
 const uint8_t INPUT_LIST[] = {
     InputPacket::P1_UPLEFT,
@@ -702,6 +675,157 @@ enum PIUIO_LightsPacket {
 #define PIUIO_INDEX 0x00
 #define PIUIO_VALUE 0x00
 
+// both input and lights packets are 16 bytes but any bit after the enums is unused
+enum LXIO_InputPacket {
+    P1_UPLEFT_0,  // right sensor
+    P1_UPRIGHT_0,
+    P1_CENTER_0,
+    P1_DOWNLEFT_0,
+    P1_DOWNRIGHT_0,
+    NC_5,
+    NC_6,
+    NC_7,
+    P1_UPLEFT_1,  // left sensor
+    P1_UPRIGHT_1,
+    P1_CENTER_1,
+    P1_DOWNLEFT_1,
+    P1_DOWNRIGHT_1,
+    NC_13,
+    NC_14,
+    NC_15,
+    P1_UPLEFT_2,  // bottom sensor
+    P1_UPRIGHT_2,
+    P1_CENTER_2,
+    P1_DOWNLEFT_2,
+    P1_DOWNRIGHT_2,
+    NC_21,
+    NC_22,
+    NC_23,
+    P1_UPLEFT_3,  // top sensor
+    P1_UPRIGHT_3,
+    P1_CENTER_3,
+    P1_DOWNLEFT_3,
+    P1_DOWNRIGHT_3,
+    NC_29,
+    NC_30,
+    NC_31,
+    P2_UPLEFT_0,  // right sensor
+    P2_UPRIGHT_0,
+    P2_CENTER_0,
+    P2_DOWNLEFT_0,
+    P2_DOWNRIGHT_0,
+    NC_37,
+    NC_38,
+    NC_39,
+    P2_UPLEFT_1,  // left sensor
+    P2_UPRIGHT_1,
+    P2_CENTER_1,
+    P2_DOWNLEFT_1,
+    P2_DOWNRIGHT_1,
+    NC_45,
+    NC_46,
+    NC_47,
+    P2_UPLEFT_2,  // bottom sensor
+    P2_UPRIGHT_2,
+    P2_CENTER_2,
+    P2_DOWNLEFT_2,
+    P2_DOWNRIGHT_2,
+    NC_53,
+    NC_54,
+    NC_55,
+    P2_UPLEFT_3,  // top sensor
+    P2_UPRIGHT_3,
+    P2_CENTER_3,
+    P2_DOWNLEFT_3,
+    P2_DOWNRIGHT_3,
+    NC_61,
+    NC_62,
+    NC_63,
+    NC_64,
+    P1_TEST,
+    P1_COIN,
+    NC_67,
+    NC_68,
+    NC_69,
+    P1_SERVICE,
+    P1_CLEAR,
+    NC_72,
+    P2_TEST,
+    P2_COIN,
+    NC_75,
+    NC_76,
+    NC_77,
+    P2_SERVICE,
+    P2_CLEAR,
+    P1_MENU_UPLEFT,
+    P1_MENU_UPRIGHT,
+    P1_MENU_CENTER,
+    P1_MENU_DOWNLEFT,
+    P1_MENU_DOWNRIGHT,
+    NC_85,
+    NC_86,
+    NC_87,
+    P2_MENU_UPLEFT,
+    P2_MENU_UPRIGHT,
+    P2_MENU_CENTER,
+    P2_MENU_DOWNLEFT,
+    P2_MENU_DOWNRIGHT,
+    NC_93,
+    NC_94,
+    NC_95,
+}
+enum LXIO_LightsPacket {
+    NC_0,
+    NC_1,
+    P1_UPLEFT,
+    P1_UPRIGHT,
+    P1_CENTER,
+    P1_DOWNLEFT,
+    P1_DOWNRIGHT,
+    NC_7,
+    NC_8,
+    NC_9,
+    SUB_NEON,
+    NC_10,
+    NC_11,
+    NC_12,
+    NC_13,
+    NC_14,
+    NC_15,
+    NC_16,
+    NC_17,
+    P2_UPLEFT,
+    P2_UPRIGHT,
+    P2_CENTER,
+    P2_DOWNLEFT,
+    P2_DOWNRIGHT,
+    MARQUEE_1,  // order may be wrong
+    MARQUEE_2,
+    MARQUEE_3,
+    MARQUEE_4,
+    P1_COIN_COUNT,
+    P2_COIN_COUNT,  // usb enable? USB_28
+    USB_29,
+    USB_30,
+    USB_31,
+    P1_MENU_UPLEFT,
+    P1_MENU_UPRIGHT,
+    P1_MENU_CENTER,
+    P1_MENU_DOWNLEFT,
+    P1_MENU_DOWNRIGHT,
+    NC_37,
+    NC_38,
+    NC_39,
+    P2_MENU_UPLEFT,
+    P2_MENU_UPRIGHT,
+    P2_MENU_CENTER,
+    P2_MENU_DOWNLEFT,
+    P2_MENU_DOWNRIGHT,
+    NC_45,
+    NC_46,
+    NC_47,
+}
+
 // NINTENDO SWITCH
 
 // bitshift, check 2nd digit
@@ -804,6 +928,13 @@ enum SerialMessages {
     ERROR_OVERFLOW,
     ERROR_SHORT,
     ERROR_UNKNOWN
+}
+
+// BOARD MESSAGES
+
+enum BoardMessages {
+    NONE,
+    IDENTIFY_PLAYER,
 }
 
 

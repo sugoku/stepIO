@@ -16,26 +16,24 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#ifndef _OUTPUT_MIDI_H
-#define _OUTPUT_MIDI_H
+#ifndef _INPUT_SIMPLE_H
+#define _INPUT_SIMPLE_H
 
-#include "Output.h"
+#include "Input.h"
 
-class Output_MIDI : public Output
+class Input_Simple : public Input
 {
     protected:
-        uint8_t* config;
-        MIDI_* usbmidi;
+        uint32_t* vals = {0};  // no muxes
 
     public:
-        void setup(Config* config);
-        void setConfig(Config* config);
-        void updateHost();
-        void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
-        void set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on);
-        const uint16_t* getLights();
-        const uint8_t* getUSBData();
+        void setup();  // setup any pins and any values, also any objects that are needed
+        uint8_t update();  // return the amount of pins checked
+        inline uint32_t getP1andP2(uint8_t mux1, uint8_t mux2) { return *getValues(); }
+        inline uint32_t* getMergedValues() { return getValues(); }
+        inline const uint32_t* getValues() { return vals; }
+        static uint8_t muxToInputPacket(uint8_t mux_pin);
+
 };
 
 #endif

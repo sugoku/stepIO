@@ -16,26 +16,24 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#ifndef _OUTPUT_MIDI_H
-#define _OUTPUT_MIDI_H
+#ifndef _COMMPRIMARY_SPI_H
+#define _COMMPRIMARY_SPI_H
 
-#include "Output.h"
+#include "BoardComm.h"
+#include "SPISecondary.h"
 
-class Output_MIDI : public Output
+class CommSecondary_SPI : public BoardComm
 {
-    protected:
-        uint8_t* config;
-        MIDI_* usbmidi;
-
     public:
-        void setup(Config* config);
-        void setConfig(Config* config);
-        void updateHost();
-        void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
-        void set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on);
-        const uint16_t* getLights();
-        const uint8_t* getUSBData();
+        uint8_t lastmsg;
+        uint8_t nextmsg;
+        uint8_t player;
+
+        void setup();
+        inline void setPlayer(uint8_t player) { this->player = player; };
+        inline void attachInputPacket(uint32_t* buf) { this->inpkt = buf; };
+        void parseMessage(uint8_t msg);
+        void update();
 };
 
 #endif

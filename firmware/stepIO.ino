@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 /*
@@ -30,7 +30,7 @@ how will we structure this code?
 #include "Config.h"
 #include "Defaults.h"
 #include "Output/Output.h"
-#include "Input/Input_MUX4067_Dual.h"
+#include "Input/Input.h"
 #ifdef EEPROM_ENABLED
     #include "EEPROM/EEPROM_IO.h"
 #endif
@@ -39,14 +39,16 @@ uint8_t status = 0;
 uint32_t outbuf = 0;
 uint32_t* lightbuf;
 uint32_t* inVals[];
-uint32_t* outMuxes[2];
+// uint32_t* outMuxes[2];
 uint8_t config[256];
 uint32_t blocked = 0;
 
 uint8_t inmode = 0;
 uint8_t outmode = 0;
 uint8_t lightsmode = 0;
-uint8_t extralightsmode = 0;
+
+uint8_t devicemode = 0;
+bool boardcomm_on = false;
 
 // InputSensor in;
 Input in;
@@ -55,6 +57,7 @@ Lights lt;
 Lights lightex;  // extra lights (RGB, etc.)
 EEPROM_IO ee;
 SerialC serialc;
+BoardComm boardcomm;
 
 void UpdateHost(Output* out) {
     if (out == NULL) return;
@@ -78,21 +81,20 @@ void HandleSerial(SerialC* ser) {
     }
 }
 
+void HandleBoardComm(BoardComm* bc) {
+    bc->update();
+}
+
+ISR (SPI_STC_vect)
+{
+    // if (devicemode == DEVICE_SECONDARY)
+    boardcomm->lastmsg = SPDR;
+    SPDR = boardcomm->nextmsg;
+}
+
 void GetOutput(Input *in, uint32_t* buf) {
     if (in == NULL) return;
-    if (outmode == OutputMode::PIUIO) {
-        if (config[ConfigOptions::MUX_POLLING_MODE] == MUXPollingMode::Normal) {
-            #ifdef SIMPLE_PIUIO_MUX
-                *buf = *inVals[outMuxes[0]];
-            #else
-                *buf = in.getP1andP2(outMuxes[0], outMuxes[1]);  // get a buffer of the input values but OR operator done on the two muxes (for sensor pins)
-            #endif
-        } else if (config[ConfigOptions::MUX_POLLING_MODE] == MUXPollingMode::Merged) {
-            *buf = *in.getMergedValues();
-        }
-    } else {
-        *buf = *inVals[0];
-    }
+    *buf = *inVals[0];
 }
 
 void FilterOutput(uint32_t* buf) {
@@ -125,7 +127,7 @@ void setup() {
             ee.writeDefaults(&defaults);
         }
         status = ee.readConfig(&config);
-        #ifndef BROKEIO
+        #ifndef SIMPLE_IO
             if (status < 0) {
                 if (-readValue == EEPROM_ADDR_ERR) {
                     // Address was out of range
@@ -133,15 +135,34 @@ void setup() {
                 // put WireErrors here
             }
         #endif
-
-        inmode = config[ConfigOptions::INPUT_MODE];
-        outmode = config[ConfigOptions::OUTPUT_MODE];
-        lightsmode = config[ConfigOptions::LIGHTS_MODE];
-        extralightsmode = config[ConfigOptions::EXTRA_LIGHTS_MODE];
     #else
         config = defaults;
     #endif
 
+    inmode = config[ConfigOptions::INPUT_MODE];
+    outmode = config[ConfigOptions::OUTPUT_MODE];
+    lightsmode = config[ConfigOptions::LIGHTS_MODE];
+
+    #ifdef PINCONFIG
+        // CFG1-CFG4
+        uint8_t pinconfig = 0;
+
+        for (uint8_t i = 7; i >= 4; i--) {
+            // set the selector pins to the current value
+            SETORCLRBIT(MUX_S2_PORT, MUX_S2_PIN, (i >> 2) & 1);
+            SETORCLRBIT(MUX_S1_PORT, MUX_S1_PIN, (i >> 1) & 1);
+            SETORCLRBIT(MUX_S0_PORT, MUX_S0_PIN, i & 1);
+
+            #ifdef PULLUP_IN
+                SETORCLRBIT(pinconfig, i-4, !(GETBIT(MUX1_IN_READ, MUX1_IN_PIN)));
+            #else
+                SETORCLRBIT(pinconfig, i-4, GETBIT(MUX1_IN_READ, MUX1_IN_PIN));
+            #endif
+        }
+
+        config[ConfigOptions::PLAYER] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
+        config[ConfigOptions::OUTPUT_MODE] = (pinconfig >> 1) & 0b111;
+    #endif
 
     #if defined(__SAM3X8E__)
         watchdogEnable(WATCHDOG_TIMEOUT);
@@ -149,81 +170,56 @@ void setup() {
         wdt_enable(WATCHDOG_TIMEOUT);
     #endif
 
-    switch (inmode) {
-        case InputMode::MUX4051:
-            in = InputMUX_4051();
-            break;
-        case InputMode::MUX4067:
-            in = InputMUX_4067();
-            break;
-        case InputMode::MUX4067_Dual:
-            in = Input_MUX4067_Dual();
-            break;
-    }
-    in.setup();
-    
+    USBCON |= (1<<OTGPADE); // enable VBUS detection
+    devicemode = (USBSTA & 1) ? DEVICE_PRIMARY : DEVICE_SECONDARY;  // set device mode based on if USB power is received
 
-    switch (outmode) {
-        case OutputMode::Serial:
-            out = Output_Serial();
-            break;
-        case OutputMode::Joystick:
-            out = Output_Joystick();
-            break;
-        case OutputMode::Keyboard:
-            out = Output_Keyboard();
-            break;
-        case OutputMode::PIUIO:
-            out = Output_PIUIO();
-            break;
-        case OutputMode::LXIO:
-            out = Output_LXIO();
-            break;
-        case OutputMode::Switch:
-            out = Output_Switch();
-            break;
-        case OutputMode::MIDI:
-            out = Output_MIDI();
-            break;
+    in = Input_Simple();
+    in.setup();
+
+    // fix this a lot
+    if (devicemode == DEVICE_PRIMARY) {
+        boardcomm = CommPrimary_SPI();
+
+        switch (outmode) {
+            case OutputMode::Joystick:
+                out = Output_Joystick();
+                break;
+            case OutputMode::Keyboard:
+                out = Output_Keyboard();
+                break;
+            case OutputMode::PIUIO:
+                out = Output_PIUIO();
+                break;
+            case OutputMode::LXIO:
+                out = Output_LXIO();
+                break;
+            case OutputMode::Switch:
+                out = Output_Switch();
+                break;
+            case OutputMode::MIDI:
+                out = Output_MIDI();
+                break;
+        }
+        out.setup(&config);
+        out.attach();
+        lightbuf = out.getLights();
+    } else {
+        boardcomm = CommSecondary_SPI();
     }
-    out.setup(&config);
-    out.attach();
-    lightbuf = out.getLights();
 
     #ifdef LIGHT_OUTPUT
 
-        switch (lightsmode) {
-            case LightsMode::Latch:
-                out = Lights_Latch();
-                break;
-            case LightsMode::WS2812X:
-                out = Lights_WS2812X();
-                break;
-            case LightsMode::APA102:
-                out = Lights_APA102();
-                break;
-            case LightsMode::Signal:
-                out = Lights_Signal();
-                break;
-        }
+        lt = Lights_Simple();
         lt.setup();
-
-        switch (extralightsmode) {
-            case LightsMode::FastLED:  // this takes up a LOT of RAM so not great for brokeIO
-                lightex = Lights_FastLED();  // FastLED library
-                break;
-            case LightsMode::WS2812X:
-                lightex = Lights_WS2812X();  // neopixel library probably
-                break;
-            case LightsMode::APA102:
-                lightex = Lights_APA102();  // <APA102.h> probably
-                break;
-        }
-        lightex.setup(config[ConfigOptions::RGB_LED_COUNT]);
-        if (config[ConfigOptions::EXTRA_LED_TRIGGER] != 0xFF)
-            lightrgb.setTrigger(config[ConfigOptions::EXTRA_LED_TRIGGER]);
         
     #endif
+
+    uint8_t err = boardcomm.setup();  // will hang for 2 seconds until connection is made, if no connection then board communication stays off
+    if (!err)
+        boardcomm_on = true;
+
+    boardcomm.setPlayer(config[ConfigOptions::PLAYER]);
+    boardcomm.attachInputPacket(*outbuf);
 
     // get blocked inputs from the config
     blocked = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_3] << 24);
@@ -233,14 +229,14 @@ void setup() {
 
     EnableUSB(out.getUSBData());  // SetupEndpoints();
 
-    SERIAL_CONFIG.begin(SERIAL_BAUD);
-    serialc.setup(&config, &Serial, &ee);
-    if (outmode == OutputMode::Serial)
-        serialc.setOutput(&out);
+    #ifdef SERIAL_ENABLED
+        SERIAL_CONFIG.begin(SERIAL_BAUD);
+        serialc.setup(&config, &Serial, &ee);
+        if (outmode == OutputMode::Serial)
+            serialc.setOutput(&out);
+    #endif
 
     inVals = in.getValues();
-    outMuxes = out.getMuxes();
-
 }
 
 void loop() {
@@ -251,16 +247,14 @@ void loop() {
         wdt_reset();
     #endif
 
-    UpdateHost(&out);
+    if (devicemode == DEVICE_PRIMARY)
+        UpdateHost(&out);
 
-    UpdateInput(&in);  // if DMA this isn't needed
+    UpdateInput(&in);
 
     #ifdef LIGHT_OUTPUT
 
         UpdateLights(&lt, lightbuf);
-
-        // extra lights
-        UpdateLights(&lightex, lightbuf);
 
     #endif
 
@@ -268,7 +262,15 @@ void loop() {
 
     FilterOutput(&outbuf);
 
-    SendOutput(&out, &outbuf);
+    if (devicemode == DEVICE_PRIMARY)
+        SendOutput(&out, &outbuf);
+    
+    #ifdef SERIAL_ENABLED
 
-    HandleSerial(&serialc);
+        HandleSerial(&serialc);
+        
+    #endif
+
+    if (boardcomm_on)
+        HandleBoardComm(&boardcomm);
 }

@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #ifndef _DEFAULTS_H
@@ -21,7 +21,7 @@
 
 #include "Config.h"
 
-// These are the default settings which will be loaded into stepIO/brokeIO on first boot, change as needed
+// These are the default settings which will be loaded into stepIO/SIMPLE_IO on first boot, change as needed
 const uint8_t defaults[256] = {
     [ConfigOptions::VERSION_MODEL] = STEPIO_VERSION_MODEL,
     [ConfigOptions::VERSION_MAJOR] = STEPIO_VERSION_MAJOR,
@@ -31,7 +31,7 @@ const uint8_t defaults[256] = {
     [ConfigOptions::UPDATE_STATUS] = UpdateStatus::SUCCESS,
     [ConfigOptions::LAST_ERROR] = RuntimeError::NONE,
     [ConfigOptions::INPUT_TYPE] = EEPROM_DEFAULT_VALUE,  // unused
-    #ifdef BROKEIO
+    #ifdef SIMPLE_IO
         [ConfigOptions::INPUT_MODE] = InputMode::MUX4067_Dual,
     #else
         [ConfigOptions::INPUT_MODE] = InputMode::Software,
@@ -39,13 +39,13 @@ const uint8_t defaults[256] = {
     [ConfigOptions::MUX_POLLING_MODE] = MUXPollingMode::Normal,
 
     [ConfigOptions::OUTPUT_MODE] = OutputMode::PIUIO,
-    #ifdef BROKEIO
+    #ifdef SIMPLE_IO
         [ConfigOptions::LIGHTS_MODE] = LightsMode::Latch32,
     #else
         [ConfigOptions::LIGHTS_MODE] = LightsMode::Signal,
     #endif
     [ConfigOptions::LIGHTS_FROM_SENSORS] = EEPROM_FALSE,
-    [ConfigOptions::EXTRA_LIGHTS_MODE] = LightsMode::None,
+    [ConfigOptions::DEVICE_MODE] = DEVICE_PRIMARY,
     [ConfigOptions::DEBOUNCE_MODE] = EEPROM_DEFAULT_VALUE,  // not implemented yet
 
     [ConfigOptions::PLAYER] = DEFAULT_PLAYER,

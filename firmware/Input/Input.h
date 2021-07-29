@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #ifndef _INPUTMUX_H
@@ -23,7 +23,6 @@
 
 class Input
 {
-
     public:
         virtual void setup() = 0;  // setup any pins and any values, also any objects that are needed
         virtual uint8_t update() = 0;  // return the amount of pins checked

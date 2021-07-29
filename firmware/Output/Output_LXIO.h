@@ -16,24 +16,22 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#ifndef _OUTPUT_MIDI_H
-#define _OUTPUT_MIDI_H
+#ifndef _OUTPUT_LXIO_H
+#define _OUTPUT_LXIO_H
 
 #include "Output.h"
 
-class Output_MIDI : public Output
+class Output_LXIO : public Output
 {
     protected:
         uint8_t* config;
-        MIDI_* usbmidi;
+        uint16_t input = 0;  // we need to actually keep track of what we've pressed and what we haven't
 
     public:
         void setup(Config* config);
         void setConfig(Config* config);
         void updateHost();
         void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
-        void set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on);
         const uint16_t* getLights();
         const uint8_t* getUSBData();
 };

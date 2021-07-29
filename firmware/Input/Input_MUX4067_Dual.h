@@ -12,8 +12,8 @@
 /*  emulation of PIUIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
-/*                    License is GPLv3                    */
-/*            https://github.com/sugoku/stepIO            */
+/*  SPDX-License-Identifier: GPL-3.0-or-later             */
+/*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
 #ifndef _INPUT_MUX4067_H
@@ -21,7 +21,7 @@
 
 #include "Input.h"
 
-class Input_MUX4067_Dual : public InputMUX
+class Input_MUX4067_Dual : public Input
 {
     protected:
         uint32_t vals[4] = {0, 0, 0, 0};  // 1 for each MUX state, we are caching them so we can poll faster even when the PC isn't asking
