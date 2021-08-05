@@ -18,13 +18,12 @@
 
 #include "Output_MIDI.h"
 
-void Output_MIDI::setup(Config* config, MIDI_* mid=nullptr) {
+void Output_MIDI::setup(uint8_t* config, MIDI_* mid=nullptr) {
     this->setConfig(config);
-    this->midiusb = mid;
-    mid->begin();
+    MIDIUSB.begin();
 }
 
-void Output_MIDI::setConfig(Config* config) {
+void Output_MIDI::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -49,10 +48,10 @@ void Output_MIDI::set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on) {
         }
     }
 
-    this->mid->sendMidi(packet);
+    MIDIUSB.sendMIDI(packet);
 }
 
-void Output_MIDI::send(uint16_t* buf) {
+void Output_MIDI::send(uint32_t* buf) {
     uint16_t diff = this->input ^ *buf;  // XOR the two to see where any differences have happened
 
     // if there is a change, set key on or off based on buf's state

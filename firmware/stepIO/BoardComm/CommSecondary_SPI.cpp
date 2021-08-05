@@ -20,6 +20,8 @@
 
 void CommSecondary_SPI::setup() {
     SPISecondary.begin();
+
+    return 0;
 }
 
 void CommPrimary_SPI::update() {

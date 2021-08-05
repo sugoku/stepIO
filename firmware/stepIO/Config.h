@@ -95,12 +95,14 @@
     #include <extEEPROM.h>
 #endif
 
+#define CONFIG_SIZE 256  // size of config array
+
 // PORT MANIPULATION MACROS
 
 #define GETBIT(port,bit) ((port) & (1 << (bit)))     // get value at bit
 #define SETBIT(port,bit) ((port) |= (1 << (bit)))    // set bit to 1
 #define CLRBIT(port,bit) ((port) &= ~(1 << (bit)))   // set bit to 0 (clear bit)
-#define SETORCLRBIT(port,bit,val) if (val) { SETBIT(port,bit) } else { CLRBIT (port,bit) }  // if true, set bit to 1, if false, clear bit to 0
+#define SETORCLRBIT(port,bit,val) if (val) { SETBIT(port,bit); } else { CLRBIT(port,bit); }  // if true, set bit to 1, if false, clear bit to 0
 
 #define ORBIT(port,bit,val) ((port) |= (val << (bit))
 #define ANDBIT(port,bit,val) ((port) &= ~(!val << (bit))  // i think this makes sense?
@@ -114,6 +116,7 @@
     #define WATCHDOG_ENABLE watchdogEnable(WATCHDOG_TIMEOUT)
     #define WATCHDOG_RESET watchdogReset()
 #elif defined(__AVR__)
+    #include <avr/wdt.h>
     #define WATCHDOG_ENABLE wdt_enable(WATCHDOG_TIMEOUT)
     #define WATCHDOG_RESET wdt_reset()
 #else
@@ -259,7 +262,7 @@
 
     #define STATUS12V 48    // PC15
 
-    enum MUX1 {
+    enum class MUX1 {
         BB1LEFT,
         BB1RIGHT,
         BB1SELECT,
@@ -278,7 +281,7 @@
         MI_15
     };
 
-    enum LIGHTOUT {
+    enum class LIGHTOUT {
         LAMP_1,
         LAMP_2,
         LAMP_3,
@@ -376,7 +379,7 @@
 
     // according to pins_arduino.h, SS, MOSI, MISO and SCK are assigned pins already and SPI library should handle our worries too
 
-    enum SIMPLE_IO_MUX_IN {
+    enum class SIMPLE_IO_MUX_IN {
         COIN,
         TEST,
         SERVICE,
@@ -385,7 +388,7 @@
         CFG2,
         CFG3,
         CFG4
-    }
+    };
 
 #endif
 
@@ -410,7 +413,7 @@
 // stepIO has 256Kb = 0x7D00 bytes
 
 // not everything is used yet but eventually they should be used
-enum ConfigOptions {
+enum class ConfigOptions {
     VERSION_MODEL, // 0x0000
     VERSION_MAJOR, 
     VERSION_MINOR,
@@ -644,7 +647,7 @@ enum ConfigOptions {
 };
 // INPUT/OUTPUT CONSTANTS
 
-enum InputPacket {
+enum class InputPacket {
     P1_UPLEFT,
     P1_UPRIGHT,
     P1_CENTER,
@@ -660,11 +663,11 @@ enum InputPacket {
     TEST_BUTTON,
     SERVICE_BUTTON,
     CLEAR_BUTTON
-}
+};
 
 #define INPUT_COUNT 15
 
-enum BoardCommInputPacket {
+enum class BoardCommInputPacket {
     UPLEFT,
     UPRIGHT,
     CENTER,
@@ -673,7 +676,7 @@ enum BoardCommInputPacket {
     CMD_1,
     CMD_2,
     CMD_3
-}
+};
 
 /*
 const uint8_t INPUT_LIST[] = {
@@ -710,7 +713,7 @@ const uint8_t INPUT_LIST[] = {
 #define DEFAULT_BLOCKED_LIGHTS_3 ALL_LIGHTS_ON
 
 
-enum LightsPacket {
+enum class LightsPacket {
     P1_UPLEFT,
     P1_UPRIGHT,
     P1_CENTER,
@@ -727,10 +730,10 @@ enum LightsPacket {
     MARQUEE_4,
     SUB_LEFT,
     SUB_RIGHT
-}
+};
 
 // least to most significant bit
-enum PIUIO_InputPacket {
+enum class PIUIO_InputPacket {
     NC_0,
     P2_TEST,
     P2_COIN,
@@ -763,8 +766,8 @@ enum PIUIO_InputPacket {
     NC_29,
     NC_30,
     NC_31
-}
-enum PIUIO_LightsPacket {
+};
+enum class PIUIO_LightsPacket {
     MARQUEE_3,
     MARQUEE_2,
     MARQUEE_1,
@@ -797,7 +800,7 @@ enum PIUIO_LightsPacket {
     P1_DOWNLEFT,
     P1_DOWNRIGHT,
     NC_31
-}
+};
 
 #define PIUIO_ENDPOINT 0x00  // control endpoint
 #define PIUIO_ADDRESS 0xAE
@@ -808,7 +811,7 @@ enum PIUIO_LightsPacket {
 #define PIUIO_PID 0x1002
 
 // both input and lights packets are 16 bytes but any bit after the enums is unused
-enum LXIO_InputPacket {
+enum class LXIO_InputPacket {
     P1_UPLEFT_0,  // right sensor
     P1_UPRIGHT_0,
     P1_CENTER_0,
@@ -905,8 +908,8 @@ enum LXIO_InputPacket {
     NC_93,
     NC_94,
     NC_95,
-}
-enum LXIO_LightsPacket {
+};
+enum class LXIO_LightsPacket {
     NC_0,
     NC_1,
     P1_UPLEFT,
@@ -956,7 +959,7 @@ enum LXIO_LightsPacket {
     NC_45,
     NC_46,
     NC_47,
-}
+};
 
 // NINTENDO SWITCH
 
@@ -1034,7 +1037,7 @@ enum LXIO_LightsPacket {
 
 // SERIAL COMMANDS
 
-enum SerialCommands {
+enum class SerialCommands {
     CHANGE_INPUT_MODE,
     CHANGE_OUTPUT_MODE,
     CHANGE_LIGHTS_MODE,
@@ -1062,7 +1065,7 @@ enum SerialCommands {
 };
 
 // outgoing messages (device -> host)
-enum SerialMessageTypes {
+enum class SerialMessageTypes {
     STATUS,
     SENSOR,
     SENSOR_ANALOG,
@@ -1071,7 +1074,7 @@ enum SerialMessageTypes {
     DEVICE_INFO,
 };
 
-enum SerialMessages {
+enum class SerialMessages {
     SUCCESS,
     ALIVE,
     ERROR_OVERFLOW,
@@ -1086,7 +1089,7 @@ enum SerialMessages {
 // UPDATES
 // for stepIO bootloader only (if applicable)
 
-enum UpdateStatus {
+enum class UpdateStatus {
     SUCCESS,
     PENDING_FLASH,
     FLASH_ERROR,
@@ -1095,14 +1098,14 @@ enum UpdateStatus {
 
 // ERRORS
 
-enum WireError {  // I2C errors, EEPROM
+enum class WireError {  // I2C errors, EEPROM
     DATA_TOO_LONG = 1,
     NACK_ON_ADDR,
     NACK_ON_DATA,
     OTHER_ERROR
 };
 
-enum RuntimeError {
+enum class RuntimeError {
     NONE = 0xFF
 };
 

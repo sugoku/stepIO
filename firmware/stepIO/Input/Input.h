@@ -19,7 +19,7 @@
 #ifndef _INPUTMUX_H
 #define _INPUTMUX_H
 
-#include "Config.h"
+#include "../Config.h"
 
 class Input
 {
@@ -32,7 +32,7 @@ class Input
 
 };
 
-enum InputMode {
+enum class InputMode {
     None,
     Software,
     Analog,
@@ -42,7 +42,7 @@ enum InputMode {
     MUX4051
 };
 
-enum MUXPollingMode {
+enum class MUXPollingMode {
     Normal,
     Merged,
     HalfMerged,

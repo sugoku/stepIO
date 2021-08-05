@@ -18,9 +18,11 @@
 
 #include "CommPrimary_SPI.h"
 
-void CommPrimary_SPI::setup() {
+uint8_t CommPrimary_SPI::setup() {
     SPI.begin();
     SPI.setClockDivider(SPI_CLOCK_DIV8);
+
+    return 0;
 }
 
 void CommPrimary_SPI::parseMessage(uint8_t msg) {

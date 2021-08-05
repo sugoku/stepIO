@@ -18,12 +18,12 @@
 
 #include "Output_PIUIO.h"
 
-void Output_PIUIO::setup(Config* config) {
+void Output_PIUIO::setup(uint8_t* config) {
     this->setConfig(config);
     vendorHandler = this->handleControl;
 }
 
-void Output_PIUIO::setConfig(Config* config) {
+void Output_PIUIO::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -67,7 +67,7 @@ const uint8_t* Output_PIUIO::getMuxes() {
     return &this->mux;
 }
 
-void Output_PIUIO::send(uint16_t* buf) {
+void Output_PIUIO::send(uint32_t* buf) {
     // doesn't actually send, just updates the data to send when it is requested by the host
     uint32_t tmp = 0xFFFFFFFF;
     

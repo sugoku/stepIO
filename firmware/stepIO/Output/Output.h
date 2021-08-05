@@ -19,26 +19,31 @@
 #ifndef _OUTPUT_H
 #define _OUTPUT_H
 
-#include "Config.h"
-#include "HID-Project.h"
+#include "../Config.h"
+#include <HID-Project.h>
 
 class Output
 {
     protected:
-        uint8_t* config;  // a link to a config
-        // uint16_t lights;  // a LightsPacket (enum in Config.h)
+        // uint8_t* config;  // a link to a config
+        // uint32_t lights;  // a LightsPacket (enum in Config.h)
+        const uint8_t manufacturer[255] PROGMEM = STEPIO_MANUFACTURER;
+        const uint8_t product[255] PROGMEM = STEPIO_PRODUCT;
+        const DeviceDescriptor ddescriptor PROGMEM = STEPIO_DEVICE_DESCRIPTOR;
 
     public:
-        virtual void setup(Config* config) = 0;
-        virtual void setConfig(Config* config) = 0;
-        virtual void send() = 0;
+        virtual void setup(uint8_t* config) = 0;
+        virtual void setConfig(uint8_t* config) = 0;
+        virtual void send(uint32_t* buf) = 0;
         virtual void updateHost() = 0;
-        virtual uint8_t* getLights() const = 0;
-        virtual uint8_t* getUSBData() const = 0;
+        virtual const uint32_t* getLights() = 0;
+        inline const uint8_t* getManufacturer() { return manufacturer; };
+        inline const uint8_t* getProduct() { return product; };
+        inline const DeviceDescriptor* getDeviceDescriptor() { return &ddescriptor; };
 
 };
 
-enum OutputMode {
+enum class OutputMode {
     None,
     Serial,
     Joystick,

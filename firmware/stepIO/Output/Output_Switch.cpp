@@ -18,12 +18,12 @@
 
 #include "Output_Switch.h"
 
-void Output_Switch::setup(Config* config) {
+void Output_Switch::setup(uint8_t* config) {
     this->setConfig(config);
     SwitchJoystick.begin();
 }
 
-void Output_Switch::setConfig(Config* config) {
+void Output_Switch::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -39,7 +39,7 @@ static uint8_t Output_Switch::buttonToBit(uint8_t n) {
     return EEPROM_SWITCH_BUTTON - n;
 }
 
-void Output_Switch::send(uint16_t* buf) {
+void Output_Switch::send(uint32_t* buf) {
     uint32_t tmp = 0x0000;
     
     // need to parse switch defs first (probably in config)
@@ -63,7 +63,7 @@ void Output_Switch::send(uint16_t* buf) {
     SwitchJoystick.write();
 }
 
-void Output_Switch::sendAnalog(uint16_t* buf) {
+void Output_Switch::sendAnalog(uint32_t* buf) {
     // not implemented yet
     // xAxis, yAxis, zAxis, rxAxis, ryAxis, rzAxis
 }

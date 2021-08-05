@@ -19,7 +19,7 @@
 #ifndef _SPISECONDARY_H
 #define _SPISECONDARY_H
 
-#include "Config.h"
+#include "../Config.h"
 
 class SPISecondary
 {

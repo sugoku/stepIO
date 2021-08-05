@@ -42,41 +42,8 @@ u16 STRING_LANGUAGE[2] = {
 	0x0409	// English
 };
 
-#ifndef USB_PRODUCT
-// If no product is provided, use USB IO Board
-#define USB_PRODUCT     "USB IO Board"
-#endif
-
-u8 STRING_PRODUCT[] = USB_PRODUCT;
-
-/*
-#if USB_VID == 0x2341
-#  if defined(USB_MANUFACTURER)
-#    undef USB_MANUFACTURER
-#  endif
-#  define USB_MANUFACTURER "Arduino LLC"
-#elif USB_VID == 0x1b4f
-#  if defined(USB_MANUFACTURER)
-#    undef USB_MANUFACTURER
-#  endif
-#  define USB_MANUFACTURER "SparkFun"
-*/  // don't replace any manufacturer info if we've specified it before
-
-#ifndef USB_MANUFACTURER
-// Fall through to unknown if no manufacturer name was provided in a macro
-#define USB_MANUFACTURER "Unknown"
-#endif
-
-u8 STRING_MANUFACTURER[] = USB_MANUFACTURER;
-
-
 #define DEVICE_CLASS 0x02
 
-//	DEVICE DESCRIPTOR
-
-// this is no longer a constant, we want to be able to change this
-DeviceDescriptor USB_DeviceDescriptorIAD =
-	D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
 
 //==================================================================
 //==================================================================
@@ -525,10 +492,10 @@ bool SendDescriptor(USBSetup& setup)
 			desc_addr = (const u8*)&STRING_LANGUAGE;
 		}
 		else if (setup.wValueL == IPRODUCT) {
-			return USB_SendStringDescriptor(STRING_PRODUCT, strlen(STRING_PRODUCT), TRANSFER_PGM);
+			return USB_SendStringDescriptor(USBDevice.getProduct(), strlen(USBDevice.getProduct()), TRANSFER_PGM);
 		}
 		else if (setup.wValueL == IMANUFACTURER) {
-			return USB_SendStringDescriptor(STRING_MANUFACTURER, strlen(STRING_MANUFACTURER), TRANSFER_PGM);
+			return USB_SendStringDescriptor(USBDevice.getManufacturer(), strlen(USBDevice.getManufacturer()), TRANSFER_PGM);
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
@@ -820,6 +787,13 @@ USBDevice_ USBDevice;
 
 USBDevice_::USBDevice_()
 {
+}
+
+void USBDevice_::setUSBData(u8 product[], u8 manufacturer[], DeviceDescriptor* dd)
+{
+	this->product = product;
+	this->manufacturer = manufacturer;
+	this->dd = dd;
 }
 
 void USBDevice_::attach()

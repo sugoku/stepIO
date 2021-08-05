@@ -18,12 +18,12 @@
 
 #include "Output_Keyboard.h"
 
-void Output_Keyboard::setup(Config* config) {
+void Output_Keyboard::setup(uint8_t* config) {
     this->setConfig(config);
     NKROKeyboard.begin();
 }
 
-void Output_Keyboard::setConfig(Config* config) {
+void Output_Keyboard::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -35,7 +35,7 @@ void Output_Keyboard::updateHost() {
     return;  // nothing needed here, no lights support
 }
 
-void Output_Keyboard::send(uint16_t* buf) {
+void Output_Keyboard::send(uint32_t* buf) {
     uint16_t diff = this->input ^ *buf;  // XOR the two to see where any differences have happened
 
     // if there is a change, set key on or off based on buf's state

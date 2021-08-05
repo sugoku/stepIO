@@ -19,7 +19,7 @@
 #ifndef _SERIALC_HANDLER_H
 #define _SERIALC_HANDLER_H
 
-#include "Config.h"
+#include "../Config.h"
 
 class SerialC
 {
@@ -30,8 +30,8 @@ class SerialC
         uint8_t* config;
 
     public:
-        void setup(Config* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr); 
-        void setConfig(Config* config);
+        void setup(uint8_t* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr); 
+        void setConfig(uint8_t* config);
         void parseCommand(const uint8_t* buf, size_t size);
         void sendPacket(uint8_t* buf);
         uint8_t makePacket(uint8_t command, uint8_t* buf);

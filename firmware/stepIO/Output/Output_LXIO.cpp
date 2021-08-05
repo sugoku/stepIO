@@ -18,12 +18,12 @@
 
 #include "Output_LXIO.h"
 
-void Output_LXIO::setup(Config* config) {
+void Output_LXIO::setup(uint8_t* config) {
     this->setConfig(config);
     LXIO.begin();
 }
 
-void Output_LXIO::setConfig(Config* config) {
+void Output_LXIO::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -35,7 +35,7 @@ void Output_LXIO::updateHost() {
     return;  // nothing needed here, no lights support
 }
 
-void Output_LXIO::send(uint16_t* buf) {
+void Output_LXIO::send(uint32_t* buf) {
     uint32_t tmp[16] = {};
     memset(tmp[0xFFFFFFFF / 0x10], 0xFFFFFFFF % 0x10, 16);
     

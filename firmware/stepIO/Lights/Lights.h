@@ -19,7 +19,7 @@
 #ifndef _LIGHTS_H
 #define _LIGHTS_H
 
-#include "Config.h"
+#include "../Config.h"
 
 class Lights
 {
@@ -29,7 +29,7 @@ class Lights
 
 };
 
-enum LightsMode {
+enum class LightsMode {
     None,
     Latch32,  // SIMPLE_IO
     Latch,

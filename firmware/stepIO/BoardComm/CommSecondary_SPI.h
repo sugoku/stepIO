@@ -16,8 +16,8 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#ifndef _COMMPRIMARY_SPI_H
-#define _COMMPRIMARY_SPI_H
+#ifndef _COMMSECONDARY_SPI_H
+#define _COMMSECONDARY_SPI_H
 
 #include "BoardComm.h"
 #include "SPISecondary.h"
@@ -28,8 +28,9 @@ class CommSecondary_SPI : public BoardComm
         uint8_t lastmsg;
         uint8_t nextmsg;
         uint8_t player;
+        uint32_t* inpkt;
 
-        void setup();
+        uint8_t setup();
         inline void setPlayer(uint8_t player) { this->player = player; };
         inline void attachInputPacket(uint32_t* buf) { this->inpkt = buf; };
         void parseMessage(uint8_t msg);

@@ -28,11 +28,11 @@ class Output_LXIO : public Output
         uint16_t input = 0;  // we need to actually keep track of what we've pressed and what we haven't
 
     public:
-        void setup(Config* config);
-        void setConfig(Config* config);
+        void setup(uint8_t* config);
+        void setConfig(uint8_t* config);
         void updateHost();
-        void send(uint16_t* buf);
-        const uint16_t* getLights();
+        void send(uint32_t* buf);
+        const uint32_t* getLights();
         const uint8_t* getUSBData();
 };
 

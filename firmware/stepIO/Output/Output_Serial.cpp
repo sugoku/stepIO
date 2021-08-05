@@ -18,7 +18,7 @@
 
 #include "Output_Serial.h"
 
-void Output_Serial::setup(Config* config, SerialC* serialc=nullptr) {
+void Output_Serial::setup(uint8_t* config, SerialC* serialc=nullptr) {
     this->setConfig(config);
     if (ser == nullptr) return;
     this->serialc = serialc;
@@ -28,7 +28,7 @@ void Output_Serial::setSerialC(SerialC* ser) {
     this->serialc = serialc;
 }
 
-void Output_Serial::setConfig(Config* config) {
+void Output_Serial::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -50,12 +50,12 @@ const uint8_t* Output_Serial::getMuxes() {
     return &this.mux;
 }
 
-void Output_Serial::send(uint16_t* buf) {
+void Output_Serial::send(uint32_t* buf) {
     if (this->serialc == nullptr) return;
     this->serialc->sendPacket({SerialCommands::SEND_INPUT, buf >> 4, buf & 0b1111});
 }
 
-void Output_Serial::sendAnalog(uint16_t* buf) {
+void Output_Serial::sendAnalog(uint32_t* buf) {
     if (this->serialc == nullptr) return;
     uint8_t tmp = {
         SerialCommands::SEND_INPUT_ANALOG,

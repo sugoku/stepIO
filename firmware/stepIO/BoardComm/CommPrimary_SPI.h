@@ -29,7 +29,7 @@ class CommPrimary_SPI : public BoardComm
         uint32_t* inpkt;
 
     public:
-        void setup();
+        uint8_t setup();
         inline void setPlayer(uint8_t player) { this->player = player; };
         inline void attachInputPacket(uint32_t* buf) { this->inpkt = buf; };
         void parseMessage(uint8_t msg);

@@ -18,7 +18,7 @@
 
 #include "SerialC_Handler.h"
 
-void SerialC::setup(Config* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr, Output_Serial* out=nullptr) {
+void SerialC::setup(uint8_t* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr, Output_Serial* out=nullptr) {
     this->setConfig(config);
 
     this->ser.setStream(stream);
@@ -33,7 +33,7 @@ void SerialC::setOutput(Output_Serial* out) {
     this->out = out;
 }
 
-void SerialC::setConfig(Config* config) {
+void SerialC::setConfig(uint8_t* config) {
     this->config = config;
 }
 

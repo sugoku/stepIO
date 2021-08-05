@@ -20,19 +20,18 @@
 #define _OUTPUT_JOYSTICK_H
 
 #include "Output.h"
-
 class Output_Joystick : public Output
 {
     protected:
         uint8_t* config;
 
     public:
-        void setup(Config* config);
-        void setConfig(Config* config);
+        void setup(uint8_t* config);
+        void setConfig(uint8_t* config);
         void updateHost();
-        void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
-        const uint16_t* getLights();
+        void send(uint32_t* buf);
+        void sendAnalog(uint32_t* buf);  // buffer is an array
+        const uint32_t* getLights();
         const uint8_t* getUSBData();
 };
 

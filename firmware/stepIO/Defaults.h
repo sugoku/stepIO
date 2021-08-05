@@ -20,6 +20,8 @@
 #define _DEFAULTS_H
 
 #include "Config.h"
+#include "Output/Output.h"
+#include "Input/Input.h"
 
 // These are the default settings which will be loaded into stepIO/brokeIO on first boot, change as needed
 const uint8_t defaults[256] PROGMEM = {

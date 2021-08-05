@@ -26,17 +26,17 @@ class Output_Serial : public Output
     protected:
         uint8_t* config;
         uint8_t mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
-        uint16_t lights = 0;
+        uint32_t lights = 0;
         SerialC* serialc;
 
     public:
-        void setup(Config* config, SerialC* serialc=nullptr);
-        void setConfig(Config* config);
+        void setup(uint8_t* config, SerialC* serialc=nullptr);
+        void setConfig(uint8_t* config);
         void setSerialC(SerialC* serialc);
         void updateHost();
-        void send(uint16_t* buf);
-        void sendAnalog(uint16_t* buf);  // buffer is an array
-        const uint16_t* getLights();
+        void send(uint32_t* buf);
+        void sendAnalog(uint32_t* buf);  // buffer is an array
+        const uint32_t* getLights();
         const uint8_t* getUSBData();
 };
 

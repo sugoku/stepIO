@@ -18,8 +18,30 @@
 
 #include "Config.h"
 #include "Defaults.h"
-#include "Output/Output.h"
+
+#include "BoardComm/BoardComm.h"
+#include "BoardComm/CommPrimary_SPI.h"
+#include "BoardComm/CommSecondary_SPI.h"
+
 #include "Input/Input.h"
+#include "Input/Input_Simple.h"
+
+#include "Lights/Lights.h"
+#include "Lights/Lights_Simple.h"
+
+#include "Output/Output.h"
+#include "Output/Output_Joystick.h"
+#include "Output/Output_Keyboard.h"
+#include "Output/Output_LXIO.h"
+#include "Output/Output_MIDI.h"
+#include "Output/Output_PIUIO.h"
+#include "Output/Output_Switch.h"
+
+#ifdef SERIAL_ENABLED
+    #include "SerialConfig/SerialC_Handler.h"
+    #include "Output/Output_Serial.h"
+#endif
+
 #ifdef EEPROM_ENABLED
     #include "EEPROM/EEPROM_IO.h"
 #endif
@@ -27,9 +49,9 @@
 uint8_t status = 0;
 uint32_t outbuf = 0;
 uint32_t* lightbuf;
-uint32_t* inVals[];
+uint32_t* inVals;
 // uint32_t* outMuxes[2];
-uint8_t config[256];
+uint8_t config[CONFIG_SIZE];
 uint32_t blocked = 0;
 
 uint8_t inmode = 0;
@@ -40,13 +62,14 @@ uint8_t devicemode = 0;
 bool boardcomm_on = false;
 
 // InputSensor in;
-Input in;
-Output out;
-Lights lt;
-Lights lightex;  // extra lights (RGB, etc.)
+Input* in;
+Output* out;
+Lights* lt;
 EEPROM_IO ee;
-SerialC serialc;
-BoardComm boardcomm;
+#ifdef SERIAL_ENABLED
+    SerialC serialc;
+#endif
+BoardComm* boardcomm;
 
 void UpdateHost(Output* out) {
     if (out == NULL) return;
@@ -63,12 +86,14 @@ int UpdateLights(Lights* lt, uint32_t* buf) {
     return lt->send(buf);
 }
 
+#ifdef SERIAL_ENABLED
 void HandleSerial(SerialC* ser) {
     ser->update();
     if (ser->overflow()) {
         ser->sendStatus(SerialMessages::ERROR_OVERFLOW);
     }
 }
+#endif
 
 void HandleBoardComm(BoardComm* bc) {
     bc->update();
@@ -83,11 +108,11 @@ ISR (SPI_STC_vect)
 
 void GetOutput(Input *in, uint32_t* buf) {
     if (in == NULL) return;
-    *buf = *inVals[0];
+    *buf = inVals[0];
 }
 
-void FilterOutput(uint16_t* buf) {
-    buf &= blocked;  // global blocks
+void FilterOutput(uint32_t* buf) {
+    *buf &= blocked;  // global blocks
     
     #ifdef DEBOUNCING
         // something
@@ -101,11 +126,7 @@ void SendOutput(Output* out, uint32_t* buf) {
 }
 
 int EnableUSB(Output* out) {
-    STRING_MANUFACTURER = out->getManufacturer();
-    STRING_PRODUCT = out->getProduct();
-    USB_DeviceDescriptorIAD = out->getDeviceDescriptor();
-
-    USBDevice_ USBDevice();  // comment this out in core and modify constructor so i can change VID and PID
+    USBDevice.setUSBInfo(out->getManufacturer(), out->getProduct(), out->getDeviceDescriptor());  // comment this out in core and modify constructor so i can change VID and PID
     USBDevice.attach();  // connects device, needs to be commented out from main.cpp
 
     // alternatively, could detach, change constructor, then reattach (though pluggableusb might make that annoying?)
@@ -114,11 +135,11 @@ int EnableUSB(Output* out) {
 void setup() {
 
     #ifdef EEPROM_ENABLED
-        version = ee.versionCheck();
+        uint8_t version = ee.versionCheck();
         if (EEPROM_FIRST_TIME || version == 0xFF || version == 0x00) {
-            ee.writeDefaults(&defaults);
+            ee.writeDefaults(defaults);
         }
-        status = ee.readConfig(&config);
+        status = ee.readConfig(config);
         #ifndef SIMPLE_IO
             if (status < 0) {
                 if (-readValue == EEPROM_ADDR_ERR) {
@@ -131,9 +152,9 @@ void setup() {
         config = defaults;
     #endif
 
-    inmode = config[ConfigOptions::INPUT_MODE];
-    outmode = config[ConfigOptions::OUTPUT_MODE];
-    lightsmode = config[ConfigOptions::LIGHTS_MODE];
+    inmode = config[static_cast<int>(ConfigOptions::INPUT_MODE)];
+    outmode = config[static_cast<int>(ConfigOptions::OUTPUT_MODE)];
+    lightsmode = config[static_cast<int>(ConfigOptions::LIGHTS_MODE)];
 
     #ifdef PINCONFIG
         // CFG1-CFG4
@@ -152,8 +173,8 @@ void setup() {
             #endif
         }
 
-        config[ConfigOptions::PLAYER] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
-        config[ConfigOptions::OUTPUT_MODE] = (pinconfig >> 1) & 0b111;
+        config[static_cast<int>(static_cast<int>(ConfigOptions::PLAYER))] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
+        config[static_cast<int>(ConfigOptions::OUTPUT_MODE)] = (pinconfig >> 1) & 0b111;
     #endif
 
     WATCHDOG_ENABLE;
@@ -161,70 +182,69 @@ void setup() {
     USBCON |= (1<<OTGPADE); // enable VBUS detection
     devicemode = (USBSTA & 1) ? DEVICE_PRIMARY : DEVICE_SECONDARY;  // set device mode based on if USB power is received
 
-    in = Input_Simple();
-    in.setup();
+    in = new Input_Simple();
+    in->setup();
 
     if (devicemode == DEVICE_PRIMARY) {
-        boardcomm = CommPrimary_SPI();
+        boardcomm = new CommPrimary_SPI();
 
         switch (outmode) {
-            case OutputMode::Joystick:
-                out = Output_Joystick();
+            case static_cast<int>(OutputMode::Joystick):
+                out = new Output_Joystick();
                 break;
-            case OutputMode::Keyboard:
-                out = Output_Keyboard();
+            case static_cast<int>(OutputMode::Keyboard):
+                out = new Output_Keyboard();
                 break;
-            case OutputMode::PIUIO:
-                out = Output_PIUIO();
+            case static_cast<int>(OutputMode::PIUIO):
+                out = new Output_PIUIO();
                 break;
-            case OutputMode::LXIO:
-                out = Output_LXIO();
+            case static_cast<int>(OutputMode::LXIO):
+                out = new Output_LXIO();
                 break;
-            case OutputMode::Switch:
-                out = Output_Switch();
+            case static_cast<int>(OutputMode::Switch):
+                out = new Output_Switch();
                 break;
-            case OutputMode::MIDI:
-                out = Output_MIDI();
+            case static_cast<int>(OutputMode::MIDI):
+                out = new Output_MIDI();
                 break;
         }
-        out.setup(&config);
-        out.attach();
-        lightbuf = out.getLights();
+        out->setup(config);
+        lightbuf = out->getLights();
     } else {
-        boardcomm = CommSecondary_SPI();
+        boardcomm = new CommSecondary_SPI();
         lightbuf = nullptr;
     }
 
     #ifdef LIGHT_OUTPUT
 
-        lt = Lights_Simple();
-        lt.setup();
+        lt = new Lights_Simple();
+        lt->setup();
         
     #endif
 
-    uint8_t err = boardcomm.setup();  // will hang for 2 seconds until connection is made, if no connection then board communication stays off
+    uint8_t err = boardcomm->setup();  // will hang for 2 seconds until connection is made, if no connection then board communication stays off
     if (!err)
         boardcomm_on = true;
 
-    boardcomm.setPlayer(config[ConfigOptions::PLAYER]);
-    boardcomm.attachInputPacket(*outbuf);
+    boardcomm->setPlayer(config[static_cast<int>(ConfigOptions::PLAYER)]);
+    boardcomm->attachInputPacket(&outbuf);
 
     // get blocked inputs from the config
-    blocked = (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_3] << 24);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_2] << 16);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_1] << 8);
-    blocked |= (uint32_t)(config[ConfigOptions::BLOCKED_INPUTS_0]);
+    blocked = (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_3)] << 24);
+    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_2)] << 16);
+    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_1)] << 8);
+    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_0)]);
 
-    EnableUSB(&out);  // SetupEndpoints();
+    EnableUSB(out);  // SetupEndpoints();
 
     #ifdef SERIAL_ENABLED
         SERIAL_CONFIG.begin(SERIAL_BAUD);
-        serialc.setup(&config, &Serial, &ee);
+        serialc.setup(config, &Serial, &ee);
         if (outmode == OutputMode::Serial)
-            serialc.setOutput(&out);
+            serialc.setOutput(out);
     #endif
 
-    inVals = in.getValues();
+    inVals = in->getValues();
     // outMuxes = {0xFF, 0xFF};
 }
 
@@ -233,22 +253,22 @@ void loop() {
     WATCHDOG_RESET;
 
     if (devicemode == DEVICE_PRIMARY)
-        UpdateHost(&out);
+        UpdateHost(out);
 
-    UpdateInput(&in);
+    UpdateInput(in);
 
     #ifdef LIGHT_OUTPUT
 
-        UpdateLights(&lt, lightbuf);
+        UpdateLights(lt, lightbuf);
 
     #endif
 
-    GetOutput(&in, &outbuf);
+    GetOutput(in, &outbuf);
 
     FilterOutput(&outbuf);
 
     if (devicemode == DEVICE_PRIMARY)
-        SendOutput(&out, &outbuf);
+        SendOutput(out, &outbuf);
     
     #ifdef SERIAL_ENABLED
 
@@ -257,5 +277,5 @@ void loop() {
     #endif
 
     if (boardcomm_on)
-        HandleBoardComm(&boardcomm);
+        HandleBoardComm(boardcomm);
 }

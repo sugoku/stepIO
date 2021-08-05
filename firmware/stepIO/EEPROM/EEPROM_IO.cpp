@@ -27,7 +27,7 @@ uint8_t EEPROM_IO::initialize() {
     #endif
 }
 
-uint8_t EEPROM_IO::read(int loc, uint8_t* buf[], size_t n=1) {
+uint8_t EEPROM_IO::read(int loc, uint8_t* buf, size_t n=1) {
     #ifdef EEPROM_EXTERNAL
         return ee.read(loc, buf, n);
     #else
@@ -45,7 +45,7 @@ uint8_t EEPROM_IO::readByte(int loc) {
     #endif
 }
 
-uint8_t EEPROM_IO::write(int loc, uint8_t* buf[], size_t n) {
+uint8_t EEPROM_IO::write(int loc, uint8_t* buf, size_t n) {
     #ifdef EEPROM_EXTERNAL
         return ee.write(loc, buf, n);
     #else
@@ -55,7 +55,7 @@ uint8_t EEPROM_IO::write(int loc, uint8_t* buf[], size_t n) {
     #endif
 }
 
-uint8_t EEPROM_IO::update(int loc, uint8_t* buf[], size_t n) {
+uint8_t EEPROM_IO::update(int loc, uint8_t* buf, size_t n) {
     #ifdef EEPROM_EXTERNAL
         // probably have some loop here to check first
         return ee.write(loc, buf, n);
@@ -66,14 +66,18 @@ uint8_t EEPROM_IO::update(int loc, uint8_t* buf[], size_t n) {
     #endif
 }
 
-uint8_t EEPROM_IO::readConfig(uint8_t* config) {
-    return this->read(0, config, sizeof(config));
+uint8_t EEPROM_IO::readConfig(uint8_t* config[CONFIG_SIZE]) {
+    return this->read(0, config, CONFIG_SIZE);
 }
 
-uint8_t EEPROM_IO::updateConfig(uint8_t* config) {
-    return this->update(0, config, sizeof(config));
+uint8_t EEPROM_IO::updateConfig(uint8_t* config[CONFIG_SIZE]) {
+    return this->update(0, config, CONFIG_SIZE);
 }
 
-uint8_t EEPROM_IO::versionCheck(uint8_t* config) {
+uint8_t EEPROM_IO::writeDefaults(uint8_t* defaults[CONFIG_SIZE]) {
+    return this->update(0, defaults, CONFIG_SIZE);
+}
+
+uint8_t EEPROM_IO::versionCheck() {
     return this->readByte(ConfigOptions::VERSION_REVISION);
 }

@@ -19,12 +19,15 @@
 #ifndef _BOARDCOMM_H
 #define _BOARDCOMM_H
 
-#include "Config.h"
+#include "../Config.h"
 
 class BoardComm
 {
     public:
-        virtual void setup() = 0;
+        uint8_t lastmsg;
+        uint8_t nextmsg;
+
+        virtual uint8_t setup() = 0;
         virtual void setPlayer(uint8_t player) = 0;
         virtual void attachInputPacket(uint32_t* buf) = 0;  // read and written to
         virtual void parseMessage(uint8_t msg) = 0;
@@ -32,7 +35,7 @@ class BoardComm
 
 };
 
-enum BoardCommMethod {
+enum class BoardCommMethod {
     None,
     SPI,
     I2C

@@ -151,12 +151,22 @@ typedef struct {
 	u8	bNumConfigurations;
 } DeviceDescriptor;
 
-extern u16 STRING_LANGUAGE[2];
+
+#ifndef USB_PRODUCT
+// If no product is provided, use USB IO Board
+#define USB_PRODUCT     "USB IO Board"
+#endif
+
+#ifndef USB_MANUFACTURER
+// Fallback if no manufacturer name was provided in a macro
+#define USB_MANUFACTURER "sugoku"
+#endif
+
+extern u16 STRING_LANGUAGE[2] PROGMEM;
 // max for product and manufacturer is 255
-extern u8 STRING_PRODUCT[];
-extern u8 STRING_MANUFACTURER[];
-extern DeviceDescriptor USB_DeviceDescriptorIAD;
-// this allows to modify USB info before enabling the USB device
+extern u8 STRING_PRODUCT[255] PROGMEM = USB_PRODUCT;
+extern u8 STRING_MANUFACTURER[255] PROGMEM = USB_MANUFACTURER;
+extern DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM = D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
 
 // handling vendor control transfers
 typedef FuncHandler(USBSetup setup);

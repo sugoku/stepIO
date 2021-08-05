@@ -18,12 +18,12 @@
 
 #include "Output_Joystick.h"
 
-void Output_Joystick::setup(Config* config) {
+void Output_Joystick::setup(uint8_t* config) {
     this->setConfig(config);
     Gamepad.begin();
 }
 
-void Output_Joystick::setConfig(Config* config) {
+void Output_Joystick::setConfig(uint8_t* config) {
     this->config = config;
 }
 
@@ -35,7 +35,7 @@ void Output_Joystick::updateHost() {
     return;  // nothing needed here, no lights support
 }
 
-void Output_Joystick::send(uint16_t* buf) {
+void Output_Joystick::send(uint32_t* buf) {
     uint32_t tmp = 0x0000;
     
     SETORCLRBIT(tmp, this->config[ConfigOptions::P1_UPLEFT_GAMEPAD], GETBIT(*buf, InputPacket::P1_UPLEFT));
@@ -58,7 +58,7 @@ void Output_Joystick::send(uint16_t* buf) {
     Gamepad.write();
 }
 
-void Output_Joystick::sendAnalog(uint16_t* buf) {
+void Output_Joystick::sendAnalog(uint32_t* buf) {
     // not implemented yet
     // xAxis, yAxis, zAxis, rxAxis, ryAxis, rzAxis
 }
