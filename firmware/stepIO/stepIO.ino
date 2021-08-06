@@ -35,11 +35,11 @@
 #include "src/Output/Output_LXIO.h"
 #include "src/Output/Output_MIDI.h"
 #include "src/Output/Output_PIUIO.h"
-#include "src/Output/Output_Switch.h"
+// #include "src/Output/Output_Switch.h"
 
 #ifdef SERIAL_ENABLED
-    #include "src/SerialConfig/SerialC_Handler.h"
-    #include "src/Output/Output_Serial.h"
+    // #include "src/SerialConfig/SerialC_Handler.h"
+    // #include "src/Output/Output_Serial.h"
 #endif
 
 #include "src/EEPROM/EEPROM_IO.h"
@@ -203,7 +203,7 @@ void setup() {
                 out = new Output_LXIO();
                 break;
             case (int)OutputMode::Switch:
-                out = new Output_Switch();
+                // out = new Output_Switch();
                 break;
             case (int)OutputMode::MIDI:
                 out = new Output_MIDI();
@@ -240,10 +240,10 @@ void setup() {
     EnableUSB(out);  // SetupEndpoints();
 
     #ifdef SERIAL_ENABLED
-        SERIAL_CONFIG.begin(SERIAL_BAUD);
-        serialc.setup(config, &Serial, &ee);
-        if (outmode == OutputMode::Serial)
-            serialc.setOutput(out);
+        // SERIAL_CONFIG.begin(SERIAL_BAUD);
+        // serialc.setup(config, &Serial, &ee);
+        // if (outmode == OutputMode::Serial)
+        //     serialc.setOutput(out);
     #endif
 
     inVals = in->getValues();
@@ -274,7 +274,7 @@ void loop() {
     
     #ifdef SERIAL_ENABLED
 
-        HandleSerial(&serialc);
+        // HandleSerial(&serialc);
         
     #endif
 
