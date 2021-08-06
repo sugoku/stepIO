@@ -16,35 +16,33 @@
 /*  https://github.com/sugoku/stepIO                      */
 /**********************************************************/
 
-#include "Config.h"
-#include "Defaults.h"
+#include "src/Config.h"
+#include "src/Defaults.h"
 
-#include "BoardComm/BoardComm.h"
-#include "BoardComm/CommPrimary_SPI.h"
-#include "BoardComm/CommSecondary_SPI.h"
+#include "src/BoardComm/BoardComm.h"
+#include "src/BoardComm/CommPrimary_SPI.h"
+#include "src/BoardComm/CommSecondary_SPI.h"
 
-#include "Input/Input.h"
-#include "Input/Input_Simple.h"
+#include "src/Input/Input.h"
+#include "src/Input/Input_Simple.h"
 
-#include "Lights/Lights.h"
-#include "Lights/Lights_Simple.h"
+#include "src/Lights/Lights.h"
+#include "src/Lights/Lights_Simple.h"
 
-#include "Output/Output.h"
-#include "Output/Output_Joystick.h"
-#include "Output/Output_Keyboard.h"
-#include "Output/Output_LXIO.h"
-#include "Output/Output_MIDI.h"
-#include "Output/Output_PIUIO.h"
-#include "Output/Output_Switch.h"
+#include "src/Output/Output.h"
+#include "src/Output/Output_Joystick.h"
+#include "src/Output/Output_Keyboard.h"
+#include "src/Output/Output_LXIO.h"
+#include "src/Output/Output_MIDI.h"
+#include "src/Output/Output_PIUIO.h"
+#include "src/Output/Output_Switch.h"
 
 #ifdef SERIAL_ENABLED
-    #include "SerialConfig/SerialC_Handler.h"
-    #include "Output/Output_Serial.h"
+    #include "src/SerialConfig/SerialC_Handler.h"
+    #include "src/Output/Output_Serial.h"
 #endif
 
-#ifdef EEPROM_ENABLED
-    #include "EEPROM/EEPROM_IO.h"
-#endif
+#include "src/EEPROM/EEPROM_IO.h"
 
 uint8_t status = 0;
 uint32_t outbuf = 0;
@@ -219,6 +217,7 @@ void setup() {
 
         lt = new Lights_Simple();
         lt->setup();
+        lt->setPlayer(config[(int)ConfigOptions::PLAYER]);
         
     #endif
 
