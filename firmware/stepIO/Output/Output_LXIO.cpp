@@ -27,10 +27,6 @@ void Output_LXIO::setConfig(uint8_t* config) {
     this->config = config;
 }
 
-const uint16_t* Output_LXIO::getLights() {
-    return nullptr;
-}
-
 void Output_LXIO::updateHost() {
     return;  // nothing needed here, no lights support
 }

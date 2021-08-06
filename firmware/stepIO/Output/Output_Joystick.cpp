@@ -27,10 +27,6 @@ void Output_Joystick::setConfig(uint8_t* config) {
     this->config = config;
 }
 
-const uint16_t* Output_Joystick::getLights() {
-    return nullptr;
-}
-
 void Output_Joystick::updateHost() {
     return;  // nothing needed here, no lights support
 }

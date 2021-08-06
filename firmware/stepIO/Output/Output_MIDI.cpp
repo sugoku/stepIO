@@ -27,10 +27,6 @@ void Output_MIDI::setConfig(uint8_t* config) {
     this->config = config;
 }
 
-const uint16_t* Output_MIDI::getLights() {
-    return nullptr;
-}
-
 void Output_MIDI::updateHost() {
     return;  // to be implemented (CCs or something? or just sending notes back)
 }

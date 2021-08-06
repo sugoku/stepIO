@@ -46,7 +46,7 @@ class Output_Switch : public Output
         void updateHost();
         void send(uint32_t* buf);
         void sendAnalog(uint32_t* buf);  // buffer is an array
-        const uint32_t* getLights();
+        inline uint32_t* const getLights() { return nullptr; };
         static uint8_t buttonToBit(uint8_t n);
 };
 

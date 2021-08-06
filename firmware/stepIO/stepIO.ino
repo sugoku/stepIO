@@ -126,7 +126,7 @@ void SendOutput(Output* out, uint32_t* buf) {
 }
 
 int EnableUSB(Output* out) {
-    USBDevice.setUSBInfo(out->getManufacturer(), out->getProduct(), out->getDeviceDescriptor());  // comment this out in core and modify constructor so i can change VID and PID
+    USBDevice.setUSBData(out->getProduct(), out->getManufacturer(), out->getDeviceDescriptor());  // comment this out in core and modify constructor so i can change VID and PID
     USBDevice.attach();  // connects device, needs to be commented out from main.cpp
 
     // alternatively, could detach, change constructor, then reattach (though pluggableusb might make that annoying?)
@@ -230,9 +230,9 @@ void setup() {
     boardcomm->attachInputPacket(&outbuf);
 
     // get blocked inputs from the config
-    blocked = (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_3] << 24);
-    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_2] << 16);
-    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_1] << 8);
+    blocked = (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_3]) << 24;
+    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_2]) << 16;
+    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_1]) << 8;
     blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_0]);
 
     EnableUSB(out);  // SetupEndpoints();

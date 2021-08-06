@@ -27,10 +27,6 @@ void Output_Switch::setConfig(uint8_t* config) {
     this->config = config;
 }
 
-const uint16_t* Output_Switch::getLights() {
-    return nullptr;
-}
-
 void Output_Switch::updateHost() {
     return;  // nothing needed here, no lights support
 }

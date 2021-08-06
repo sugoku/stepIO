@@ -27,10 +27,6 @@ void Output_Keyboard::setConfig(uint8_t* config) {
     this->config = config;
 }
 
-const uint16_t* Output_Keyboard::getLights() {
-    return nullptr;
-}
-
 void Output_Keyboard::updateHost() {
     return;  // nothing needed here, no lights support
 }

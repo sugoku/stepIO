@@ -36,7 +36,7 @@ class Output
         virtual void setConfig(uint8_t* config) = 0;
         virtual void send(uint32_t* buf) = 0;
         virtual void updateHost() = 0;
-        virtual const uint32_t* getLights() = 0;
+        virtual uint32_t* const getLights() = 0;
         inline const String* getManufacturer() { return &manufacturer; };
         inline const String* getProduct() { return &product; };
         inline const DeviceDescriptor* getDeviceDescriptor() { return &ddescriptor; };

@@ -42,14 +42,6 @@ void Output_Serial::update(uint32_t lightmux) {
     this->mux[1] = (uint8_t)((lightmux >> 18) & 0b11);  // the two bits after that
 }
 
-const uint16_t* Output_Serial::getLights() {
-    return &this.lights;
-}
-
-const uint8_t* Output_Serial::getMuxes() {
-    return &this.mux;
-}
-
 void Output_Serial::send(uint32_t* buf) {
     if (this->serialc == nullptr) return;
     this->serialc->sendPacket({SerialCommands::SEND_INPUT, buf >> 4, buf & 0b1111});

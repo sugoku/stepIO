@@ -516,12 +516,6 @@ bool SendDescriptor(USBSetup& setup)
 	return true;
 }
 
-void VendorControl(USBSetup setup)
-{
-}
-
-FuncHandler vendorHandler = VendorControl;
-
 //	Endpoint 0 interrupt
 ISR(USB_COM_vect)
 {
@@ -611,7 +605,7 @@ ISR(USB_COM_vect)
 	}
 	else if (REQUEST_VENDOR == (requestType & REQUEST_TYPE))
 	{
-		vendorHandler(setup);
+		USBDevice.handleControl(setup);
 	}
 	else
 	{
@@ -789,16 +783,16 @@ USBDevice_::USBDevice_()
 {
 }
 
-void USBDevice_::setUSBData(String* product, String* manufacturer, DeviceDescriptor* dd)
+void USBDevice_::setUSBData(const String* product, const String* manufacturer, const DeviceDescriptor* dd)
 {
-	uint8_t p[product->length()];
-	uint8_t m[manufacturer->length()];
-
-	this->product = p;
-	this->manufacturer = m;
+	char p[product->length()];
+	char m[manufacturer->length()];
 
 	product->toCharArray(p, sizeof(p));
 	manufacturer->toCharArray(m, sizeof(m));
+
+	this->product = (const uint8_t*)p;
+	this->manufacturer = (const uint8_t*)m;
 
 	this->dd = dd;
 }

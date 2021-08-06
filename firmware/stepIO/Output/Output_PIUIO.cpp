@@ -32,6 +32,10 @@ void Output_PIUIO::updateHost() {
     return;
 }
 
+uint8_t* const Output_PIUIO::getMuxes() { 
+    return &this->mux;
+}
+
 void Output_PIUIO::update(uint32_t buf) { 
     // i don't think you can loop through enums so this is the best i'll get for now
     // PIUIO uses negative logic hence the NOT operators
@@ -58,15 +62,6 @@ void Output_PIUIO::update(uint32_t buf) {
     SETORCLRBIT(this->mux[1], 0, GETBIT(buf, PIUIO_LightsPacket::P2_MUXER_0));
     SETORCLRBIT(this->mux[1], 1, GETBIT(buf, PIUIO_LightsPacket::P2_MUXER_1));
 }
-
-const uint16_t* Output_PIUIO::getLights() {
-    return &this->lights;
-}
-
-const uint8_t* Output_PIUIO::getMuxes() {
-    return &this->mux;
-}
-
 void Output_PIUIO::send(uint32_t* buf) {
     // doesn't actually send, just updates the data to send when it is requested by the host
     uint32_t tmp = 0xFFFFFFFF;

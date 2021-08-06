@@ -37,7 +37,7 @@ class EEPROM_IO
         uint8_t update(int loc, uint8_t* buf, size_t n);
         uint8_t readConfig(uint8_t* config);
         uint8_t updateConfig(uint8_t* config);
-        uint8_t writeDefaults(uint8_t* config);
+        uint8_t writeDefaults(const uint8_t* config);
         uint8_t versionCheck();
     
 }; 

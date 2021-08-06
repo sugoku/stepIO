@@ -151,27 +151,6 @@ typedef struct {
 	u8	bNumConfigurations;
 } DeviceDescriptor;
 
-
-#ifndef USB_PRODUCT
-// If no product is provided, use USB IO Board
-#define USB_PRODUCT     "USB IO Board"
-#endif
-
-#ifndef USB_MANUFACTURER
-// Fallback if no manufacturer name was provided in a macro
-#define USB_MANUFACTURER "sugoku"
-#endif
-
-extern u16 STRING_LANGUAGE[2] PROGMEM;
-// max for product and manufacturer is 255
-extern u8 STRING_PRODUCT[255] PROGMEM = USB_PRODUCT;
-extern u8 STRING_MANUFACTURER[255] PROGMEM = USB_MANUFACTURER;
-extern DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM = D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
-
-// handling vendor control transfers
-typedef FuncHandler(USBSetup setup);
-extern FuncHandler vendorHandler;
-
 //	Config
 typedef struct {
 	u8	len;			// 9
@@ -321,5 +300,22 @@ typedef struct
 #ifndef NEW_LUFA_SIGNATURE
 #define NEW_LUFA_SIGNATURE 0xDCFB
 #endif
+
+// New changes
+
+#ifndef USB_PRODUCT
+// If no product is provided, use USB IO Board
+#define USB_PRODUCT     "USB IO Board"
+#endif
+
+#ifndef USB_MANUFACTURER
+// Fallback if no manufacturer name was provided in a macro
+#define USB_MANUFACTURER "sugoku"
+#endif
+
+// max for product and manufacturer is 255
+extern const u8 STRING_PRODUCT[255] PROGMEM = USB_PRODUCT;
+extern const u8 STRING_MANUFACTURER[255] PROGMEM = USB_MANUFACTURER;
+extern const DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM = D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
 
 #endif

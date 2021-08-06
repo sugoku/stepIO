@@ -32,7 +32,7 @@ class Output_Keyboard : public Output
         void setConfig(uint8_t* config);
         void updateHost();
         void send(uint32_t* buf);
-        const uint32_t* getLights();
+        inline uint32_t* const getLights() { return nullptr; };
 };
 
 #endif

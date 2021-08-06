@@ -74,7 +74,7 @@ uint8_t EEPROM_IO::updateConfig(uint8_t* config[CONFIG_SIZE]) {
     return this->update(0, config, CONFIG_SIZE);
 }
 
-uint8_t EEPROM_IO::writeDefaults(uint8_t* defaults[CONFIG_SIZE]) {
+uint8_t EEPROM_IO::writeDefaults(const uint8_t* defaults[CONFIG_SIZE]) {
     return this->update(0, defaults, CONFIG_SIZE);
 }
 

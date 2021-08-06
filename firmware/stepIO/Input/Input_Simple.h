@@ -30,8 +30,8 @@ class Input_Simple : public Input
         void setup();  // setup any pins and any values, also any objects that are needed
         uint8_t update();  // return the amount of pins checked
         inline uint32_t getP1andP2(uint8_t mux1, uint8_t mux2) { return *getValues(); }
-        inline uint32_t* getMergedValues() { return getValues(); }
-        inline const uint32_t* getValues() { return vals; }
+        inline uint32_t* const getMergedValues() { return getValues(); }
+        inline uint32_t* const getValues() { return vals; }
         static uint8_t muxToInputPacket(uint8_t mux_pin);
 
 };

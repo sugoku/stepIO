@@ -51,8 +51,8 @@ class Output_PIUIO : public Output
         void update(uint32_t buf);
         void send(uint32_t* buf);
         void handleControl(USBSetup setup);
-        const uint32_t* getLights();
-        const uint8_t* getMuxes();
+        inline uint32_t* const getLights() { return &this->lights; };
+        uint8_t* const getMuxes();
         // const uint8_t* getUSBData();
 };
 

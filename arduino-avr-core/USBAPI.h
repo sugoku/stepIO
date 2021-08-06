@@ -55,17 +55,40 @@ typedef unsigned long u32;
 #define EP_TYPE_ISOCHRONOUS_IN		((1<<EPTYPE0) | (1<<EPDIR))
 #define EP_TYPE_ISOCHRONOUS_OUT		(1<<EPTYPE0)
 
+typedef struct
+{
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	uint8_t wValueL;
+	uint8_t wValueH;
+	uint16_t wIndex;
+	uint16_t wLength;
+} USBSetup;
+
+typedef void (*vendorHandler)(USBSetup);
+
 class USBDevice_
 {
 protected:
-	u8* product = STRING_PRODUCT;
-	u8* manufacturer = STRING_MANUFACTURER;
-	DeviceDescriptor dd = USB_DeviceDescriptorIAD;
+	const u8* product;
+	const u8* manufacturer;
+	const DeviceDescriptor* dd = &USB_DeviceDescriptorIAD;
+	vendorHandler vendorf = nullptr;
 
 public:
 	USBDevice_();
 	bool configured();
-	void setUSBData(String* product, String* manufacturer, DeviceDescriptor* dd);
+	void setUSBData(const String* product, const String* manufacturer, const DeviceDescriptor* dd);
+
+	inline void setControlHandler( vendorHandler f ) { this->vendorf = f; };
+	inline void handleControl(USBSetup setup) {
+		if (vendorf != nullptr)
+			vendorf(setup);
+	};
+
+	inline const u8* getProduct() { return product; };
+	inline const u8* getManufacturer() { return manufacturer; };
+	inline const DeviceDescriptor* getDeviceDescriptor() { return dd; };
 
 	void attach();
 	void detach();	// Serial port goes down too...
@@ -160,20 +183,6 @@ public:
 extern Serial_ Serial;
 
 #define HAVE_CDCSERIAL
-
-//================================================================================
-//================================================================================
-//  Low level API
-
-typedef struct
-{
-	uint8_t bmRequestType;
-	uint8_t bRequest;
-	uint8_t wValueL;
-	uint8_t wValueH;
-	uint16_t wIndex;
-	uint16_t wLength;
-} USBSetup;
 
 //================================================================================
 //================================================================================
