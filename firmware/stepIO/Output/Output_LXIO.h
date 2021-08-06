@@ -25,7 +25,8 @@ class Output_LXIO : public Output
 {
     protected:
         uint8_t* config;
-        uint16_t input = 0;  // we need to actually keep track of what we've pressed and what we haven't
+        const String manufacturer PROGMEM = STEPIO_MANUFACTURER;
+        const String product PROGMEM = "PIUIO";
 
     public:
         void setup(uint8_t* config);
@@ -33,7 +34,6 @@ class Output_LXIO : public Output
         void updateHost();
         void send(uint32_t* buf);
         const uint32_t* getLights();
-        const uint8_t* getUSBData();
 };
 
 #endif

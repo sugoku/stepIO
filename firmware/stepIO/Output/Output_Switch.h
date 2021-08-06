@@ -25,7 +25,7 @@ class Output_Switch : public Output
 {
     protected:
         uint8_t* config;
-        const uint8_t product[255] PROGMEM = SWITCH_PRODUCT;
+        const String product PROGMEM = SWITCH_PRODUCT;
         const DeviceDescriptor ddescriptor PROGMEM = D_DEVICE(
             0xFF,  // vendor specific class
             0x00,
@@ -47,7 +47,6 @@ class Output_Switch : public Output
         void send(uint32_t* buf);
         void sendAnalog(uint32_t* buf);  // buffer is an array
         const uint32_t* getLights();
-        const uint8_t* getUSBData();
         static uint8_t buttonToBit(uint8_t n);
 };
 

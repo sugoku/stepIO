@@ -58,14 +58,14 @@ typedef unsigned long u32;
 class USBDevice_
 {
 protected:
-	u8 product[] = STRING_PRODUCT;
-	u8 manufacturer[] = STRING_MANUFACTURER;
+	u8* product = STRING_PRODUCT;
+	u8* manufacturer = STRING_MANUFACTURER;
 	DeviceDescriptor dd = USB_DeviceDescriptorIAD;
 
 public:
 	USBDevice_();
 	bool configured();
-	void setUSBData(u8 product[255], u8 manufacturer[255], DeviceDescriptor* dd);
+	void setUSBData(String* product, String* manufacturer, DeviceDescriptor* dd);
 
 	void attach();
 	void detach();	// Serial port goes down too...

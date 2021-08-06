@@ -37,7 +37,6 @@ class Output_Serial : public Output
         void send(uint32_t* buf);
         void sendAnalog(uint32_t* buf);  // buffer is an array
         const uint32_t* getLights();
-        const uint8_t* getUSBData();
 };
 
 #endif

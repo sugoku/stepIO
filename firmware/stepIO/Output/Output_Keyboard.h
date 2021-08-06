@@ -33,7 +33,6 @@ class Output_Keyboard : public Output
         void updateHost();
         void send(uint32_t* buf);
         const uint32_t* getLights();
-        const uint8_t* getUSBData();
 };
 
 #endif

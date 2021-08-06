@@ -27,8 +27,8 @@ class Output
     protected:
         // uint8_t* config;  // a link to a config
         // uint32_t lights;  // a LightsPacket (enum in Config.h)
-        const uint8_t manufacturer[255] PROGMEM = STEPIO_MANUFACTURER;
-        const uint8_t product[255] PROGMEM = STEPIO_PRODUCT;
+        const String manufacturer PROGMEM = STEPIO_MANUFACTURER;
+        const String product PROGMEM = STEPIO_PRODUCT;
         const DeviceDescriptor ddescriptor PROGMEM = STEPIO_DEVICE_DESCRIPTOR;
 
     public:
@@ -37,8 +37,8 @@ class Output
         virtual void send(uint32_t* buf) = 0;
         virtual void updateHost() = 0;
         virtual const uint32_t* getLights() = 0;
-        inline const uint8_t* getManufacturer() { return manufacturer; };
-        inline const uint8_t* getProduct() { return product; };
+        inline const String* getManufacturer() { return &manufacturer; };
+        inline const String* getProduct() { return &product; };
         inline const DeviceDescriptor* getDeviceDescriptor() { return &ddescriptor; };
 
 };

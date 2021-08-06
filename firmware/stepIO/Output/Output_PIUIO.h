@@ -28,8 +28,8 @@ class Output_PIUIO : public Output
         uint8_t mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
         uint32_t lights = 0;
         uint8_t payload[4] = {0xFF, 0xFF, 0xFF, 0xFF};
-        const uint8_t manufacturer[255] PROGMEM = STEPIO_MANUFACTURER;
-        const uint8_t product[255] PROGMEM = "PIUIO";
+        const String manufacturer PROGMEM = STEPIO_MANUFACTURER;
+        const String product PROGMEM = "PIUIO";
         const DeviceDescriptor ddescriptor PROGMEM = D_DEVICE(
             0xFF,  // vendor specific class
             0x00,

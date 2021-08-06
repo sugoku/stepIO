@@ -152,9 +152,9 @@ void setup() {
         config = defaults;
     #endif
 
-    inmode = config[static_cast<int>(ConfigOptions::INPUT_MODE)];
-    outmode = config[static_cast<int>(ConfigOptions::OUTPUT_MODE)];
-    lightsmode = config[static_cast<int>(ConfigOptions::LIGHTS_MODE)];
+    inmode = config[(int)ConfigOptions::INPUT_MODE];
+    outmode = config[(int)ConfigOptions::OUTPUT_MODE];
+    lightsmode = config[(int)ConfigOptions::LIGHTS_MODE];
 
     #ifdef PINCONFIG
         // CFG1-CFG4
@@ -173,8 +173,8 @@ void setup() {
             #endif
         }
 
-        config[static_cast<int>(static_cast<int>(ConfigOptions::PLAYER))] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
-        config[static_cast<int>(ConfigOptions::OUTPUT_MODE)] = (pinconfig >> 1) & 0b111;
+        config[(int)ConfigOptions::PLAYER] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
+        config[(int)ConfigOptions::OUTPUT_MODE] = (pinconfig >> 1) & 0b111;
     #endif
 
     WATCHDOG_ENABLE;
@@ -189,22 +189,22 @@ void setup() {
         boardcomm = new CommPrimary_SPI();
 
         switch (outmode) {
-            case static_cast<int>(OutputMode::Joystick):
+            case (int)OutputMode::Joystick:
                 out = new Output_Joystick();
                 break;
-            case static_cast<int>(OutputMode::Keyboard):
+            case (int)OutputMode::Keyboard:
                 out = new Output_Keyboard();
                 break;
-            case static_cast<int>(OutputMode::PIUIO):
+            case (int)OutputMode::PIUIO:
                 out = new Output_PIUIO();
                 break;
-            case static_cast<int>(OutputMode::LXIO):
+            case (int)OutputMode::LXIO:
                 out = new Output_LXIO();
                 break;
-            case static_cast<int>(OutputMode::Switch):
+            case (int)OutputMode::Switch:
                 out = new Output_Switch();
                 break;
-            case static_cast<int>(OutputMode::MIDI):
+            case (int)OutputMode::MIDI:
                 out = new Output_MIDI();
                 break;
         }
@@ -226,14 +226,14 @@ void setup() {
     if (!err)
         boardcomm_on = true;
 
-    boardcomm->setPlayer(config[static_cast<int>(ConfigOptions::PLAYER)]);
+    boardcomm->setPlayer(config[(int)ConfigOptions::PLAYER]);
     boardcomm->attachInputPacket(&outbuf);
 
     // get blocked inputs from the config
-    blocked = (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_3)] << 24);
-    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_2)] << 16);
-    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_1)] << 8);
-    blocked |= (uint32_t)(config[static_cast<int>(ConfigOptions::BLOCKED_INPUTS_0)]);
+    blocked = (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_3] << 24);
+    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_2] << 16);
+    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_1] << 8);
+    blocked |= (uint32_t)(config[(int)ConfigOptions::BLOCKED_INPUTS_0]);
 
     EnableUSB(out);  // SetupEndpoints();
 

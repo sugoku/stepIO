@@ -789,10 +789,17 @@ USBDevice_::USBDevice_()
 {
 }
 
-void USBDevice_::setUSBData(u8 product[], u8 manufacturer[], DeviceDescriptor* dd)
+void USBDevice_::setUSBData(String* product, String* manufacturer, DeviceDescriptor* dd)
 {
-	this->product = product;
-	this->manufacturer = manufacturer;
+	uint8_t p[product->length()];
+	uint8_t m[manufacturer->length()];
+
+	this->product = p;
+	this->manufacturer = m;
+
+	product->toCharArray(p, sizeof(p));
+	manufacturer->toCharArray(m, sizeof(m));
+
 	this->dd = dd;
 }
 
