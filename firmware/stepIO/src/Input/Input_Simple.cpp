@@ -43,22 +43,22 @@ void Input_Simple::setup() {
     pinMode(MUX_S2, OUTPUT);
 }
 
-static uint8_t Input_Simple::muxToInputPacket(uint8_t mux_pin) {
+ uint8_t Input_Simple::muxToInputPacket(uint8_t mux_pin) {
     switch (mux_pin) {
-        case SIMPLE_IO_MUX_IN::COIN: 
+        case (int)SIMPLE_IO_MUX_IN::COIN: 
             if (player == PLAYER_1) {
-                return InputPacket::P1_COIN;
+                return (int)InputPacket::P1_COIN;
             } else if (player == PLAYER_2) {
-                return InputPacket::P2_COIN;
+                return (int)InputPacket::P2_COIN;
             };
-        case SIMPLE_IO_MUX_IN::TEST: return InputPacket::TEST_BUTTON;
-        case SIMPLE_IO_MUX_IN::SERVICE: return InputPacket::SERVICE_BUTTON;
-        case SIMPLE_IO_MUX_IN::CLEAR: return InputPacket::CLEAR_BUTTON;
+        case (int)SIMPLE_IO_MUX_IN::TEST: return (int)InputPacket::TEST_BUTTON;
+        case (int)SIMPLE_IO_MUX_IN::SERVICE: return (int)InputPacket::SERVICE_BUTTON;
+        case (int)SIMPLE_IO_MUX_IN::CLEAR: return (int)InputPacket::CLEAR_BUTTON;
 
     }
 }
 
-void Input_Simple::update() {
+uint8_t Input_Simple::update() {
     if (player == PLAYER_1) {
         SETORCLRBIT(this->vals[0], (int)InputPacket::P1_UPLEFT, PULLUP_INV(GETBIT(SENSOR_1_READ, SENSOR_1_PIN)));
         SETORCLRBIT(this->vals[0], (int)InputPacket::P1_UPRIGHT, PULLUP_INV(GETBIT(SENSOR_2_READ, SENSOR_2_PIN)));
@@ -79,6 +79,8 @@ void Input_Simple::update() {
         SETORCLRBIT(MUX_S1_PORT, MUX_S1_PIN, (i >> 1) & 1);
         SETORCLRBIT(MUX_S0_PORT, MUX_S0_PIN, i & 1);
 
-        SETORCLRBIT(this->vals[0], Input_Simple.muxToInputPacket(i), PULLUP_INV(GETBIT(MUX1_IN_READ, MUX1_IN_PIN)));
-    
+        SETORCLRBIT(this->vals[0], this->muxToInputPacket(i), PULLUP_INV(GETBIT(MUX1_IN_READ, MUX1_IN_PIN)));
+    }
+
+    return 8;
 }

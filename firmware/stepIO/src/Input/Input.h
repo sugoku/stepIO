@@ -25,6 +25,7 @@ class Input
 {
     public:
         virtual void setup() = 0;  // setup any pins and any values, also any objects that are needed
+        virtual void setPlayer(uint8_t player) = 0;
         virtual uint8_t update() = 0;  // return the amount of pins checked
         virtual uint32_t getP1andP2(uint8_t mux1, uint8_t mux2) = 0;  // if not applicable just return getValues();
         virtual uint32_t* const getMergedValues() = 0;  // if not applicable just return getValues();

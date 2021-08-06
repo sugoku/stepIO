@@ -18,15 +18,15 @@
 
 #include "SerialC_Handler.h"
 
-void SerialC::setup(uint8_t* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr, Output_Serial* out=nullptr) {
+#define U32_TO_U8(n) (n >> 24) % 0xFF, (n >> 16) % 0xFF, (n >> 8) % 0xFF, n % 0xFF
+
+void SerialC::setup(uint8_t* config, Stream* stream=nullptr, EEPROM_IO* eepromio=nullptr) {
     this->setConfig(config);
 
     this->ser.setStream(stream);
     this->ser.setPacketHandler(&this->parseCommand);
 
     this->ee = eepromio;
-    this->setOutput(out);
-    
 }
 
 void SerialC::setOutput(Output_Serial* out) {
@@ -38,7 +38,7 @@ void SerialC::setConfig(uint8_t* config) {
 }
 
 void SerialC::parseCommand(const uint8_t* buf, size_t size) {
-    if (size == 0) { this->sendStatus((uint8_t)SerialMessages::ERROR_SHORT); }
+    if (size == 0) { this->sendStatus((uint8_t)SerialMessages::ERROR_SHORT, 0xFF); }
 
     if (size > 1) {
         switch (buf[0]) {
@@ -170,20 +170,22 @@ uint8_t* SerialC::makePacket(uint8_t cmdtype, uint8_t requestcmd, uint8_t* buf) 
 
     tmp[0] = cmdtype;
     tmp[1] = requestcmd;
-    for (int i = 0; i < sizeof(buf), i++)
+    for (int i = 0; i < sizeof(buf); i++)
         tmp[i+1] = buf[i];
     return tmp;
 }
 
 void SerialC::sendLights() {
     if (this->out == nullptr) this->sendStatus((uint8_t)SerialMessages::ERROR_NOT_ATTACHED, (uint8_t)SerialCommands::GET_LIGHTSMUX);
-    uint8_t pkt[] = this->makePacket((uint8_t)SerialMessageTypes::LIGHTS, (uint8_t)SerialCommands::GET_LIGHTSMUX, this->out->getLights())
-    this->sendPacket(&pkt);
+    uint32_t lpkt = *(this->out->getLights());
+    uint8_t lights[] = {U32_TO_U8(lpkt)};
+    uint8_t* pkt = this->makePacket((uint8_t)SerialMessageTypes::LIGHTS, (uint8_t)SerialCommands::GET_LIGHTSMUX, lights);
+    this->sendPacket(pkt);
 }
 
 void SerialC::sendStatus(uint8_t status, uint8_t command) {
-    uint8_t pkt[] = this->makePacket((uint8_t)SerialMessageTypes::STATUS, command, &status);
-    this->sendPacket(&pkt);
+    uint8_t* pkt = this->makePacket((uint8_t)SerialMessageTypes::STATUS, command, &status);
+    this->sendPacket(pkt);
 }
 
 void SerialC::loadEEPROM() {
@@ -200,7 +202,6 @@ void SerialC::saveConfig(uint8_t* buf) {
     if (this->ee == nullptr) return;
     this->ee->updateConfig(buf);
 }
-
 
 bool SerialC::overflow() {
     return this->ser.overflow();

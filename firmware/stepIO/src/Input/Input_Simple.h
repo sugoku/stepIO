@@ -25,14 +25,16 @@ class Input_Simple : public Input
 {
     protected:
         uint32_t* vals = {0};  // no muxes
+        uint8_t player;
 
     public:
         void setup();  // setup any pins and any values, also any objects that are needed
+        void setPlayer(uint8_t player) { this->player = player; };
         uint8_t update();  // return the amount of pins checked
         inline uint32_t getP1andP2(uint8_t mux1, uint8_t mux2) { return *getValues(); }
         inline uint32_t* const getMergedValues() { return getValues(); }
         inline uint32_t* const getValues() { return vals; }
-        static uint8_t muxToInputPacket(uint8_t mux_pin);
+        uint8_t muxToInputPacket(uint8_t mux_pin);
 
 };
 

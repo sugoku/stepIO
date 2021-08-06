@@ -65,7 +65,7 @@ typedef struct
 	uint16_t wLength;
 } USBSetup;
 
-typedef void (*vendorHandler)(USBSetup);
+typedef void (*vendorHandler)(void*, USBSetup);
 
 class USBDevice_
 {
@@ -74,16 +74,20 @@ protected:
 	const u8* manufacturer;
 	const DeviceDescriptor* dd = &USB_DeviceDescriptorIAD;
 	vendorHandler vendorf = nullptr;
+	void* out_obj = nullptr;
 
 public:
 	USBDevice_();
 	bool configured();
 	void setUSBData(const String* product, const String* manufacturer, const DeviceDescriptor* dd);
 
-	inline void setControlHandler( vendorHandler f ) { this->vendorf = f; };
+	inline void setControlHandler( void* o, vendorHandler f ) {
+		this->out_obj = o;
+		this->vendorf = f;
+	};
 	inline void handleControl(USBSetup setup) {
 		if (vendorf != nullptr)
-			vendorf(setup);
+			vendorf(this->out_obj, setup);
 	};
 
 	inline const u8* getProduct() { return product; };

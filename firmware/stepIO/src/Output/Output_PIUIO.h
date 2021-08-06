@@ -50,6 +50,7 @@ class Output_PIUIO : public Output
         void updateHost();
         void update(uint32_t buf);
         void send(uint32_t* buf);
+        static void control(void* obj, USBSetup setup);
         void handleControl(USBSetup setup);
         uint32_t* const getLights() { return &this->lights; };
         uint8_t* const getMuxes();

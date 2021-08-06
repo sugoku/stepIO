@@ -26,6 +26,7 @@ class Output_MIDI : public Output
 {
     protected:
         uint8_t* config;
+        uint16_t input = 0;  // we need to actually keep track of what we've pressed and what we haven't
 
     public:
         void setup(uint8_t* config);

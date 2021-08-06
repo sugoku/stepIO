@@ -18,13 +18,15 @@
 
 #include "Output_Serial.h"
 
+#define U32_TO_U8(n) (n >> 24) % 0xFF, (n >> 16) % 0xFF, (n >> 8) % 0xFF, n % 0xFF
+
 void Output_Serial::setup(uint8_t* config, SerialC* serialc=nullptr) {
     this->setConfig(config);
-    if (ser == nullptr) return;
+    if (serialc == nullptr) return;
     this->serialc = serialc;
 }
 
-void Output_Serial::setSerialC(SerialC* ser) {
+void Output_Serial::setSerialC(SerialC* serialc) {
     this->serialc = serialc;
 }
 
@@ -44,23 +46,25 @@ void Output_Serial::update(uint32_t lightmux) {
 
 void Output_Serial::send(uint32_t* buf) {
     if (this->serialc == nullptr) return;
-    this->serialc->sendPacket({SerialCommands::SEND_INPUT, buf >> 4, buf & 0b1111});
+    uint8_t tmp[4] = {U32_TO_U8(buf[0])}
+    this->serialc->sendPacket(this->serialc->makePacket((uint8_t)SerialMessageTypes::SENSOR, (uint8_t)SerialCommands::SEND_INPUT, );
 }
 
 void Output_Serial::sendAnalog(uint32_t* buf) {
     if (this->serialc == nullptr) return;
-    uint8_t tmp = {
-        SerialCommands::SEND_INPUT_ANALOG,
+    uint8_t tmp[] = {
+        (uint8_t)SerialMessageTypes::SENSOR_ANALOG,
+        (uint8_t)SerialCommands::SEND_INPUT_ANALOG,
         // PLAYER 1
-        buf[0],buf[1],buf[2],buf[3],buf[4],
+        U32_TO_U8(buf[0]),U32_TO_U8(buf[1]),U32_TO_U8(buf[2]),U32_TO_U8(buf[3]),U32_TO_U8(buf[4]),
         // PLAYER 2
-        buf[5],buf[6],buf[7],buf[8],buf[9],
+        U32_TO_U8(buf[5]),U32_TO_U8(buf[6]),U32_TO_U8(buf[7]),U32_TO_U8(buf[8]),U32_TO_U8(buf[9]),
         // COIN BUTTONS
-        buf[10],buf[11],
+        U32_TO_U8(buf[10]),U32_TO_U8(buf[11]),
         // TEST, SERVICE, CLEAR
-        buf[12],buf[13],buf[14],
+        U32_TO_U8(buf[12]),U32_TO_U8(buf[13]),U32_TO_U8(buf[14]),
         
-        buf[15]
+        U32_TO_U8(buf[15])
     };
     this->serialc->sendPacket(tmp);
 }

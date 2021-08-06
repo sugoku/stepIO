@@ -18,10 +18,14 @@
 
 #include "CommSecondary_SPI.h"
 
-void CommSecondary_SPI::setup() {
+uint8_t CommSecondary_SPI::setup() {
     SPISecondary.begin();
 
     return 0;
+}
+
+void CommSecondary_SPI::parseMessage(uint8_t msg) {
+    // no messages in use yet
 }
 
 void CommSecondary_SPI::update() {
@@ -42,7 +46,7 @@ void CommSecondary_SPI::update() {
     }
 
     if ((lastmsg >> 5) > 0) {
-        this->parseCommand(lastmsg);
+        this->parseMessage(lastmsg);
     } else {
         // populate opposite pad
         if (player == PLAYER_1) {
@@ -59,5 +63,4 @@ void CommSecondary_SPI::update() {
             SETORCLRBIT(*this->inpkt, (int)InputPacket::P1_DOWNRIGHT, GETBIT(lastmsg, (int)BoardCommInputPacket::DOWNRIGHT));
         }
     }    
-}
 }

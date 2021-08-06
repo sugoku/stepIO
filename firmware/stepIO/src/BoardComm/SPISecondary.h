@@ -36,22 +36,22 @@ class SPISecondary
         };
         // inline static void setClockDivider(uint8_t clockDiv) {
         //     SPI.setClockDivider(clockDiv);
-        // }
+        // };
         inline static uint8_t transfer(uint8_t data) {
             return SPI.transfer(data);
-        }
+        };
         inline static uint16_t transfer16(uint16_t data) {
             return SPI.transfer16(data);
-        }
+        };
         inline static void transfer(void* buf, size_t count) {
             SPI.transfer(buf, count);
-        }
+        };
         inline static void end() {
             SPI.end();
-        }
+        };
         // inline static void endTransaction() {
         //     SPI.endTransaction();
-        // }
+        // };
 };
 
 #endif

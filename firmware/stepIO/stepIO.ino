@@ -180,8 +180,11 @@ void setup() {
     USBCON |= (1<<OTGPADE); // enable VBUS detection
     devicemode = (USBSTA & 1) ? DEVICE_PRIMARY : DEVICE_SECONDARY;  // set device mode based on if USB power is received
 
+    uint8_t player = config[(int)ConfigOptions::PLAYER];
+
     in = new Input_Simple();
     in->setup();
+    in->setPlayer(player);
 
     if (devicemode == DEVICE_PRIMARY) {
         boardcomm = new CommPrimary_SPI();
@@ -217,7 +220,7 @@ void setup() {
 
         lt = new Lights_Simple();
         lt->setup();
-        lt->setPlayer(config[(int)ConfigOptions::PLAYER]);
+        lt->setPlayer(player);
         
     #endif
 
@@ -225,7 +228,7 @@ void setup() {
     if (!err)
         boardcomm_on = true;
 
-    boardcomm->setPlayer(config[(int)ConfigOptions::PLAYER]);
+    boardcomm->setPlayer(player);
     boardcomm->attachInputPacket(&outbuf);
 
     // get blocked inputs from the config

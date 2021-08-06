@@ -20,8 +20,13 @@
 #define _SERIALC_HANDLER_H
 
 #include "../Config.h"
+#include "../Defaults.h"
 #include "../EEPROM/EEPROM_IO.h"
 #include "../Output/Output_Serial.h"
+
+#include <PacketSerial.h>
+
+class Output_Serial;
 
 class SerialC
 {
@@ -36,15 +41,16 @@ class SerialC
         void setConfig(uint8_t* config);
         void parseCommand(const uint8_t* buf, size_t size);
         void sendPacket(uint8_t* buf);
-        uint8_t makePacket(uint8_t command, uint8_t* buf);
+        uint8_t* makePacket(uint8_t cmdtype, uint8_t requestcmd, uint8_t* buf);
         void sendConfig();
         void sendDeviceInfo();
+        void sendLights();
         void sendStatus(uint8_t status, uint8_t command);  
         void setOutput(Output_Serial* out);  // Output object, SerialC actually takes input from it
         void loadEEPROM();
         void saveEEPROM();
         void saveConfig(uint8_t* buf);
-        void overflow();
+        bool overflow();
 
 };
 

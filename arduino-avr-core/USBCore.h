@@ -318,4 +318,9 @@ extern const u8 STRING_PRODUCT[255] PROGMEM = USB_PRODUCT;
 extern const u8 STRING_MANUFACTURER[255] PROGMEM = USB_MANUFACTURER;
 extern const DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM = D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
 
+void InitControl(int end);
+
+int USB_SendControl(u8 flags, const void* d, int len);
+int USB_RecvControl(void* d, int len);
+
 #endif

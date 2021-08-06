@@ -18,9 +18,9 @@
 
 #include "Output_MIDI.h"
 
-void Output_MIDI::setup(uint8_t* config, MIDI_* mid=nullptr) {
+void Output_MIDI::setup(uint8_t* config) {
     this->setConfig(config);
-    MIDIUSB.begin();
+    // MidiUSB.begin();
 }
 
 void Output_MIDI::setConfig(uint8_t* config) {
@@ -32,7 +32,7 @@ void Output_MIDI::updateHost() {
 }
 
 void Output_MIDI::set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on) {
-    midiEventPacket_t packet[4];
+    midiEventPacket_t packet;
 
     if (this->config[(int)ConfigOptions::MIDI_USE_FIRST_BYTE]) {
         packet = {midi0 >> 4, midi0, midi1, midi2};
@@ -44,7 +44,7 @@ void Output_MIDI::set(uint8_t midi0, uint8_t midi1, uint8_t midi2, bool on) {
         }
     }
 
-    MIDIUSB.sendMIDI(packet);
+    MidiUSB.sendMIDI(packet);
 }
 
 void Output_MIDI::send(uint32_t* buf) {
@@ -52,37 +52,35 @@ void Output_MIDI::send(uint32_t* buf) {
 
     // if there is a change, set key on or off based on buf's state
     if GETBIT(diff, (int)InputPacket::P1_UPLEFT)
-        this->set(this->config[(int)ConfigOptions::P1_UPLEFT_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_UPLEFT));
+        this->set(this->config[(int)ConfigOptions::P1_UPLEFT_MIDI0], this->config[(int)ConfigOptions::P1_UPLEFT_MIDI1], this->config[(int)ConfigOptions::P1_UPLEFT_MIDI2], GETBIT(*buf, (int)InputPacket::P1_UPLEFT));
     if GETBIT(diff, (int)InputPacket::P1_UPRIGHT)
-        this->set(this->config[(int)ConfigOptions::P1_UPRIGHT_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_UPRIGHT));
+        this->set(this->config[(int)ConfigOptions::P1_UPRIGHT_MIDI0], this->config[(int)ConfigOptions::P1_UPRIGHT_MIDI1], this->config[(int)ConfigOptions::P1_UPRIGHT_MIDI2], GETBIT(*buf, (int)InputPacket::P1_UPRIGHT));
     if GETBIT(diff, (int)InputPacket::P1_CENTER)
-        this->set(this->config[(int)ConfigOptions::P1_CENTER_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_CENTER));
+        this->set(this->config[(int)ConfigOptions::P1_CENTER_MIDI0], this->config[(int)ConfigOptions::P1_CENTER_MIDI1], this->config[(int)ConfigOptions::P1_CENTER_MIDI2], GETBIT(*buf, (int)InputPacket::P1_CENTER));
     if GETBIT(diff, (int)InputPacket::P1_DOWNLEFT)
-        this->set(this->config[(int)ConfigOptions::P1_DOWNLEFT_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_DOWNLEFT));
+        this->set(this->config[(int)ConfigOptions::P1_DOWNLEFT_MIDI0], this->config[(int)ConfigOptions::P1_DOWNLEFT_MIDI1], this->config[(int)ConfigOptions::P1_DOWNLEFT_MIDI2], GETBIT(*buf, (int)InputPacket::P1_DOWNLEFT));
     if GETBIT(diff, (int)InputPacket::P1_DOWNRIGHT)
-        this->set(this->config[(int)ConfigOptions::P1_DOWNRIGHT_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_DOWNRIGHT));
+        this->set(this->config[(int)ConfigOptions::P1_DOWNRIGHT_MIDI0], this->config[(int)ConfigOptions::P1_DOWNRIGHT_MIDI1], this->config[(int)ConfigOptions::P1_DOWNRIGHT_MIDI2], GETBIT(*buf, (int)InputPacket::P1_DOWNRIGHT));
     if GETBIT(diff, (int)InputPacket::P2_UPLEFT)
-        this->set(this->config[(int)ConfigOptions::P2_UPLEFT_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_UPLEFT));
+        this->set(this->config[(int)ConfigOptions::P2_UPLEFT_MIDI0], this->config[(int)ConfigOptions::P2_UPLEFT_MIDI1], this->config[(int)ConfigOptions::P2_UPLEFT_MIDI2], GETBIT(*buf, (int)InputPacket::P2_UPLEFT));
     if GETBIT(diff, (int)InputPacket::P2_UPRIGHT)
-        this->set(this->config[(int)ConfigOptions::P2_UPRIGHT_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_UPRIGHT));
+        this->set(this->config[(int)ConfigOptions::P2_UPRIGHT_MIDI0], this->config[(int)ConfigOptions::P2_UPRIGHT_MIDI1], this->config[(int)ConfigOptions::P2_UPRIGHT_MIDI2], GETBIT(*buf, (int)InputPacket::P2_UPRIGHT));
     if GETBIT(diff, (int)InputPacket::P2_CENTER)
-        this->set(this->config[(int)ConfigOptions::P2_CENTER_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_CENTER));
+        this->set(this->config[(int)ConfigOptions::P2_CENTER_MIDI0], this->config[(int)ConfigOptions::P2_CENTER_MIDI1], this->config[(int)ConfigOptions::P2_CENTER_MIDI2], GETBIT(*buf, (int)InputPacket::P2_CENTER));
     if GETBIT(diff, (int)InputPacket::P2_DOWNLEFT)
-        this->set(this->config[(int)ConfigOptions::P2_DOWNLEFT_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_DOWNLEFT));
+        this->set(this->config[(int)ConfigOptions::P2_DOWNLEFT_MIDI0], this->config[(int)ConfigOptions::P2_DOWNLEFT_MIDI1], this->config[(int)ConfigOptions::P2_DOWNLEFT_MIDI2], GETBIT(*buf, (int)InputPacket::P2_DOWNLEFT));
     if GETBIT(diff, (int)InputPacket::P2_DOWNRIGHT)
-        this->set(this->config[(int)ConfigOptions::P2_DOWNRIGHT_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_DOWNRIGHT));
+        this->set(this->config[(int)ConfigOptions::P2_DOWNRIGHT_MIDI0], this->config[(int)ConfigOptions::P2_DOWNRIGHT_MIDI1], this->config[(int)ConfigOptions::P2_DOWNRIGHT_MIDI2], GETBIT(*buf, (int)InputPacket::P2_DOWNRIGHT));
     if GETBIT(diff, (int)InputPacket::P1_COIN)
-        this->set(this->config[(int)ConfigOptions::P1_COIN_KEYCODE], GETBIT(*buf, (int)InputPacket::P1_COIN));
+        this->set(this->config[(int)ConfigOptions::P1_COIN_MIDI0], this->config[(int)ConfigOptions::P1_COIN_MIDI1], this->config[(int)ConfigOptions::P1_COIN_MIDI2], GETBIT(*buf, (int)InputPacket::P1_COIN));
     if GETBIT(diff, (int)InputPacket::P2_COIN)
-        this->set(this->config[(int)ConfigOptions::P2_COIN_KEYCODE], GETBIT(*buf, (int)InputPacket::P2_COIN));
+        this->set(this->config[(int)ConfigOptions::P2_COIN_MIDI0], this->config[(int)ConfigOptions::P2_COIN_MIDI1], this->config[(int)ConfigOptions::P2_COIN_MIDI2], GETBIT(*buf, (int)InputPacket::P2_COIN));
     if GETBIT(diff, (int)InputPacket::TEST_BUTTON)
-        this->set(this->config[(int)ConfigOptions::TEST_BUTTON_KEYCODE], GETBIT(*buf, (int)InputPacket::TEST_BUTTON));
+        this->set(this->config[(int)ConfigOptions::TEST_BUTTON_MIDI0], this->config[(int)ConfigOptions::TEST_BUTTON_MIDI1], this->config[(int)ConfigOptions::TEST_BUTTON_MIDI2], GETBIT(*buf, (int)InputPacket::TEST_BUTTON));
     if GETBIT(diff, (int)InputPacket::SERVICE_BUTTON)
-        this->set(this->config[(int)ConfigOptions::SERVICE_BUTTON_KEYCODE], GETBIT(*buf, (int)InputPacket::SERVICE_BUTTON));
+        this->set(this->config[(int)ConfigOptions::SERVICE_BUTTON_MIDI0], this->config[(int)ConfigOptions::SERVICE_BUTTON_MIDI1], this->config[(int)ConfigOptions::SERVICE_BUTTON_MIDI2], GETBIT(*buf, (int)InputPacket::SERVICE_BUTTON));
     if GETBIT(diff, (int)InputPacket::CLEAR_BUTTON)
-        this->set(this->config[(int)ConfigOptions::CLEAR_BUTTON_KEYCODE], GETBIT(*buf, (int)InputPacket::CLEAR_BUTTON));
-
-    this->send();
+        this->set(this->config[(int)ConfigOptions::CLEAR_BUTTON_MIDI0], this->config[(int)ConfigOptions::CLEAR_BUTTON_MIDI1], this->config[(int)ConfigOptions::CLEAR_BUTTON_MIDI2], GETBIT(*buf, (int)InputPacket::CLEAR_BUTTON));
 
     this->input = *buf;  // update input variable
 }

@@ -20,7 +20,7 @@
 
 void Output_PIUIO::setup(uint8_t* config) {
     this->setConfig(config);
-    USBDevice.setControlHandler(this->handleControl);
+    USBDevice.setControlHandler(this, Output_PIUIO::control);
 }
 
 void Output_PIUIO::setConfig(uint8_t* config) {
@@ -62,7 +62,7 @@ void Output_PIUIO::update(uint32_t buf) {
     SETORCLRBIT(this->mux[1], 0, GETBIT(buf, (int)PIUIO_LightsPacket::P2_MUXER_0));
     SETORCLRBIT(this->mux[1], 1, GETBIT(buf, (int)PIUIO_LightsPacket::P2_MUXER_1));
 }
-void (int)Output_PIUIO::send(uint32_t* buf) {
+void Output_PIUIO::send(uint32_t* buf) {
     // doesn't actually send, just updates the data to send when it is requested by the host
     uint32_t tmp = 0xFFFFFFFF;
     
@@ -91,6 +91,10 @@ void (int)Output_PIUIO::send(uint32_t* buf) {
     this->payload[0] = tmp & 0xFF;
 }
 
+static void Output_PIUIO::control(void* obj, USBSetup setup) {
+    static_cast<Output_PIUIO*>(obj)->handleControl(setup);
+}
+
 void Output_PIUIO::handleControl(USBSetup setup) {
     uint8_t buf[USB_EP_SIZE];
     uint32_t tmp;
@@ -98,10 +102,21 @@ void Output_PIUIO::handleControl(USBSetup setup) {
     if (setup.bRequest == PIUIO_ADDRESS) {
         if (setup.bmRequestType == REQUEST_DEVICETOHOST) {
             InitControl(sizeof(this->payload));
-            USBD_SendControl(this->payload);
+            #if defined(__SAM3X8E__)
+                USBD_SendControl(this->payload);
+            #elif defined(__AVR__)
+                USB_SendControl(0, this->payload, sizeof(this->payload));
+            #endif
+            
         } else if (setup.bmRequestType == REQUEST_HOSTTODEVICE) {
             // not sure if I need to InitControl
-            if (USBD_RecvControl(buf, setup.wLength) != setup.wLength) {
+            if (
+                #if defined(__SAM3X8E__)
+                    USBD_RecvControl(buf, setup.wLength)
+                #elif defined(__AVR__)
+                    USB_RecvControl(buf, setup.wLength)
+                #endif
+                            != setup.wLength) {
                 // return; ???
             }
             tmp |= buf[3] << 24;

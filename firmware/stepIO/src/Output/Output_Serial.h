@@ -20,6 +20,9 @@
 #define _OUTPUT_SERIAL_H
 
 #include "Output.h"
+#include "../SerialConfig/SerialC_Handler.h"
+
+class SerialC;
 
 class Output_Serial : public Output
 {
@@ -33,6 +36,7 @@ class Output_Serial : public Output
         void setup(uint8_t* config, SerialC* serialc=nullptr);
         void setConfig(uint8_t* config);
         void setSerialC(SerialC* serialc);
+        void update(uint32_t lightmux);
         void updateHost();
         void send(uint32_t* buf);
         void sendAnalog(uint32_t* buf);  // buffer is an array
