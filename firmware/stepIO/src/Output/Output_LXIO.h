@@ -25,8 +25,9 @@ class Output_LXIO : public Output
 {
     protected:
         uint8_t* config;
-        uint8_t payload[32];
-        uint8_t outbuf[32];
+        uint8_t payload[32];  // only 16 used
+        uint8_t lightbuf[32];  // only 16 used
+        uint32_t lights = 0;
         const String manufacturer PROGMEM = STEPIO_MANUFACTURER;
         const String product PROGMEM = "PIU HID V1.00";
         const DeviceDescriptor ddescriptor PROGMEM = D_DEVICE(

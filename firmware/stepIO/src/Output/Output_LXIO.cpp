@@ -9,7 +9,7 @@
 /*                         |_|                            */
 /*                                                        */
 /*  stage controller with                                 */
-/*  emulation of PIUIO                                    */
+/*  emulation of LXIO                                    */
 /*  by BedrockSolid (@sugoku)                             */
 /**********************************************************/
 /*  SPDX-License-Identifier: GPL-3.0-or-later             */
@@ -20,8 +20,9 @@
 
 void Output_LXIO::setup(uint8_t* config) {
     memset(this->payload, 0xFF, 32);
+    memset(this->lightbuf, 0xFF, 32);
     this->setConfig(config);
-    LXHID.begin(this->outbuf, 32);
+    LXHID.begin();
 }
 
 void Output_LXIO::setConfig(uint8_t* config) {
@@ -29,7 +30,26 @@ void Output_LXIO::setConfig(uint8_t* config) {
 }
 
 void Output_LXIO::updateHost() {
-    return;  // nothing needed here, no lights support
+    LXHID.read(this->lightbuf);
+
+    // LXIO uses negative logic hence the NOT operators
+    SETORCLRBIT(this->lights, (int)LightsPacket::P1_UPLEFT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P1_UPLEFT / 0x08], (int)LXIO_LightsPacket::P1_UPLEFT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P1_UPRIGHT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P1_UPRIGHT / 0x08], (int)LXIO_LightsPacket::P1_UPRIGHT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P1_CENTER, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P1_CENTER / 0x08], (int)LXIO_LightsPacket::P1_CENTER % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P1_DOWNLEFT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P1_DOWNLEFT / 0x08], (int)LXIO_LightsPacket::P1_DOWNLEFT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P1_DOWNRIGHT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P1_DOWNRIGHT / 0x08], (int)LXIO_LightsPacket::P1_DOWNRIGHT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P2_UPLEFT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P2_UPLEFT / 0x08], (int)LXIO_LightsPacket::P2_UPLEFT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P2_UPRIGHT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P2_UPRIGHT / 0x08], (int)LXIO_LightsPacket::P2_UPRIGHT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P2_CENTER, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P2_CENTER / 0x08], (int)LXIO_LightsPacket::P2_CENTER % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P2_DOWNLEFT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P2_DOWNLEFT / 0x08], (int)LXIO_LightsPacket::P2_DOWNLEFT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::P2_DOWNRIGHT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::P2_DOWNRIGHT / 0x08], (int)LXIO_LightsPacket::P2_DOWNRIGHT % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::MARQUEE_1, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::MARQUEE_1 / 0x08], (int)LXIO_LightsPacket::MARQUEE_1 % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::MARQUEE_2, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::MARQUEE_2 / 0x08], (int)LXIO_LightsPacket::MARQUEE_2 % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::MARQUEE_3, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::MARQUEE_3 / 0x08], (int)LXIO_LightsPacket::MARQUEE_3 % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::MARQUEE_4, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::MARQUEE_4 / 0x08], (int)LXIO_LightsPacket::MARQUEE_4 % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::SUB_LEFT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::SUB_NEON / 0x08], (int)LXIO_LightsPacket::SUB_NEON % 0x08)));
+    SETORCLRBIT(this->lights, (int)LightsPacket::SUB_RIGHT, !(GETBIT(this->lightbuf[(int)LXIO_LightsPacket::SUB_NEON / 0x08], (int)LXIO_LightsPacket::SUB_NEON % 0x08)));
+    
 }
 
 void Output_LXIO::send(uint32_t* buf) {
@@ -55,5 +75,5 @@ void Output_LXIO::send(uint32_t* buf) {
     for (int i = 0; i < 16; i++)
         this->payload[i] = tmp[i] & 0xFF;
 
-    LXHID.write(this->payload, 32);
+    LXHID.write(this->payload);
 }

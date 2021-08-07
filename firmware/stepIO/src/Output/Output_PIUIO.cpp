@@ -63,6 +63,7 @@ void Output_PIUIO::update(uint32_t buf) {
     SETORCLRBIT(this->mux[1], 0, GETBIT(buf, (int)PIUIO_LightsPacket::P2_MUXER_0));
     SETORCLRBIT(this->mux[1], 1, GETBIT(buf, (int)PIUIO_LightsPacket::P2_MUXER_1));
 }
+
 void Output_PIUIO::send(uint32_t* buf) {
     // doesn't actually send, just updates the data to send when it is requested by the host
     uint32_t tmp = 0xFFFFFFFF;
