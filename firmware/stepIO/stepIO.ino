@@ -224,7 +224,7 @@ void setup() {
         
     #endif
 
-    uint8_t err = boardcomm->setup();  // will hang for 2 seconds until connection is made, if no connection then board communication stays off
+    uint8_t err = boardcomm->setup();  // will hang for 1 second until connection is made, if no connection then board communication stays off
     if (!err)
         boardcomm_on = true;
 

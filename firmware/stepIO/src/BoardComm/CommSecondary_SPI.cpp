@@ -21,7 +21,12 @@
 uint8_t CommSecondary_SPI::setup() {
     SPISecondary.begin();
 
-    return 0;
+    unsigned long start = millis();
+
+    // try to receive 0x72 for 1 second; return 0 if success and 1 if failure
+    while ((millis() - start) < 1000 && SPISecondary.transfer(0x07) != 0x72);
+
+    return (uint8_t)((millis() - start) >= 1000);
 }
 
 void CommSecondary_SPI::parseMessage(uint8_t msg) {

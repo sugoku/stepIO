@@ -20,6 +20,7 @@
 #define _BOARDCOMM_H
 
 #include "../Config.h"
+#include <SPI.h>
 
 class BoardComm
 {

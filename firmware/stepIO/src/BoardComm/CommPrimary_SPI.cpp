@@ -22,6 +22,13 @@ uint8_t CommPrimary_SPI::setup() {
     SPI.begin();
     SPI.setClockDivider(SPI_CLOCK_DIV8);
 
+    unsigned long start = millis();
+
+    // try to receive 0x72 for 1 second; return 0 if success and 1 if failure
+    while ((millis() - start) < 1000 && SPI.transfer(0x07) != 0x72);
+
+    return (uint8_t)((millis() - start) >= 1000);
+
     return 0;
 }
 

@@ -20,8 +20,9 @@
 #define _SPISECONDARY_H
 
 #include "../Config.h"
+#include <SPI.h>
 
-class SPISecondary
+class SPISecondary_
 {
     public:
         inline static void begin() {
@@ -53,5 +54,7 @@ class SPISecondary
         //     SPI.endTransaction();
         // };
 };
+
+extern SPISecondary_ SPISecondary;
 
 #endif

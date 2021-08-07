@@ -21,12 +21,6 @@
 
 #include <Arduino.h>
 
-#include <USBAPI.h>
-#include <USBCore.h>
-#include <USBDesc.h>
-
-#include <HID-Project.h>
-#include <SPI.h>
 
 // IF YOU ARE USING A SIMPLE_IO, UNCOMMENT THIS
 #define SIMPLE_IO
@@ -960,6 +954,10 @@ enum class LXIO_LightsPacket {
     NC_46,
     NC_47,
 };
+
+#define LXIO_VID 0x0d2f
+#define LXIO_PID 0x1020
+
 
 // NINTENDO SWITCH
 

@@ -25,9 +25,24 @@ class Output_LXIO : public Output
 {
     protected:
         uint8_t* config;
-        uint32_t payload[32] = {};
+        uint8_t payload[32];
+        uint8_t outbuf[32];
         const String manufacturer PROGMEM = STEPIO_MANUFACTURER;
-        const String product PROGMEM = "PIUIO";
+        const String product PROGMEM = "PIU HID V1.00";
+        const DeviceDescriptor ddescriptor PROGMEM = D_DEVICE(
+            0x00,  // device class 0
+            0x00,  // subclass 0
+            0x00,  // device protocol 0
+            0x08,  // max packet size 8 (USB_EP_SIZE is default which is 64)
+            LXIO_VID,
+            LXIO_PID,
+            STEPIO_VERSION_USB,
+            IMANUFACTURER,
+            IPRODUCT,
+            ISERIAL,
+            1  // 1 configuration
+        );
+
 
     public:
         void setup(uint8_t* config);

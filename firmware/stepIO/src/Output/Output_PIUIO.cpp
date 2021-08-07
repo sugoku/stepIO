@@ -21,6 +21,7 @@
 void Output_PIUIO::setup(uint8_t* config) {
     this->setConfig(config);
     USBDevice.setControlHandler(this, Output_PIUIO::control);
+    this->mux = this->mux_arr;
 }
 
 void Output_PIUIO::setConfig(uint8_t* config) {
@@ -33,7 +34,7 @@ void Output_PIUIO::updateHost() {
 }
 
 uint8_t* const Output_PIUIO::getMuxes() { 
-    return &this->mux;
+    return this->mux;
 }
 
 void Output_PIUIO::update(uint32_t buf) { 

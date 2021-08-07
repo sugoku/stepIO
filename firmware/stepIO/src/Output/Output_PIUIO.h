@@ -25,7 +25,8 @@ class Output_PIUIO : public Output
 {
     protected:
         uint8_t* config;
-        uint8_t mux[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
+        uint8_t mux_arr[2] = {0, 0};  // from 0-3 inclusive, the sensor from each panel to read from the foot PCB (left, top, right, bottom) + for p1 and p2
+        uint8_t* mux;
         uint32_t lights = 0;
         uint8_t payload[4] = {0xFF, 0xFF, 0xFF, 0xFF};
         const String manufacturer PROGMEM = STEPIO_MANUFACTURER;

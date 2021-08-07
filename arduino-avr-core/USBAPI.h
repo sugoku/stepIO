@@ -72,7 +72,7 @@ class USBDevice_
 protected:
 	const u8* product;
 	const u8* manufacturer;
-	const DeviceDescriptor* dd = &USB_DeviceDescriptorIAD;
+	const DeviceDescriptor* dd;
 	vendorHandler vendorf = nullptr;
 	void* out_obj = nullptr;
 
