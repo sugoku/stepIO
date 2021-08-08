@@ -132,6 +132,8 @@ int EnableUSB(Output* out) {
 
 void setup() {
 
+    DEBUG_LED_ON;  // stage 1
+
     #ifdef EEPROM_ENABLED
         uint8_t version = ee.versionCheck();
         if (EEPROM_FIRST_TIME || version == 0xFF || version == 0x00) {
@@ -149,6 +151,8 @@ void setup() {
     #else
         config = defaults;
     #endif
+
+    DEBUG_LED_OFF;  // stage 2
 
     inmode = config[(int)ConfigOptions::INPUT_MODE];
     outmode = config[(int)ConfigOptions::OUTPUT_MODE];
@@ -174,6 +178,8 @@ void setup() {
         config[(int)ConfigOptions::PLAYER] = (pinconfig & 1) ? PLAYER_1 : PLAYER_2;
         config[(int)ConfigOptions::OUTPUT_MODE] = (pinconfig >> 1) & 0b111;
     #endif
+
+    DEBUG_LED_ON;  // stage 3
 
     WATCHDOG_ENABLE;
 
@@ -216,6 +222,8 @@ void setup() {
         lightbuf = nullptr;
     }
 
+    DEBUG_LED_OFF;  // stage 4
+
     #ifdef LIGHT_OUTPUT
 
         lt = new Lights_Simple();
@@ -223,6 +231,8 @@ void setup() {
         lt->setPlayer(player);
         
     #endif
+
+    DEBUG_LED_ON;  // stage 5
 
     uint8_t err = boardcomm->setup();  // will hang for 1 second until connection is made, if no connection then board communication stays off
     if (!err)
@@ -239,6 +249,8 @@ void setup() {
 
     EnableUSB(out);  // SetupEndpoints();
 
+    DEBUG_LED_OFF;  // stage 6
+
     #ifdef SERIAL_ENABLED
         // SERIAL_CONFIG.begin(SERIAL_BAUD);
         // serialc.setup(config, &Serial, &ee);
@@ -251,6 +263,8 @@ void setup() {
 }
 
 void loop() {
+
+    DEBUG_LED_ON;
 
     WATCHDOG_RESET;
 
@@ -269,6 +283,8 @@ void loop() {
 
     FilterOutput(&outbuf);
 
+    DEBUG_LED_OFF;
+
     if (devicemode == DEVICE_PRIMARY)
         SendOutput(out, &outbuf);
     
@@ -280,4 +296,5 @@ void loop() {
 
     if (boardcomm_on)
         HandleBoardComm(boardcomm);
+
 }

@@ -34,6 +34,8 @@
 
 // #define SERIAL_ENABLED  // Not working yet, serial interface accessible through host to configure boards
 
+#define USE_DEBUG_LED true  // Use extra pin to control an LED for debugging purposes, replace true with false to turn off for this option specifically
+
 #define ANALOG  // Support for load-cells, velostat, FSRs, etc.
 #define ANALOG_AUTO_CALIBRATION
 
@@ -80,6 +82,7 @@
 
 #define EEPROM_FIRST_TIME false  // Write defaults into EEPROM every time at startup (for debug only, this will shorten the lifespan of the EEPROM)
 // Set this to a boolean and don't comment it out
+
 
 // Don't edit anything below unless you know what you're doing!
 
@@ -370,6 +373,15 @@
     #define LIGHTSIG_5_PORT PORTF
     #define LIGHTSIG_5_MODE DDRF
     #define LIGHTSIG_5_PIN 7
+
+    #define DEBUG_LED 11   // PB7
+    #define DEBUG_LED_READ PINB
+    #define DEBUG_LED_PORT PORTB
+    #define DEBUG_LED_MODE DDRB
+    #define DEBUG_LED_PIN 7
+
+    #define DEBUG_LED_ON if (USE_DEBUG_LED) digitalWrite(DEBUG_LED, HIGH);
+    #define DEBUG_LED_OFF if (USE_DEBUG_LED) digitalWrite(DEBUG_LED, LOW);
 
     // according to pins_arduino.h, SS, MOSI, MISO and SCK are assigned pins already and SPI library should handle our worries too
 
